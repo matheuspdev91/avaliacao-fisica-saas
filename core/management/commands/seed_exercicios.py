@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 from core.models import GrupoMuscular, VariacaoExercicio, VideoExercicio
 
-
 EXERCICIOS_POR_GRUPO = {
     "Peito": [
         {
@@ -12,38 +11,22 @@ EXERCICIOS_POR_GRUPO = {
                 "Reto halter",
                 "Inclinado barra",
                 "Inclinado halter",
-                "Máquina"
-            ]
+                "Máquina",
+            ],
         },
         {
             "nome": "Crucifixo",
-            "variacoes": [
-                "Reto halter",
-                "Inclinado halter",
-                "Máquina",
-                "Cross (cabo)"
-            ]
+            "variacoes": ["Reto halter", "Inclinado halter", "Máquina", "Cross (cabo)"],
         },
     ],
-
     "Costas": [
         {
             "nome": "Remada",
-            "variacoes": [
-                "Curvada barra",
-                "Unilateral halter",
-                "Máquina",
-                "Cavalinho"
-            ]
+            "variacoes": ["Curvada barra", "Unilateral halter", "Máquina", "Cavalinho"],
         },
         {
             "nome": "Puxada",
-            "variacoes": [
-                "Frontal aberta",
-                "Frontal fechada",
-                "Neutra",
-                "Supinada"
-            ]
+            "variacoes": ["Frontal aberta", "Frontal fechada", "Neutra", "Supinada"],
         },
     ],
 }
@@ -74,14 +57,14 @@ class Command(BaseCommand):
                 exercicio, criado = VideoExercicio.objects.get_or_create(
                     nome=exercicio_data["nome"],
                     grupo_muscular=grupo,
-                    defaults={
-                        "descricao": exercicio_data.get("descricao", "")
-                    }
+                    defaults={"descricao": exercicio_data.get("descricao", "")},
                 )
 
                 if criado:
                     exercicios_criados += 1
-                    self.stdout.write(self.style.SUCCESS(f"✔ Exercício criado: {exercicio.nome}"))
+                    self.stdout.write(
+                        self.style.SUCCESS(f"✔ Exercício criado: {exercicio.nome}")
+                    )
                 else:
                     self.stdout.write(f"- Já existe exercício: {exercicio.nome}")
 
@@ -92,14 +75,14 @@ class Command(BaseCommand):
                     variacao, criada = VariacaoExercicio.objects.get_or_create(
                         exercicio=exercicio,
                         nome=nome_variacao,
-                        defaults={
-                            "grupo_muscular": grupo
-                        }
+                        defaults={"grupo_muscular": grupo},
                     )
 
                     if criada:
                         variacoes_criadas += 1
-                        self.stdout.write(self.style.SUCCESS(f"✔ Variação criada: {variacao.nome}"))
+                        self.stdout.write(
+                            self.style.SUCCESS(f"✔ Variação criada: {variacao.nome}")
+                        )
                     else:
                         self.stdout.write(f"- Já existe variação: {variacao.nome}")
 

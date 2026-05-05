@@ -10,19 +10,29 @@ import secrets
 import string
 from collections import defaultdict
 from django.http import HttpResponse
+from core.util.gif import comprimir_gif
 
 from .models import (
-    Aluno, Treino, GrupoMuscular,
-    AvaliacaoFisica, VideoExercicio, VariacaoExercicio,
-    AvaliacaoCrianca, AvaliacaoIdoso,
-    ExercicioTreino
+    Aluno,
+    Treino,
+    GrupoMuscular,
+    AvaliacaoFisica,
+    VideoExercicio,
+    VariacaoExercicio,
+    AvaliacaoCrianca,
+    AvaliacaoIdoso,
+    ExercicioTreino,
 )
 
 from .forms import (
-    CriarTreinoForm, AvaliacaoFisicaForm,
-    CircunferenciaForm, AdipometriaForm,
-    AvaliacaoCriancaForm, AvaliacaoIdosoForm,
-    CriarAlunoForm, CircunferenciaIdosoForm
+    CriarTreinoForm,
+    AvaliacaoFisicaForm,
+    CircunferenciaForm,
+    AdipometriaForm,
+    AvaliacaoCriancaForm,
+    AvaliacaoIdosoForm,
+    CriarAlunoForm,
+    CircunferenciaIdosoForm,
 )
 
 from .email_service import enviar_email_acesso_aluno
@@ -34,23 +44,25 @@ User = get_user_model()
 # HOME
 # ==================
 
+
 def home(request):
     if request.user.is_authenticated:
-        if hasattr(request.user, 'aluno'):
-            return redirect('core:painel_aluno', aluno_id=request.user.aluno.id)
+        if hasattr(request.user, "aluno"):
+            return redirect("core:painel_aluno", aluno_id=request.user.aluno.id)
         else:
-            return redirect('core:fitflix')
+            return redirect("core:fitflix")
 
-    return render(request, 'core/home.html')
+    return render(request, "core/home.html")
 
 
 # ==================
 # LOGIN
 # ==================
 
+
 def login_view(request):
-    if request.method == 'GET':
-        return render(request, 'core/login.html')
+    if request.method == "GET":
+        return render(request, "core/login.html")
 
     email = request.POST.get("email").strip().lower()
     password = request.POST.get("password")
@@ -60,57 +72,57 @@ def login_view(request):
     if user:
         login(request, user)
 
-        if hasattr(user, 'aluno'):
-            return redirect('core:painel_aluno', aluno_id=user.aluno.id)
-        return redirect('core:avaliacoes')
+        if hasattr(user, "aluno"):
+            return redirect("core:painel_aluno", aluno_id=user.aluno.id)
+        return redirect("core:avaliacoes")
 
-    messages.error(request, 'Email ou senha inválidos')
-    return render(request, 'core/login.html')
+    messages.error(request, "Email ou senha inválidos")
+    return render(request, "core/login.html")
 
 
 def logout_view(request):
     logout(request)
-    return redirect('core:login')
+    return redirect("core:login")
 
 
 # ==================
 # REGISTER
 # ==================
 
+
 def register_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
 
         if User.objects.filter(username=username).exists():
-            messages.error(request, 'Usuário já existe')
-            return render(request, 'core/register.html')
+            messages.error(request, "Usuário já existe")
+            return render(request, "core/register.html")
 
         user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password
+            username=username, email=email, password=password
         )
 
         login(request, user)
-        return redirect('core:avaliacoes')
+        return redirect("core:avaliacoes")
 
-    return render(request, 'core/register.html')
+    return render(request, "core/register.html")
 
 
 # ==================
 # HELPERS
 # ==================
 
+
 def gerar_senha_aleatoria(tamanho=8):
     caracteres = string.ascii_letters + string.digits
-    return ''.join(secrets.choice(caracteres) for _ in range(tamanho))
+    return "".join(secrets.choice(caracteres) for _ in range(tamanho))
 
 
 def criar_aluno_minimo(nome_aluno):
     sufixo = secrets.token_hex(4)
-    email = f'aluno-{sufixo}@fitflix.local'
+    email = f"aluno-{sufixo}@fitflix.local"
     user = User.objects.create_user(
         username=email,
         email=email,
@@ -127,15 +139,16 @@ def criar_aluno_minimo(nome_aluno):
 # CRIAR ALUNO
 # ==================
 
+
 @login_required
 @apenas_personal
 def criar_aluno(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CriarAlunoForm(request.POST)
 
         if form.is_valid():
             senha = gerar_senha_aleatoria()
-            email = form.cleaned_data['email']
+            email = form.cleaned_data["email"]
 
             with transaction.atomic():
                 user = User.objects.create_user(
@@ -154,87 +167,94 @@ def criar_aluno(request):
                     senha=senha,
                 )
 
-            messages.success(request, 'Aluno criado com sucesso!')
-            return redirect('core:home')
+            messages.success(request, "Aluno criado com sucesso!")
+            return redirect("core:home")
 
     else:
         form = CriarAlunoForm()
 
-    return render(request, 'core/criar_aluno.html', {'form': form})
+    return render(request, "core/criar_aluno.html", {"form": form})
 
 
 # ==================
 # AVALIAÇÕES (INTELIGENTE)
 # ==================
 
+
 @login_required
 def avaliacoes(request):
-    if hasattr(request.user, 'aluno'):
-        avaliacoes = AvaliacaoFisica.objects.filter(
-            usuario=request.user
-        ).order_by('-criado_em')
+    if hasattr(request.user, "aluno"):
+        avaliacoes = AvaliacaoFisica.objects.filter(usuario=request.user).order_by(
+            "-criado_em"
+        )
     else:
-        avaliacoes = AvaliacaoFisica.objects.all().order_by('-criado_em')
+        avaliacoes = AvaliacaoFisica.objects.all().order_by("-criado_em")
 
-    return render(request, 'core/avaliacoes.html', {
-        'avaliacoes': avaliacoes
-    })
+    return render(request, "core/avaliacoes.html", {"avaliacoes": avaliacoes})
 
 
 # ==================
 # DETALHE AVALIAÇÃO
 # ==================
 
+
 @login_required
 def detalhe_avaliacao(request, id):
     avaliacao = get_object_or_404(AvaliacaoFisica, id=id)
 
-    if hasattr(request.user, 'aluno') and avaliacao.usuario != request.user:
-        return redirect('core:home')
+    if hasattr(request.user, "aluno") and avaliacao.usuario != request.user:
+        return redirect("core:home")
 
-    if hasattr(avaliacao, 'idoso'):
-        tipo = 'idoso'
-    elif hasattr(avaliacao, 'crianca'):
-        tipo = 'crianca'
+    if hasattr(avaliacao, "idoso"):
+        tipo = "idoso"
+    elif hasattr(avaliacao, "crianca"):
+        tipo = "crianca"
     else:
-        tipo = 'adulto'
+        tipo = "adulto"
 
-    return render(request, 'core/detalhe_avaliacao.html', {
-        'avaliacao': avaliacao,
-        'tipo': tipo,
-    })
+    return render(
+        request,
+        "core/detalhe_avaliacao.html",
+        {
+            "avaliacao": avaliacao,
+            "tipo": tipo,
+        },
+    )
 
 
 # ==================
 # DASHBOARD
 # ==================
 
+
 @login_required
 def dashboard(request, id):
     avaliacao = get_object_or_404(AvaliacaoFisica, id=id)
 
-    if hasattr(request.user, 'aluno') and avaliacao.usuario != request.user:
-        return redirect('core:home')
+    if hasattr(request.user, "aluno") and avaliacao.usuario != request.user:
+        return redirect("core:home")
 
     composicao = calcular_composicao(avaliacao)
 
-    return render(request, 'core/dashboard.html', {
-        'avaliacao': avaliacao,
-        'composicao': composicao
-    })
+    return render(
+        request,
+        "core/dashboard.html",
+        {"avaliacao": avaliacao, "composicao": composicao},
+    )
 
 
 # ==================
 # FITFLIX (PERSONAL)
 # ==================
 
+
 @login_required
 @apenas_personal
 def fitflix(request):
     grupo_dict = defaultdict(list)
 
-    exercicios = VideoExercicio.objects.prefetch_related('variacoes').order_by(
-        'grupo_muscular', 'nome'
+    exercicios = VideoExercicio.objects.prefetch_related("variacoes").order_by(
+        "grupo_muscular", "nome"
     )
 
     for exercicio in exercicios:
@@ -242,62 +262,65 @@ def fitflix(request):
 
     grupos = [
         {
-            'grupo': nome,
-            'exercicios': lista,
-            'total_exercicios': len(lista),
+            "grupo": nome,
+            "exercicios": lista,
+            "total_exercicios": len(lista),
         }
         for nome, lista in grupo_dict.items()
     ]
 
-    return render(request, 'core/fitflix.html', {'grupos': grupos})
+    return render(request, "core/fitflix.html", {"grupos": grupos})
 
 
 # ==================
 # PAINEL DO ALUNO
 # ==================
 
+
 @login_required
 def painel_aluno(request, aluno_id):
-    if not hasattr(request.user, 'aluno') or request.user.aluno.id != aluno_id:
-        return redirect('core:login')
+    if not hasattr(request.user, "aluno") or request.user.aluno.id != aluno_id:
+        return redirect("core:login")
 
     aluno = get_object_or_404(Aluno, id=aluno_id)
     treinos = Treino.objects.filter(aluno=aluno)
 
-    return render(request, 'core/painel_aluno.html', {
-        'aluno': aluno,
-        'treinos': treinos
-    })
+    return render(
+        request, "core/painel_aluno.html", {"aluno": aluno, "treinos": treinos}
+    )
 
 
 # ==================
 # CALCULAR COMPOSIÇÃO
 # ==================
 
+
 def calcular_composicao(avaliacao):
-    adip = getattr(avaliacao, 'adipometria', None)
+    adip = getattr(avaliacao, "adipometria", None)
 
     if not adip:
         return None
 
-    soma = sum([
-        adip.tricipital or 0,
-        adip.subescapular or 0,
-        adip.supra_iliaca or 0,
-        adip.coxa or 0,
-        adip.abdominal or 0,
-        adip.peito or 0,
-    ])
+    soma = sum(
+        [
+            adip.tricipital or 0,
+            adip.subescapular or 0,
+            adip.supra_iliaca or 0,
+            adip.coxa or 0,
+            adip.abdominal or 0,
+            adip.peito or 0,
+        ]
+    )
 
     peso = avaliacao.peso or 0
 
     if soma == 0:
         return None
 
-    percentual = soma * Decimal('0.153')
+    percentual = soma * Decimal("0.153")
     massa_gorda = (percentual / 100) * peso
     massa_magra = peso - massa_gorda
-    massa_residual = peso * Decimal('0.24')
+    massa_residual = peso * Decimal("0.24")
 
     return {
         "percentual": round(percentual, 2),
@@ -311,18 +334,15 @@ def calcular_composicao(avaliacao):
 # CRIAR AVALIAÇÃO
 # ==================
 
+
 @login_required
 def criar_avaliacao(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         avaliacao_form = AvaliacaoFisicaForm(request.POST)
         circ_form = CircunferenciaForm(request.POST)
         adip_form = AdipometriaForm(request.POST)
 
-        if all([
-            avaliacao_form.is_valid(),
-            circ_form.is_valid(),
-            adip_form.is_valid()
-        ]):
+        if all([avaliacao_form.is_valid(), circ_form.is_valid(), adip_form.is_valid()]):
             avaliacao = avaliacao_form.save(commit=False)
             avaliacao.usuario = request.user
             avaliacao.save()
@@ -335,42 +355,45 @@ def criar_avaliacao(request):
             adip.avaliacao = avaliacao
             adip.save()
 
-            return redirect('core:avaliacoes')
+            return redirect("core:avaliacoes")
 
     else:
         avaliacao_form = AvaliacaoFisicaForm()
         circ_form = CircunferenciaForm()
         adip_form = AdipometriaForm()
 
-    return render(request, 'core/criar_avaliacao.html', {
-        'avaliacao_form': avaliacao_form,
-        'circ_form': circ_form,
-        'adip_form': adip_form,
-    })
+    return render(
+        request,
+        "core/criar_avaliacao.html",
+        {
+            "avaliacao_form": avaliacao_form,
+            "circ_form": circ_form,
+            "adip_form": adip_form,
+        },
+    )
 
 
 # ==================
 # EXCLUIR AVALIAÇÃO
 # ==================
 
+
 @login_required
 def excluir_avaliacao(request, id):
     avaliacao = get_object_or_404(AvaliacaoFisica, id=id)
     avaliacao.delete()
-    return redirect('core:avaliacoes')
-
+    return redirect("core:avaliacoes")
 
 
 # ===================
 # ATALHO ADM
 # ===================
 
+
 def fix_admin(request):
     User = get_user_model()
 
-    user, created = User.objects.get_or_create(
-        email="mpdev34@gmail.com"
-    )
+    user, created = User.objects.get_or_create(email="mpdev34@gmail.com")
 
     user.is_staff = True
     user.is_superuser = True
@@ -380,40 +403,41 @@ def fix_admin(request):
     return HttpResponse("ADMIN FIXADO")
 
 
-
 # =========================
 # EDITAR AVALIAÇÃO
 # =========================
+
 
 @login_required
 def editar_avaliacao(request, id):
     avaliacao = get_object_or_404(AvaliacaoFisica, id=id)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = AvaliacaoFisicaForm(request.POST, instance=avaliacao)
         if form.is_valid():
             form.save()
-            return redirect('core:avaliacoes')
+            return redirect("core:avaliacoes")
     else:
         form = AvaliacaoFisicaForm(instance=avaliacao)
 
-    return render(request, 'core/editar_avaliacao.html', {
-        'form': form,
-        'avaliacao': avaliacao
-    })
+    return render(
+        request, "core/editar_avaliacao.html", {"form": form, "avaliacao": avaliacao}
+    )
 
 
 # ================
 # ESCOLHER TIPO
 # ================
 
+
 def escolher_tipo(request):
-    return render(request, 'core/escolher_tipo.html')
+    return render(request, "core/escolher_tipo.html")
 
 
 # ====================
 # AVALIAÇÃO IDOSO
 # ====================
+
 
 @login_required
 def criar_avaliacao_idoso(request):
@@ -421,12 +445,8 @@ def criar_avaliacao_idoso(request):
     circ_form = CircunferenciaIdosoForm(request.POST or None)
     form = AvaliacaoIdosoForm(request.POST or None)
 
-    if request.method == 'POST':
-        if (
-            avaliacao_form.is_valid() and
-            circ_form.is_valid() and
-            form.is_valid()
-        ):
+    if request.method == "POST":
+        if avaliacao_form.is_valid() and circ_form.is_valid() and form.is_valid():
             with transaction.atomic():
                 avaliacao = avaliacao_form.save(commit=False)
                 avaliacao.usuario = request.user
@@ -440,26 +460,30 @@ def criar_avaliacao_idoso(request):
                 idoso.avaliacao = avaliacao
                 idoso.save()
 
-            return redirect('core:avaliacoes')
+            return redirect("core:avaliacoes")
 
-    return render(request, 'core/criar_avaliacao_idoso.html', {
-        'avaliacao_form': avaliacao_form,
-        'circ_form': circ_form,
-        'form': form,
-    })
-
+    return render(
+        request,
+        "core/criar_avaliacao_idoso.html",
+        {
+            "avaliacao_form": avaliacao_form,
+            "circ_form": circ_form,
+            "form": form,
+        },
+    )
 
 
 # =====================
 # AVALIAÇÃO CRIANÇA
 # =====================
 
+
 @login_required
 def criar_avaliacao_crianca(request):
     avaliacao_form = AvaliacaoFisicaForm(request.POST or None)
     form = AvaliacaoCriancaForm(request.POST or None)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         if avaliacao_form.is_valid() and form.is_valid():
             with transaction.atomic():
                 avaliacao = avaliacao_form.save(commit=False)
@@ -470,38 +494,46 @@ def criar_avaliacao_crianca(request):
                 crianca.avaliacao = avaliacao
                 crianca.save()
 
-            return redirect('core:avaliacoes')
+            return redirect("core:avaliacoes")
 
-    return render(request, 'core/criar_avaliacao_crianca.html', {
-        'avaliacao_form': avaliacao_form,
-        'form': form,
-    })
-
+    return render(
+        request,
+        "core/criar_avaliacao_crianca.html",
+        {
+            "avaliacao_form": avaliacao_form,
+            "form": form,
+        },
+    )
 
 
 # =====================
 # ADICIONAR EXERCICIO
 # =====================
 
+
 @login_required
 def adicionar_exercicio(request, treino_id):
     treino = get_object_or_404(Treino, id=treino_id)
-    exercicios = VideoExercicio.objects.prefetch_related('variacoes').order_by('nome')
+    exercicios = VideoExercicio.objects.prefetch_related("variacoes").order_by("nome")
 
-    if request.method == 'POST':
-        exercicio_id = request.POST.get('exercicio')
-        variacao_id = request.POST.get('variacao')
-        series = request.POST.get('series') or 3
-        repeticoes = request.POST.get('repeticoes') or 12
-        descanso = request.POST.get('descanso') or 60
-        carga = request.POST.get('carga', '').strip()
+    if request.method == "POST":
+        exercicio_id = request.POST.get("exercicio")
+        variacao_id = request.POST.get("variacao")
+        series = request.POST.get("series") or 3
+        repeticoes = request.POST.get("repeticoes") or 12
+        descanso = request.POST.get("descanso") or 60
+        carga = request.POST.get("carga", "").strip()
 
         if not exercicio_id or not variacao_id:
-            messages.error(request, 'Selecione um exercício e uma variação.')
-            return render(request, 'core/adicionar_exercicio.html', {
-                'treino': treino,
-                'exercicios': exercicios,
-            })
+            messages.error(request, "Selecione um exercício e uma variação.")
+            return render(
+                request,
+                "core/adicionar_exercicio.html",
+                {
+                    "treino": treino,
+                    "exercicios": exercicios,
+                },
+            )
 
         exercicio = get_object_or_404(VideoExercicio, id=exercicio_id)
         variacao = get_object_or_404(
@@ -521,67 +553,67 @@ def adicionar_exercicio(request, treino_id):
             ordem=treino.exercicios.count() + 1,
         )
 
-        return redirect('core:editar_treino', treino_id=treino.id)
+        return redirect("core:editar_treino", treino_id=treino.id)
 
-    return render(request, 'core/adicionar_exercicio.html', {
-        'treino': treino,
-        'exercicios': exercicios,
-    })
+    return render(
+        request,
+        "core/adicionar_exercicio.html",
+        {
+            "treino": treino,
+            "exercicios": exercicios,
+        },
+    )
 
 
 # =====================
 # CRIAR EXERCÍCIO
 # =====================
 
+
 @login_required
 def criar_exercicio(request):
-    if request.method == 'POST':
-        nome = request.POST.get('nome')
+    if request.method == "POST":
+        nome = request.POST.get("nome")
 
-        grupo_id = request.POST.get('grupo_muscular')
+        grupo_id = request.POST.get("grupo_muscular")
         grupo = GrupoMuscular.objects.get(id=grupo_id)
 
-        imagem = request.FILES.get('imagem')
-        gif = request.FILES.get('gif')
+        imagem = request.FILES.get("imagem")
+        gif = request.FILES.get("gif")
 
         exercicio = VideoExercicio.objects.create(
-            nome=nome,
-            grupo_muscular=grupo,
-            imagem=imagem
+            nome=nome, grupo_muscular=grupo, imagem=imagem
         )
-
 
         # 2️⃣ cria a variação depois
-        variacao = VariacaoExercicio.objects.create(
-            exercicio=exercicio,
-            nome='Padrão'
-        )
+        variacao = VariacaoExercicio.objects.create(exercicio=exercicio, nome="Padrão")
 
         # 3️⃣ adiciona gif se tiver
         if gif:
             variacao.gif = gif
             variacao.save()
 
-        return redirect('core:fitflix')
+        return redirect("core:fitflix")
 
-    return render(request, 'core/criar_exercicio.html', {
-    'grupos': GrupoMuscular.objects.all()
-})
+    return render(
+        request, "core/criar_exercicio.html", {"grupos": GrupoMuscular.objects.all()}
+    )
+
 
 # ====================
 # EXERCÍCIO DETALHE
 # ====================
 
 
-
 def exercicio_detalhe(request, id):
     exercicio = get_object_or_404(VideoExercicio, id=id)
     variacoes = exercicio.variacoes.all()
 
-    return render(request, 'core/exercicio_detalhe.html', {
-        'exercicio': exercicio,
-        'variacoes': variacoes
-    })
+    return render(
+        request,
+        "core/exercicio_detalhe.html",
+        {"exercicio": exercicio, "variacoes": variacoes},
+    )
 
 
 # =================
@@ -591,12 +623,12 @@ def exercicio_detalhe(request, id):
 
 @login_required
 def criar_treino(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CriarTreinoForm(request.POST)
 
         if form.is_valid():
-            aluno = form.cleaned_data.get('aluno')
-            nome_aluno = form.cleaned_data.get('nome_aluno')
+            aluno = form.cleaned_data.get("aluno")
+            nome_aluno = form.cleaned_data.get("nome_aluno")
 
             with transaction.atomic():
                 if not aluno and nome_aluno:
@@ -604,94 +636,91 @@ def criar_treino(request):
 
                 treino = Treino.objects.create(
                     aluno=aluno,
-                    nome=form.cleaned_data.get('nome'),
-                    descricao='',
+                    nome=form.cleaned_data.get("nome"),
+                    descricao="",
                 )
 
             messages.success(request, "Treino criado com sucesso!")
-            return redirect('core:editar_treino', treino_id=treino.id)
+            return redirect("core:editar_treino", treino_id=treino.id)
         else:
             messages.error(request, "Erro no formulário.")
 
     else:
         form = CriarTreinoForm()
 
-    return render(request, 'core/criar_treino.html', {
-        'form': form,
-        'modo_edicao': False
-    })
+    return render(
+        request, "core/criar_treino.html", {"form": form, "modo_edicao": False}
+    )
 
 
 # ===================
 # EDITA TREINO
 # ===================
 
+
 @login_required
 def editar_treino(request, treino_id):
     treino = get_object_or_404(Treino, id=treino_id)
 
     exercicios_treino = treino.exercicios.select_related(
-        'exercicio',
-        'variacao',
-    ).order_by('ordem')
+        "exercicio",
+        "variacao",
+    ).order_by("ordem")
 
     treino_url = request.build_absolute_uri(treino.get_link())
     whatsapp_message = f"💪 Seu treino está pronto! Acesse aqui: {treino_url}"
     whatsapp_url = f"https://wa.me/?{urlencode({'text': whatsapp_message})}"
 
     context = {
-        'treino': treino,
-        'exercicios_treino': exercicios_treino,
-        'treino_url': treino_url,
-        'whatsapp_url': whatsapp_url,
+        "treino": treino,
+        "exercicios_treino": exercicios_treino,
+        "treino_url": treino_url,
+        "whatsapp_url": whatsapp_url,
     }
 
-    return render(request, 'core/editar_treino.html', context)
+    return render(request, "core/editar_treino.html", context)
 
 
 # =====================
 # LISTA DE EXERCÍCIOS
 # =====================
 
+
 def lista_exercicios(request, id):
     grupo = get_object_or_404(GrupoMuscular, id=id)
     exercicios = grupo.exercicios.all()
 
-    return render(request, 'core/lista_exercicios.html', {
-        'grupo': grupo,
-        'exercicios': exercicios
-    })
+    return render(
+        request,
+        "core/lista_exercicios.html",
+        {"grupo": grupo, "exercicios": exercicios},
+    )
 
 
 # =================
 # TREINO DETALHES
 # =================
 
+
 @login_required
 def treino_detail(request, treino_id):
     treino = get_object_or_404(Treino, id=treino_id)
 
-    itens = treino.exercicios.select_related(
-        'exercicio',
-        'variacao'
-    ).order_by('ordem')
+    itens = treino.exercicios.select_related("exercicio", "variacao").order_by("ordem")
 
-    return render(request, 'core/treino_detail.html', {
-        'treino': treino,
-        'itens': itens
-    })
+    return render(
+        request, "core/treino_detail.html", {"treino": treino, "itens": itens}
+    )
 
 
 # ================
 # VER TREINO
 # ================
 
+
 def ver_treino(request, token):
     treino = get_object_or_404(Treino, token=token)
 
     link = request.build_absolute_uri(treino.get_link())
 
-    return render(request, 'core/treino_publico.html', {
-        'treino': treino,
-        'link': link
-    })
+    return render(request, "core/treino_publico.html", {"treino": treino, "link": link})

@@ -193,5 +193,4 @@ class ExercicioAdmin(admin.ModelAdmin):
     ordering = ("nome",)
 
 
-
 # force deploy

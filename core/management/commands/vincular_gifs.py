@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def normalizar(self, texto):
         texto = texto.lower()
-        texto = unicodedata.normalize('NFKD', texto).encode('ASCII', 'ignore').decode()
+        texto = unicodedata.normalize("NFKD", texto).encode("ASCII", "ignore").decode()
         return texto
 
     def simplificar(self, texto):
@@ -20,12 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        CAMINHO_GIF = os.path.join(
-            settings.BASE_DIR,
-            "media",
-            "exercicios",
-            "gif"
-        )
+        CAMINHO_GIF = os.path.join(settings.BASE_DIR, "media", "exercicios", "gif")
 
         print(f"📂 Caminho: {CAMINHO_GIF}")
 
@@ -41,7 +36,9 @@ class Command(BaseCommand):
                 nome_var = self.simplificar(self.normalizar(variacao.nome))
                 nome_ex = self.simplificar(self.normalizar(variacao.exercicio.nome))
 
-                if nome_ex in nome_limpo and any(p in nome_limpo for p in nome_var.split()):
+                if nome_ex in nome_limpo and any(
+                    p in nome_limpo for p in nome_var.split()
+                ):
                     variacao.gif = f"exercicios/gif/{arquivo}"
                     variacao.save()
 

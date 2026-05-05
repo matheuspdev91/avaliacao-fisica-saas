@@ -11,7 +11,9 @@ class Command(BaseCommand):
         tabelas = set(connection.introspection.table_names())
 
         if "core_exerciciotreino" not in tabelas:
-            self.stdout.write(self.style.WARNING("Tabela core_exerciciotreino nao encontrada."))
+            self.stdout.write(
+                self.style.WARNING("Tabela core_exerciciotreino nao encontrada.")
+            )
             return
 
         with connection.cursor() as cursor:
@@ -30,7 +32,9 @@ class Command(BaseCommand):
                 )
             )
             removidos = self._deletar_todos()
-            self.stdout.write(self.style.SUCCESS(f"Registros invalidos removidos: {removidos}"))
+            self.stdout.write(
+                self.style.SUCCESS(f"Registros invalidos removidos: {removidos}")
+            )
             return
 
         with connection.cursor() as cursor:
@@ -45,7 +49,9 @@ class Command(BaseCommand):
                 )
             )
             removidos = self._deletar_todos()
-            self.stdout.write(self.style.SUCCESS(f"Registros invalidos removidos: {removidos}"))
+            self.stdout.write(
+                self.style.SUCCESS(f"Registros invalidos removidos: {removidos}")
+            )
             return
 
         placeholders = ", ".join(["%s"] * len(ids_validos))
@@ -74,7 +80,9 @@ class Command(BaseCommand):
                 with connection.cursor() as cursor:
                     cursor.execute(sql_delete, params)
 
-        self.stdout.write(self.style.SUCCESS("Registros invalidos removidos com sucesso!"))
+        self.stdout.write(
+            self.style.SUCCESS("Registros invalidos removidos com sucesso!")
+        )
 
     def _deletar_todos(self):
         with connection.constraint_checks_disabled():
