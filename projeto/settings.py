@@ -16,7 +16,11 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["fit-flix.onrender.com", "localhost", "127.0.0.1", "*"]
+ALLOWED_HOSTS = [
+    "avaliaca-fisica-saas-production.up.railway.app",
+    "127.0.0.1",
+    "localhost",
+] 
 
 # Application definition
 INSTALLED_APPS = [
@@ -135,6 +139,6 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
-# CLOUDINARY
-
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+CSRF_TRUSTED_ORIGINS = [
+    "https://avaliaca-fisica-saas-production.up.railway.app"
+]
