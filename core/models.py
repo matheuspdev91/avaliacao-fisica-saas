@@ -216,7 +216,7 @@ class VariacaoExercicio(models.Model):
     VideoExercicio, 
     on_delete=models.CASCADE, related_name="variacoes"
     )
-    nome = models.CharField(max_length=255)
+    nome = models.CharField(max_length=300)
     gif = models.FileField(upload_to='gifs/')
 
     grupo_muscular = models.ForeignKey(
