@@ -213,7 +213,8 @@ class VideoExercicio(models.Model):
 
 class VariacaoExercicio(models.Model):
     exercicio = models.ForeignKey(
-    VideoExercicio, on_delete=models.CASCADE, related_name="variacoes"
+    VideoExercicio, 
+    on_delete=models.CASCADE, related_name="variacoes"
     )
     nome = models.CharField(max_length=255)
     gif = models.FileField(upload_to='gifs/')
