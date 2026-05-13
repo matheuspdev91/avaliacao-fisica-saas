@@ -217,7 +217,11 @@ class VariacaoExercicio(models.Model):
     on_delete=models.CASCADE, related_name="variacoes"
     )
     nome = models.CharField(max_length=300)
-    gif = models.FileField(upload_to='gifs/', max_length=300)
+    gif = models.FileField(
+        upload_to='gifs/', 
+        max_length=300,
+        null=True,
+        blank=True)
 
     grupo_muscular = models.ForeignKey(
     GrupoMuscular, on_delete=models.SET_NULL, null=True, blank=True
