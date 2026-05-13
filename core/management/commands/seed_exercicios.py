@@ -1,7 +1,10 @@
 from django.core.management.base import BaseCommand
 from core.models import GrupoMuscular, VariacaoExercicio, VideoExercicio
 
+
+
 EXERCICIOS_POR_GRUPO = {
+
     "Peito": [
         {
             "nome": "Supino",
@@ -14,22 +17,203 @@ EXERCICIOS_POR_GRUPO = {
                 "Máquina",
             ],
         },
+
         {
             "nome": "Crucifixo",
-            "variacoes": ["Reto halter", "Inclinado halter", "Máquina", "Cross (cabo)"],
+            "variacoes": [
+                "Reto halter",
+                "Inclinado halter",
+                "Máquina",
+                "Cross (cabo)",
+            ],
         },
     ],
+
+
     "Costas": [
         {
             "nome": "Remada",
-            "variacoes": ["Curvada barra", "Unilateral halter", "Máquina", "Cavalinho"],
+            "variacoes": [
+                "Curvada barra",
+                "Unilateral halter",
+                "Máquina",
+                "Cavalinho",
+            ],
         },
+
         {
             "nome": "Puxada",
-            "variacoes": ["Frontal aberta", "Frontal fechada", "Neutra", "Supinada"],
+            "variacoes": [
+                "Frontal aberta",
+                "Frontal fechada",
+                "Neutra",
+                "Supinada",
+            ],
+        },
+    ],
+
+
+    "Ombros": [
+        {
+            "nome": "Desenvolvimento",
+            "variacoes": [
+                "Barra",
+                "Halteres",
+                "Máquina",
+                "Arnold",
+            ],
+        },
+
+        {
+            "nome": "Elevação lateral",
+            "variacoes": [
+                "Halteres",
+                "Polia",
+                "Máquina",
+            ],
+        },
+
+        {
+            "nome": "Elevação frontal",
+            "variacoes": [
+                "Barra",
+                "Halteres",
+                "Polia",
+            ],
+        },
+    ],
+
+
+    "Bíceps": [
+        {
+            "nome": "Rosca",
+            "variacoes": [
+                "Direta com barra",
+                "Direta com halteres",
+                "Martelo",
+                "Scott",
+                "No cabo",
+                "Concentrada",
+                "Alternada",
+            ],
+        },
+    ],
+
+
+    "Tríceps": [
+        {
+            "nome": "Tríceps",
+            "variacoes": [
+                "Corda",
+                "Barra reta",
+                "Francês",
+                "Testa",
+                "Coice",
+                "Banco",
+            ],
+        },
+    ],
+
+
+    "Glúteos": [
+        {
+            "nome": "Elevação pélvica",
+            "variacoes": [
+                "Barra",
+                "Smith",
+                "Unilateral",
+            ],
+        },
+
+        {
+            "nome": "Coice",
+            "variacoes": [
+                "Polia",
+                "Máquina",
+            ],
+        },
+
+        {
+            "nome": "Abdução",
+            "variacoes": [
+                "Máquina",
+                "Polia",
+                "Elástico",
+            ],
+        },
+    ],
+
+
+    "Panturrilhas": [
+        {
+            "nome": "Panturrilha",
+            "variacoes": [
+                "Em pé",
+                "Sentado",
+                "Leg press",
+                "Smith",
+            ],
+        },
+    ],
+
+
+    "Pernas": [
+        {
+            "nome": "Agachamento",
+            "variacoes": [
+                "Livre",
+                "Smith",
+                "Frontal",
+                "Hack",
+                "Sumô",
+            ],
+        },
+
+        {
+            "nome": "Leg press",
+            "variacoes": [
+                "45°",
+                "Horizontal",
+                "Unilateral",
+            ],
+        },
+
+        {
+            "nome": "Cadeira extensora",
+            "variacoes": [
+                "Unilateral",
+                "Bilateral",
+            ],
+        },
+
+        {
+            "nome": "Mesa flexora",
+            "variacoes": [
+                "Unilateral",
+                "Bilateral",
+            ],
+        },
+
+        {
+            "nome": "Stiff",
+            "variacoes": [
+                "Barra",
+                "Halteres",
+                "Smith",
+            ],
+        },
+
+        {
+            "nome": "Afundo",
+            "variacoes": [
+                "Livre",
+                "Smith",
+                "Passada",
+            ],
         },
     ],
 }
+
 
 
 class Command(BaseCommand):
