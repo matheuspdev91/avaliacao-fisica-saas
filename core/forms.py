@@ -110,6 +110,7 @@ class TreinoForm(forms.ModelForm):
         label="Aluno existente",
         empty_label="Selecione um aluno",
     )
+
     nome_aluno = forms.CharField(
         label="Nome do aluno (novo)",
         required=False,
@@ -119,9 +120,11 @@ class TreinoForm(forms.ModelForm):
     class Meta:
         model = Treino
         fields = ["nome"]
+
         labels = {
             "nome": "Nome do treino",
         }
+
         widgets = {
             "nome": forms.TextInput(
                 attrs={"placeholder": "Ex: Treino A - Hipertrofia"}
@@ -129,48 +132,47 @@ class TreinoForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-            self.fields["exercicio"].queryset = (
-                VideoExercicio.objects.order_by("nome")
+        self.fields["aluno"].queryset = (
+            Aluno.objects.order_by("nome")
+        )
+
+        field_classes = "treino-input"
+
+        for field_name, field in self.fields.items():
+            existing_class = field.widget.attrs.get(
+                "class",
+                "",
+            ).strip()
+
+            field.widget.attrs["class"] = (
+                f"{existing_class} {field_classes}".strip()
             )
 
-            self.fields["variacao"].queryset = (
-                VariacaoExercicio.objects.none()
-            )
-
-            if "exercicio" in self.data:
-                try:
-                    exercicio_id = int(self.data.get("exercicio"))
-
-                    self.fields["variacao"].queryset = (
-                        VariacaoExercicio.objects.filter(
-                            exercicio_id=exercicio_id
-                        ).order_by("nome")
-                    )
-
-                except (ValueError, TypeError):
-                    pass
-
-            elif self.instance.pk and self.instance.exercicio:
-                self.fields["variacao"].queryset = (
-                    VariacaoExercicio.objects.filter(
-                        exercicio=self.instance.exercicio
-                    ).order_by("nome")
-                )
+        self.fields["nome_aluno"].widget.attrs.update(
+            {
+                "placeholder": "Digite o nome do novo aluno",
+            }
+        )
 
     def clean(self):
         cleaned_data = super().clean()
+
         aluno = cleaned_data.get("aluno")
-        nome_aluno = (cleaned_data.get("nome_aluno") or "").strip()
+
+        nome_aluno = (
+            cleaned_data.get("nome_aluno") or ""
+        ).strip()
 
         cleaned_data["nome_aluno"] = nome_aluno
 
         if not aluno and not nome_aluno:
-            raise forms.ValidationError("Selecione um aluno ou crie um novo.")
+            raise forms.ValidationError(
+                "Selecione um aluno ou crie um novo."
+            )
 
         return cleaned_data
-
 
 CriarTreinoForm = TreinoForm
 
@@ -252,8 +254,10 @@ class CriarAlunoForm(forms.ModelForm):
 
 
 class ExercicioTreinoForm(forms.ModelForm):
+
     class Meta:
         model = ExercicioTreino
+
         fields = [
             "exercicio",
             "variacao",
@@ -267,31 +271,63 @@ class ExercicioTreinoForm(forms.ModelForm):
             "descanso": "Descanso (segundos)",
             "carga": "Carga",
         }
+
         widgets = {
             "exercicio": forms.Select(),
             "variacao": forms.Select(),
             "series": forms.NumberInput(attrs={"min": 1}),
             "repeticoes": forms.NumberInput(attrs={"min": 1}),
             "descanso": forms.NumberInput(attrs={"min": 0}),
-            "carga": forms.TextInput(attrs={"placeholder": "Ex: 20kg"}),
+            "carga": forms.TextInput(
+                attrs={"placeholder": "Ex: 20kg"}
+            ),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["exercicio"].queryset = VideoExercicio.objects.order_by("nome")
-        self.fields["variacao"].queryset = VariacaoExercicio.objects.select_related(
-            "exercicio"
-        ).order_by("exercicio__nome", "nome")
 
+        self.fields["exercicio"].queryset = (
+            VideoExercicio.objects.order_by("nome")
+        )
+
+        self.fields["variacao"].queryset = (
+            VariacaoExercicio.objects.none()
+        )
+
+        if "exercicio" in self.data:
+
+            try:
+                exercicio_id = int(
+                    self.data.get("exercicio")
+                )
+
+                self.fields["variacao"].queryset = (
+                    VariacaoExercicio.objects.filter(
+                        exercicio_id=exercicio_id
+                    ).order_by("nome")
+                )
+
+            except (ValueError, TypeError):
+                pass
+
+        elif (
+            self.instance.pk
+            and self.instance.exercicio
+        ):
+
+            self.fields["variacao"].queryset = (
+                VariacaoExercicio.objects.filter(
+                    exercicio=self.instance.exercicio
+                ).order_by("nome")
+            )
 
 ExercicioTreinoFormSet = inlineformset_factory(
-    Treino,
-    ExercicioTreino,
-    form=ExercicioTreinoForm,
-    extra=1,
-    can_delete=True,
+Treino,
+ExercicioTreino,
+form=ExercicioTreinoForm,
+extra=1,
+can_delete=True,
 )
-
 
 # ======================
 # AVALIAÇÃO PARA IDOSO
