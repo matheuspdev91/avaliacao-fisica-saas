@@ -129,19 +129,35 @@ class TreinoForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["aluno"].queryset = Aluno.objects.order_by("nome")
+            super().__init__(*args, **kwargs)
 
-        field_classes = "treino-input"
-        for field_name, field in self.fields.items():
-            existing_class = field.widget.attrs.get("class", "").strip()
-            field.widget.attrs["class"] = f"{existing_class} {field_classes}".strip()
+            self.fields["exercicio"].queryset = (
+                VideoExercicio.objects.order_by("nome")
+            )
 
-        self.fields["nome_aluno"].widget.attrs.update(
-            {
-                "placeholder": "Digite o nome do novo aluno",
-            }
-        )
+            self.fields["variacao"].queryset = (
+                VariacaoExercicio.objects.none()
+            )
+
+            if "exercicio" in self.data:
+                try:
+                    exercicio_id = int(self.data.get("exercicio"))
+
+                    self.fields["variacao"].queryset = (
+                        VariacaoExercicio.objects.filter(
+                            exercicio_id=exercicio_id
+                        ).order_by("nome")
+                    )
+
+                except (ValueError, TypeError):
+                    pass
+
+            elif self.instance.pk and self.instance.exercicio:
+                self.fields["variacao"].queryset = (
+                    VariacaoExercicio.objects.filter(
+                        exercicio=self.instance.exercicio
+                    ).order_by("nome")
+                )
 
     def clean(self):
         cleaned_data = super().clean()
