@@ -99,11 +99,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            try {
+        try {
 
-                const response = await fetch(
-                    `/api/variacoes/${exercicioId}/`
-                );
+            const response = await fetch(
+                `/api/variacoes/${exercicioId}/`
+            );
 
                 const variacoes =
                     await response.json();
@@ -133,11 +133,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     );
-
-    exercicioSelect.dispatchEvent(
-        new Event("change")
-    );
-
 });
 </script>
 
