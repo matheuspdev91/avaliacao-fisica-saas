@@ -1,48 +1,42 @@
 {% extends "core/base.html" %}
 
+{% block title %}Gráfico do aluno | FitFlix{% endblock %}
+
 {% block content %}
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Gráfico do aluno</h1>
+        <p class="page-subtitle">Composição corporal da avaliação atual.</p>
+    </div>
+</section>
 
-<h2>Gráfico do aluno</h2>
-
-<p><strong>Massa gorda:</strong> {{ avaliacao_atual.massa_gorda }}</p>
-<p><strong>Massa magra:</strong> {{ avaliacao_atual.massa_magra }}</p>
-
-<hr>
-
-<h3>Composição corporal</h3>
-<div style="width:350px; margin-top: 20px">
-    <canvas id="grafico_pizza"></canvas>
-
-</div>
-
-
-
-
+<section class="section mt-24">
+    <div class="grafico-card">
+        <canvas id="grafico_pizza" width="340" height="340"></canvas>
+    </div>
+</section>
 {% endblock %}
 
-{% block scripts %}
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    const ctx = document.getElementById('grafico_pizza').getContext('2D');
-
-    new Chart(ctx, {
+document.addEventListener('DOMContentLoaded', function () {
+    var canvas = document.getElementById('grafico_pizza');
+    if (!canvas || !window.Chart) return;
+    new Chart(canvas, {
         type: 'pie',
         data: {
             labels: ['Massa gorda', 'Massa magra'],
             datasets: [{
                 data: [
-                    parseFloat('{{ avaliacao_atual.massa_gorda }})'.replace(",","."),
-                    parseFloat('{{ avaliacao_atual.massa_magra }})'.replace(",",".")
+                    Number('{{ avaliacao_atual.massa_gorda|default:"0" }}'.replace(',', '.')),
+                    Number('{{ avaliacao_atual.massa_magra|default:"0" }}'.replace(',', '.'))
                 ],
-                backgroundColor: [
-                    '#ff6384',
-                    '#36a2eb'
-                ]
+                backgroundColor: ['#ff4444', '#00ff88']
             }]
-        }
+        },
+        options: { plugins: { legend: { labels: { color: '#e8e8e8' } } } }
     });
-
 });
 </script>
 {% endblock %}

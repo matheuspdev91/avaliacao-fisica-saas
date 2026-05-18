@@ -1,38 +1,32 @@
 {% extends "core/base.html" %}
-{% load static %}
+
+{% block title %}Entrar | FitFlix{% endblock %}
 
 {% block content %}
+<section class="auth-page">
+    <div class="auth-card">
+        <div class="auth-logo">FitFlix</div>
+        <p class="auth-subtitle">Entre para gerenciar avaliações e treinos.</p>
 
-<section class="container" style="max-width: 400px; margin-top: 80px;">
-    <h2>Entrar</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input class="form-control" type="email" name="email" id="email" required>
+            </div>
 
-    <form method="POST">
-        {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="password">Senha</label>
+                <input class="form-control" type="password" name="password" id="password" required>
+            </div>
 
-        <div>
-            <label>Email</label>
-            <input type="email" name="email" required>
-        </div>
-        
-        <br>
-        <div>
-            <label>SENHA</label><br>
-            <input type="password" name="password" required>
-        </div>
-        
-        <br>
+            <button type="submit" class="btn btn-primary w-full">Entrar</button>
+        </form>
 
-        <button type="submit" class="btn btn-primary">
-            Entrar            
-        </button>
-    </form>
-
-    <p style="margin-top: 15px; text-align: center;">
-        <a href="{% url 'core:password_reset' %}">
-            Esqueci minha senha
-        </a>
-    </p>
+        <div class="auth-divider"><span></span><em>ou</em><span></span></div>
+        <p class="text-center">
+            <a href="{% url 'core:password_reset' %}" class="auth-link">Esqueci minha senha</a>
+        </p>
+    </div>
 </section>
 {% endblock %}
-
-        

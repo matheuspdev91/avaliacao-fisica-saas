@@ -1,19 +1,21 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial; }
-    </style>
-</head>
-<body>
-    
-    <h2>Avaliação Física</h2>
-    <p>Nome: {{avaliacao.nome}}</p>
-    <p>Peso: {{avaliacao.peso}} kg</p>
-    <p>Gordura corporal: {{avaliacao.percentural_gordura|floatformat:2}} %</p>
-    
+{% extends 'core/base.html' %}
 
+{% block title %}Relatório PDF{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Avaliação física</h1>
+        <p class="page-subtitle">{{ avaliacao.nome }}</p>
+    </div>
+</section>
+
+<section class="avaliacao-grid">
+    <article class="avaliacao-section">
+        <h2 class="avaliacao-section-title">Resumo</h2>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Nome</span><span class="avaliacao-row-value">{{ avaliacao.nome }}</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Peso</span><span class="avaliacao-row-value">{{ avaliacao.peso }} kg</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Gordura corporal</span><span class="avaliacao-row-value">{{ avaliacao.percentual_gordura|floatformat:2 }}%</span></div>
+    </article>
+</section>
+{% endblock %}

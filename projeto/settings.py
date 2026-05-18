@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+DEBUG = os.environ.get("DEBUG", "True") == "True"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 ALLOWED_HOSTS = ["avaliacao-fisica-saas.onrender.com",
@@ -217,7 +217,3 @@ CLOUDINARY_STORAGE = {
     "SECURE": True,
 }
 
-
-print("CLOUDINARY NAME:", os.getenv("CLOUDINARY_CLOUD_NAME"))
-print("CLOUDINARY KEY:", os.getenv("CLOUDINARY_API_KEY"))
-print("CLOUDINARY SECRET:", os.getenv("CLOUDINARY_API_SECRET"))

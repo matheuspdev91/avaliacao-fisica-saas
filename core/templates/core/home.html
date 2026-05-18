@@ -1,34 +1,27 @@
 {% extends "core/base.html" %}
-{% load static %}
+
+{% block title %}FitFlix{% endblock %}
 
 {% block content %}
-<section class="hero">
+<section class="home-page">
+    <nav class="home-nav">
+        <div class="home-nav-logo">FitFlix</div>
+        <div class="home-nav-links">
+            <a href="{% url 'core:login' %}" class="btn btn-ghost">Entrar</a>
+            <a href="{% url 'core:register' %}" class="btn btn-primary">Criar conta</a>
+        </div>
+    </nav>
 
-    <div class="hero-content">
-        <h1>A plataforma completa para personal trainers</h1>
-
-        <p class="hero-subtitle">
-            Dados inteligentes. Resultados reais.
-        </p>
-
-        <p class="hero-description">
-            Controle avaliações, acompanhe evolução e entregue resultados reais aos seus alunos com mais eficiência.
-        </p>
-
-        <div class="hero-buttons">
-            {% if not user.is_authenticated %}
-                <a href="{% url 'core:login' %}" class="btn-primary">Entrar</a>
-                <a href="{% url 'core:register' %}" class="btn-secondary">Criar conta</a>
-            {% else %}
-                <a href="{% url 'core:avaliacoes' %}" class="btn-primary">Ir para o sistema</a>
-            {% endif %}
+    <div class="home-hero">
+        <div class="home-hero-content">
+            <div class="home-tag">Verdant training system</div>
+            <h1>Gestão visual para avaliações, alunos e <span>treinos</span>.</h1>
+            <p>Controle avaliações físicas, monte treinos com variações em GIF e entregue uma experiência clara para seus alunos.</p>
+            <div class="home-cta">
+                <a href="{% url 'core:login' %}" class="btn btn-primary btn-lg">Entrar</a>
+                <a href="{% url 'core:register' %}" class="btn btn-outline btn-lg">Criar conta</a>
+            </div>
         </div>
     </div>
-
-    <div class="hero-image">
-        <img src="{% static 'images/dashboard.png' %}" alt="Sistema FitSaaS">
-    </div>
-
 </section>
-
 {% endblock %}

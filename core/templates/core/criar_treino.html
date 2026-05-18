@@ -1,174 +1,49 @@
 {% extends 'core/base.html' %}
 
-{% block title %}
-{% if modo_edicao %}Editar Treino{% else %}Criar Treino{% endif %}
-{% endblock %}
+{% block title %}Criar treino | FitFlix{% endblock %}
 
 {% block content %}
-<div class="fitflix-header-page">
-    <h1>{% if modo_edicao %}Editar treino{% else %}Criar treino{% endif %}</h1>
-    <p>
-        {% if modo_edicao %}
-        Atualize o nome do treino e gerencie os exercícios vinculados.
-        {% else %}
-        Crie o treino e, em seguida, adicione os exercícios na próxima etapa.
-        {% endif %}
-    </p>
-</div>
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Criar treino</h1>
+        <p class="page-subtitle">Crie o treino e adicione os exercícios na próxima etapa.</p>
+    </div>
+</section>
 
-<div class="card treino-editor">
-    <form method="post">
-        {% csrf_token %}
+<section class="fitflix-form-container">
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="form-error">{{ form.non_field_errors }}</div>
+            {% endif %}
 
-        {% if form.non_field_errors %}
-        <div class="form-errors">
-            {{ form.non_field_errors }}
-        </div>
-        {% endif %}
-
-        <!-- CAMPOS DO TREINO -->
-        <div class="treino-editor-grid">
-            <div class="treino-field treino-field-full">
-                <label for="{{ form.nome.id_for_label }}">{{ form.nome.label }}</label>
+            <div class="form-group">
+                <label class="form-label" for="{{ form.nome.id_for_label }}">{{ form.nome.label }}</label>
                 {{ form.nome }}
-                {% if form.nome.help_text %}
-                <p class="treino-help-text">{{ form.nome.help_text }}</p>
-                {% endif %}
-                {% if form.nome.errors %}
-                <div class="field-errors">{{ form.nome.errors }}</div>
-                {% endif %}
+                {% if form.nome.errors %}<div class="form-error">{{ form.nome.errors }}</div>{% endif %}
             </div>
 
-            {% if not modo_edicao %}
-            <div class="treino-field treino-field-full treino-choice-card">
-                <p class="treino-help-text">Escolha um aluno existente OU crie um novo.</p>
-            </div>
-
-            <div class="treino-field treino-choice-card">
-                <h3>Selecionar aluno existente</h3>
-                <label for="{{ form.aluno.id_for_label }}">{{ form.aluno.label }}</label>
-                {{ form.aluno }}
-                {% if form.aluno.errors %}
-                <div class="field-errors">{{ form.aluno.errors }}</div>
-                {% endif %}
-            </div>
-
-            <div class="treino-field treino-choice-card">
-                <h3>Ou criar novo aluno</h3>
-                <label for="{{ form.nome_aluno.id_for_label }}">{{ form.nome_aluno.label }}</label>
-                {{ form.nome_aluno }}
-                {% if form.nome_aluno.errors %}
-                <div class="field-errors">{{ form.nome_aluno.errors }}</div>
-                {% endif %}
-            </div>
-            {% endif %}
-
-            {% if modo_edicao %}
-            {% for field in form %}
-            {% if field.name != 'nome' and field.name != 'aluno' and field.name != 'nome_aluno' %}
-            <div class="treino-field">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                <div class="field-errors">{{ field.errors }}</div>
-                {% endif %}
-            </div>
-            {% endif %}
-            {% endfor %}
-            {% endif %}
-        </div>
-
-        <!-- 🔥 FORMSET (SÓ NA EDIÇÃO) -->
-        {% if modo_edicao %}
-        <div class="treino-editor-topbar">
-            <h2>Exercícios do treino</h2>
-            <button type="button" class="btn" id="add-exercicio">Adicionar exercício</button>
-        </div>
-
-        {{ formset.management_form }}
-
-        {% if formset.non_form_errors %}
-        <div class="form-errors">
-            {{ formset.non_form_errors }}
-        </div>
-        {% endif %}
-
-        <div id="exercicios-formset" class="treino-formset">
-            {% for exercicio_form in formset %}
-            <div class="treino-exercicio-card" data-form-index="{{ forloop.counter0 }}">
-                {% for hidden in exercicio_form.hidden_fields %}
-                {{ hidden }}
-                {% endfor %}
-
-                <div class="treino-exercicio-header">
-                    <h3>Exercício {{ forloop.counter }}</h3>
-                    <button type="button" class="btn btn-excluir btn-remover-exercicio">Remover</button>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.aluno.id_for_label }}">{{ form.aluno.label }}</label>
+                    {{ form.aluno }}
+                    <p class="form-hint">Use esta opção quando o aluno já está cadastrado.</p>
+                    {% if form.aluno.errors %}<div class="form-error">{{ form.aluno.errors }}</div>{% endif %}
                 </div>
-
-                <div class="treino-editor-grid treino-editor-grid-exercicio">
-                    {% for field in exercicio_form.visible_fields %}
-                    {% if field.name != 'DELETE' %}
-                    <div class="treino-field">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                        <div class="field-errors">{{ field.errors }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    {% endfor %}
-                </div>
-
-                <div class="treino-delete-field is-hidden">
-                    {{ exercicio_form.DELETE }}
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.nome_aluno.id_for_label }}">{{ form.nome_aluno.label }}</label>
+                    {{ form.nome_aluno }}
+                    <p class="form-hint">Ou crie um aluno mínimo pelo nome.</p>
+                    {% if form.nome_aluno.errors %}<div class="form-error">{{ form.nome_aluno.errors }}</div>{% endif %}
                 </div>
             </div>
-            {% empty %}
-            <p class="fitflix-empty">Nenhum exercício cadastrado para este treino.</p>
-            {% endfor %}
-        </div>
 
-        <template id="empty-form-template">
-            <div class="treino-exercicio-card" data-form-index="__prefix__">
-                {% for hidden in formset.empty_form.hidden_fields %}
-                {{ hidden }}
-                {% endfor %}
-
-                <div class="treino-exercicio-header">
-                    <h3>Exercício __number__</h3>
-                    <button type="button" class="btn btn-excluir btn-remover-exercicio">Remover</button>
-                </div>
-
-                <div class="treino-editor-grid treino-editor-grid-exercicio">
-                    {% for field in formset.empty_form.visible_fields %}
-                    {% if field.name != 'DELETE' %}
-                    <div class="treino-field">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field }}
-                    </div>
-                    {% endif %}
-                    {% endfor %}
-                </div>
-
-                <div class="treino-delete-field is-hidden">
-                    {{ formset.empty_form.DELETE }}
-                </div>
+            <div class="d-flex gap-12 mt-16">
+                <button type="submit" class="btn btn-primary">Criar e continuar</button>
+                <a href="{% url 'core:fitflix' %}" class="btn btn-ghost">Voltar</a>
             </div>
-        </template>
-        {% endif %}
-
-        <!-- BOTÕES -->
-        <div class="treino-editor-actions">
-            <button type="submit" class="btn treino-btn-primary">
-                {% if modo_edicao %}Salvar treino{% else %}Criar e continuar{% endif %}
-            </button>
-
-            {% if modo_edicao %}
-            <a href="{% url 'core:treino_detail' treino.id %}" class="btn btn-secundario">Cancelar</a>
-            {% else %}
-            <a href="{% url 'core:fitflix' %}" class="btn btn-secundario">Voltar</a>
-            {% endif %}
-        </div>
-    </form>
-</div>
+        </form>
+    </div>
+</section>
 {% endblock %}

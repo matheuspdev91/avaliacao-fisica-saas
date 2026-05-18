@@ -1,24 +1,31 @@
 {% extends 'core/base.html' %}
 
+{% block title %}Treinos de {{ aluno.nome }} | FitFlix{% endblock %}
+
 {% block content %}
+<section class="aluno-hero">
+    <div class="aluno-avatar-lg">{{ aluno.nome|slice:":2"|upper }}</div>
+    <div class="aluno-hero-info">
+        <h1>{{ aluno.nome }}</h1>
+        <p>Treinos disponíveis para o aluno.</p>
+    </div>
+</section>
 
-<h1>Treinos de {{ aluno.nome }}</h1>
-
-<div class="treinos">
-
-    {% for treino in treinos %}
-        <div class="card-treino">
-            <h2>{{ treino.nome }}</h2>
-            
-            <a href="{% url 'core:treino_detail' treino.id %}">
-                Ver treino
-            </a>
+<section class="section mt-24">
+    <div class="fitflix-grid">
+        {% for treino in treinos %}
+        <a href="{% url 'core:treino_detail' treino.id %}" class="card fitflix-card-link">
+            <div class="card-body">
+                <h2 class="section-title">{{ treino.nome }}</h2>
+                <p class="text-muted">{{ treino.exercicios.count }} exercício{{ treino.exercicios.count|pluralize }}</p>
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <h3>Nenhum treino cadastrado</h3>
+            <p>Quando houver treinos, eles aparecerão aqui.</p>
         </div>
-    {% empty %}
-        <p>Nenhum treino cadastrado</p>
-    {% endfor %}
-        
-</div>
-
-    {% endblock %}
-
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

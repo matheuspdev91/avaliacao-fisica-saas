@@ -1,126 +1,73 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard | FitFlix{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="modelo-3d">
-        {% if avaliacao.sexo == 'M' %}
-            <img src="{% static 'img/masculino.png' %}" class="modelo-img" alt="Modelo masculino">
-        {% elif avaliacao.sexo == 'F' %}
-            <img src="{% static 'img/feminino.png' %}" class="modelo-img" alt="Modelo feminino">
-        {% endif %}
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Dashboard corporal</h1>
+        <p class="page-subtitle">{{ avaliacao.nome }} · {{ avaliacao.criado_em|date:"d/m/Y" }}</p>
     </div>
+    <a href="{% url 'core:detalhe_avaliacao' avaliacao.id %}" class="btn btn-ghost">Voltar</a>
+</section>
 
-    <div class="grafico-area">
-        <div class="grafico-card">
-            <h2>Composição Corporal</h2>
-            
-            <!-- ✅ CANVAS COM ID CORRETO -->
-            <div style="width: 300px; height: 300px; margin: 0 auto;">
-                <canvas id="graficoPizza"></canvas>
-            </div>
-
-            <!-- Dados para debug (pode remover depois) -->
-            <div style="margin-top: 20px; text-align: center;">
-                <p><strong>Percentual:</strong> {{ composicao.percentual|default:"0" }}%</p>
-                <p><strong>Massa gorda:</strong> {{ composicao.massa_gorda|default:"0" }}kg</p>
-                <p><strong>Massa magra:</strong> {{ composicao.massa_magra|default:"0" }}kg</p>
-                <p><strong>Massa residual:</strong> {{ composicao.massa_residual|default:"0" }}kg</p>
-            </div>
+<section class="dashboard-container">
+    <div class="card">
+        <div class="card-body">
+            {% if avaliacao.sexo == 'M' %}
+                <img src="{% static 'img/masculino.png' %}" class="modelo-img" alt="Modelo masculino">
+            {% elif avaliacao.sexo == 'F' %}
+                <img src="{% static 'img/feminino.png' %}" class="modelo-img" alt="Modelo feminino">
+            {% endif %}
         </div>
     </div>
 
-    <a href="{% url 'core:detalhe_avaliacao' avaliacao.id %}" class="btn">Voltar</a>
-</div>
+    <div class="grafico-card">
+        <h2 class="section-title">Composição corporal</h2>
+        {% if composicao %}
+        <canvas id="graficoPizza" width="320" height="320"></canvas>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Percentual</span><span class="avaliacao-row-value">{{ composicao.percentual }}%</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Massa gorda</span><span class="avaliacao-row-value">{{ composicao.massa_gorda }} kg</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Massa magra</span><span class="avaliacao-row-value">{{ composicao.massa_magra }} kg</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Massa residual</span><span class="avaliacao-row-value">{{ composicao.massa_residual }} kg</span></div>
+        {% else %}
+        <div class="empty-state">
+            <h3>Dados insuficientes</h3>
+            <p>Preencha a adipometria para gerar a composição corporal.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}
 
-{% block scripts %}
-<!-- ✅ Chart.js CDN -->
+{% block extra_scripts %}
+{% if composicao %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
 <script>
-    // ✅ Aguarda DOM carregar completamente
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        // ✅ Pega o canvas
-        const ctx = document.getElementById('graficoPizza');
-        
-        // ✅ Verifica se canvas existe
-        if (!ctx) {
-            console.error('ERRO: Canvas #graficoPizza não encontrado!');
-            return;
+document.addEventListener('DOMContentLoaded', function () {
+    var canvas = document.getElementById('graficoPizza');
+    if (!canvas || !window.Chart) return;
+    new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels: ['Massa gorda', 'Massa magra', 'Massa residual'],
+            datasets: [{
+                data: [
+                    Number('{{ composicao.massa_gorda|default:"0" }}'.replace(',', '.')),
+                    Number('{{ composicao.massa_magra|default:"0" }}'.replace(',', '.')),
+                    Number('{{ composicao.massa_residual|default:"0" }}'.replace(',', '.'))
+                ],
+                backgroundColor: ['#ff4444', '#00ff88', '#58a6ff'],
+                borderColor: '#101010',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            plugins: { legend: { labels: { color: '#e8e8e8' } } }
         }
-
-        // ✅ Pega dados do Django com segurança (filtros default)
-                const massaGorda = parseFloat('{{ composicao.massa_gorda|default:"0" }}') || 0;
-                const massaMagra = parseFloat('{{ composicao.massa_magra|default:"0" }}') || 0;
-                const massaResidual = parseFloat('{{ composicao.massa_residual|default:"0" }}') || 0;
-        
-        // ✅ Debug no console (F12 > Console)
-        console.log('Dados do gráfico:', {
-            massaGorda: massaGorda,
-            massaMagra: massaMagra,
-            massaResidual: massaResidual
-        });
-
-        // ✅ Verifica se há dados
-        if (massaGorda == 0 && massaMagra == 0) {
-            console.warn('Atenção: Sem dados para o gráfico!');
-            ctx.parentElement.innerHTML = '<p style="color: red;">Dados não disponíveis</p>';
-            return;
-        }
-
-        // ✅ Cria o gráfico
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Massa Gorda', 'Massa Magra', 'Massa Residual'],
-                datasets: [{
-                    data: [massaGorda, massaMagra, massaResidual],
-                    backgroundColor: [
-                        '#ef4444',  // Vermelho - gorda
-                        '#10b981',  // Verde - magra  
-                        '#3b82f6'   // Azul - residual
-                    ],
-                    borderWidth: 3,
-                    borderColor: '#ffffff',
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                cutout: '70%',  // Tamanho do buraco no meio
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            },
-                            color: '#333'
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.parsed;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                return `${label}: ${value.toFixed(1)}kg (${percent}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        
-        console.log('✅ Gráfico criado com sucesso!');
     });
+});
 </script>
+{% endif %}
 {% endblock %}

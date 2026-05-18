@@ -1,21 +1,37 @@
-{% extends 'core/base_publica.html' %}
+{% extends 'core/base.html' %}
+
+{% block title %}{{ treino.nome }} | FitFlix{% endblock %}
 
 {% block content %}
+<section class="public-card">
+    <header class="public-header">
+        <div class="public-logo">FitFlix</div>
+        <h1 class="public-treino-nome">{{ treino.nome }}</h1>
+        <p class="public-aluno">{{ treino.aluno.nome }}</p>
+    </header>
 
-{% if treino.exercicios.exists %}
-    <ul>
-        {% for item in treino.exercicios.all|dictsort:"ordem" %}
-            <li>
-                <strong>{{ item.exercicio.nome }}</strong><br>
-                Série: {{ item.series }} |
-                Reps: {{ item.repeticoes }} |
-                Descanso: {{ item.descanso }}s
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Nenhum exercício cadastrado.</p>
-
-{% endif %}
-
+    {% for item in treino.exercicios.all|dictsort:"ordem" %}
+    <article class="public-exercicio">
+        <div class="public-exercicio-num">{{ forloop.counter }}</div>
+        <div class="public-exercicio-info">
+            <strong>{{ item.exercicio.nome }}</strong>
+            <p>{{ item.variacao.nome }}</p>
+            <div class="public-exercicio-pills">
+                <span class="meta-pill">{{ item.series }} séries</span>
+                <span class="meta-pill">{{ item.repeticoes }} reps</span>
+                <span class="meta-pill">{{ item.descanso }}s</span>
+                <span class="meta-pill">{{ item.carga|default:"sem carga" }}</span>
+            </div>
+        </div>
+        {% if item.variacao.gif %}
+            <img class="public-gif" src="{{ item.variacao.gif.url }}" alt="{{ item.variacao.nome }}">
+        {% endif %}
+    </article>
+    {% empty %}
+    <div class="empty-state">
+        <h3>Nenhum exercício cadastrado</h3>
+        <p>Este treino ainda está em construção.</p>
+    </div>
+    {% endfor %}
+</section>
 {% endblock %}

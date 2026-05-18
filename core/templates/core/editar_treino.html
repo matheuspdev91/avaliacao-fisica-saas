@@ -1,51 +1,49 @@
 {% extends 'core/base.html' %}
 
+{% block title %}Editar treino | FitFlix{% endblock %}
+
 {% block content %}
-
-<div class="fitflix-header-page">
-    <h2>{{ treino.nome }}</h2>
-    <p><strong>Gerenciar os exercicios do treino</strong></p>
-</div>
-
-<div class="card-treino-editor">
-    <div class="treino-info">
-        <p><strong>Aluno:</strong> {{ treino.aluno.nome }}</p>
-        <p><strong>Link do treino:</strong> <a href="{{ treino_url }}" target="_blank" rel="noopener noreferrer">{{ treino_url }}</a></p>
+<section class="page-header">
+    <div>
+        <h1 class="page-title">{{ treino.nome }}</h1>
+        <p class="page-subtitle">Gerencie os exercícios do treino de {{ treino.aluno.nome }}.</p>
     </div>
-
-    <hr>
-
-    <div class="exercicios-lista">
-        <h3>Exercicios</h3>
-
-        {% if exercicios_treino %}
-        <ul>
-            {% for item in exercicios_treino %}
-            <li>
-                <p>{{ item.exercicio.nome }}</p>
-                <p>GIF: {{ item.variacao.gif }}</p>
-
-                {% if item.exercicio.gif %}
-                <img src="{{ item.exercicio.gif.url }}" width="200" alt="{{ item.exercicio.nome }}">
-                {% endif %}
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p>Nenhum exercicio adicionado ainda</p>
-        {% endif %}
+    <div class="d-flex gap-8">
+        <a href="{% url 'core:adicionar_exercicio' treino.id %}" class="btn btn-primary">Adicionar exercício</a>
+        <a href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline">WhatsApp</a>
     </div>
+</section>
 
-    <hr>
-
-    <div class="acoes">
-        <a href="{% url 'core:adicionar_exercicio' treino.id %}" class="btn">Adicionar exercicio</a>
-        <a href="{% url 'core:home' %}" class="btn">Voltar</a>
-        <a href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn">
-            WhatsApp
-        </a>
+<section class="section mt-24">
+    <div class="form-card">
+        <p class="text-muted">Link público</p>
+        <a href="{{ treino_url }}" target="_blank" rel="noopener noreferrer" class="auth-link">{{ treino_url }}</a>
     </div>
+</section>
 
-</div>
-
+<section class="section">
+    <div class="exercicios-list">
+        {% for item in exercicios_treino %}
+        <article class="exercicio-row">
+            <div class="exercicio-num">{{ forloop.counter }}</div>
+            <div class="exercicio-details">
+                <strong>{{ item.exercicio.nome }}</strong>
+                <span>{{ item.variacao.nome }}</span>
+            </div>
+            <div class="exercicio-meta">
+                <span class="meta-pill">{{ item.series }} séries</span>
+                <span class="meta-pill">{{ item.repeticoes }} reps</span>
+                <span class="meta-pill">{{ item.descanso }}s</span>
+                <span class="meta-pill">{{ item.carga|default:"sem carga" }}</span>
+            </div>
+        </article>
+        {% empty %}
+        <div class="empty-state">
+            <h3>Nenhum exercício adicionado</h3>
+            <p>Inclua o primeiro exercício para montar este treino.</p>
+            <a href="{% url 'core:adicionar_exercicio' treino.id %}" class="btn btn-primary">Adicionar exercício</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}

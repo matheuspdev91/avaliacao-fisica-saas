@@ -1,12 +1,12 @@
-{% extends "core/base.html" %}
+{% extends 'core/base.html' %}
 
-{% block title %}Cadastrar aluno | FitFlix{% endblock %}
+{% block title %}Editar avaliação | FitFlix{% endblock %}
 
 {% block content %}
 <section class="page-header">
     <div>
-        <h1 class="page-title">Cadastrar aluno</h1>
-        <p class="page-subtitle">Crie o acesso e mantenha o perfil inicial organizado.</p>
+        <h1 class="page-title">Editar avaliação</h1>
+        <p class="page-subtitle">{{ avaliacao.nome }}</p>
     </div>
 </section>
 
@@ -14,23 +14,18 @@
     <div class="form-card">
         <form method="post">
             {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div class="form-error">{{ form.non_field_errors }}</div>
-            {% endif %}
-
             <div class="form-row">
                 {% for field in form %}
-                <div class="form-group{% if field.name == 'observacoes' or field.name == 'objetivo' or field.name == 'nome' %} form-group--span-2{% endif %}">
+                <div class="form-group">
                     <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
                     {% if field.errors %}<div class="form-error">{{ field.errors }}</div>{% endif %}
                 </div>
                 {% endfor %}
             </div>
-
             <div class="d-flex gap-12 mt-16">
-                <button type="submit" class="btn btn-primary">Criar aluno</button>
-                <a href="{% url 'core:fitflix' %}" class="btn btn-ghost">Voltar</a>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <a href="{% url 'core:detalhe_avaliacao' avaliacao.id %}" class="btn btn-ghost">Cancelar</a>
             </div>
         </form>
     </div>

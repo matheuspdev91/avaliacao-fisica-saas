@@ -135,9 +135,6 @@ class VideoExercicioAdmin(admin.ModelAdmin):
     ordering = ("nome",)
     inlines = [VariacaoInline]
 
-    class Media:
-        js = ("js/exercicio_auto.js",)
-
 
 @admin.register(VariacaoExercicio)
 class VariacaoExercicioAdmin(admin.ModelAdmin):

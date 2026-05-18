@@ -244,7 +244,7 @@ class Treino(models.Model):
     criado_em = models.DateTimeField(auto_now_add=True)
 
     def get_link(self):
-        return f"/treino/{self.token}"
+        return f"/treino/{self.token}/"
 
     def __str__(self):
         return f"{self.nome} - {self.aluno.nome}"

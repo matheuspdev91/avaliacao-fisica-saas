@@ -1,118 +1,76 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    {% load static %}
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FitFlix{% endblock %}</title>
-
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/fitflix.css' %}">
-    <link rel="icon" href="{% static 'css/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_head %}{% endblock %}
 </head>
-
 <body>
-
-<div class="fitflix-layout">
-
-    <!-- SIDEBAR -->
-    <aside class="fitflix-sidebar">
-
-        <!-- LOGO -->
-        <div class="fitflix-logo">
-            <a href="{% url 'core:avaliacoes' %}">
-                <span>Fit</span><span class="flix">Flix</span>
+{% if user.is_authenticated %}
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'core:home' %}" class="sidebar-logo" aria-label="FitFlix">
+                <span class="logo-icon">FF</span>
+                <span class="logo-text">FitFlix</span>
             </a>
+
+            <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Alternar menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
 
-        <nav class="fitflix-nav">
-
-            {% if user.is_authenticated %}
-
-            <!-- FITFLIX -->
-            <a href="{% url 'core:fitflix' %}"
-               class="fitflix-nav-link {% if request.resolver_match.url_name == 'fitflix' %}active{% endif %}">
+        <nav class="sidebar-nav">
+            <a href="{% url 'core:fitflix' %}" class="nav-item{% if request.resolver_match.url_name == 'fitflix' or request.resolver_match.url_name == 'lista_exercicios' or request.resolver_match.url_name == 'exercicio_detalhe' %} active{% endif %}">
                 <span>FitFlix</span>
             </a>
-
-            <!-- MENU -->
-            <div class="fitflix-nav-section">
-                <p class="fitflix-nav-title">Menu</p>
-
-                {% if user.aluno %}
-                    <a href="{% url 'core:painel_aluno' user.aluno.id %}" class="fitflix-nav-link">
-                        <span>Meus Treinos</span>
-                    </a>
-                {% else %}
-                    <a href="{% url 'core:avaliacoes' %}" class="fitflix-nav-link">
-                        <span>Avaliações</span>
-                    </a>
-
-                    <a href="{% url 'core:escolher_tipo' %}" class="fitflix-nav-link">
-                        <span>Nova Avaliação</span>
-                    </a>
-
-                    <a href="{% url 'core:criar_aluno' %}" class="fitflix-nav-link">
-                        <span>Cadastrar Aluno</span>
-                    </a>
-                {% endif %}
-            </div>
-
-            <!-- CONTA -->
-            <div class="fitflix-nav-section">
-                <p class="fitflix-nav-title">Conta</p>
-
-                <a href="{% url 'core:logout' %}" class="fitflix-nav-link">
-                    <span>Sair</span>
-                </a>
-            </div>
-
-            {% endif %}
-
+            <a href="{% url 'core:avaliacoes' %}" class="nav-item{% if 'avaliacao' in request.resolver_match.url_name or request.resolver_match.url_name == 'avaliacoes' or request.resolver_match.url_name == 'escolher_tipo' or request.resolver_match.url_name == 'dashboard' %} active{% endif %}">
+                <span>Avaliações</span>
+            </a>
+            <a href="{% url 'core:criar_treino' %}" class="nav-item{% if 'treino' in request.resolver_match.url_name or request.resolver_match.url_name == 'adicionar_exercicio' %} active{% endif %}">
+                <span>Novo treino</span>
+            </a>
+            <a href="{% url 'core:criar_aluno' %}" class="nav-item{% if request.resolver_match.url_name == 'criar_aluno' %} active{% endif %}">
+                <span>Novo aluno</span>
+            </a>
         </nav>
 
-        <!-- USER -->
-        {% if user.is_authenticated %}
-        <div class="fitflix-user">
-            <div class="fitflix-user-avatar">
-                {{ request.user.username|first|upper }}
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">{{ user.email|default:user.username|slice:":2"|upper }}</div>
+                <div class="user-details">
+                    <span class="user-name">{{ user.get_full_name|default:user.email|default:user.username }}</span>
+                    <span class="user-role">FitFlix</span>
+                </div>
             </div>
-            <span class="fitflix-user-name">
-                {{ request.user.username }}
-            </span>
+            <a href="{% url 'core:logout' %}" class="logout-btn">Sair</a>
         </div>
-        {% endif %}
-
     </aside>
-
-    <!-- MAIN -->
-    <main class="fitflix-main">
-
-        {% if messages %}
-        <div class="fitflix-messages">
+    <main class="main-content" id="mainContent">
+{% else %}
+<main class="public-layout">
+{% endif %}
+    {% if messages %}
+        <div class="messages-container">
             {% for message in messages %}
-            <div class="fitflix-message">
-                {{ message }}
-            </div>
+                <div class="message message-{{ message.tags|default:'info' }}">
+                    {{ message }}
+                </div>
             {% endfor %}
         </div>
-        {% endif %}
+    {% endif %}
 
-        {% block content %}{% endblock %}
-
-    </main>
-
+    {% block content %}{% endblock %}
+</main>
+{% if user.is_authenticated %}
 </div>
-
-<footer class="fitflix-footer">
-    <small>© 2026 - FitFlix</small>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'js/fitflix.js' %}"></script>
-
-{% block scripts %}{% endblock %}
-
+{% endif %}
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>

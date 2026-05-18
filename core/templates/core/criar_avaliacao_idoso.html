@@ -1,16 +1,22 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
+
+{% block title %}Avaliação idoso | FitFlix{% endblock %}
 
 {% block content %}
-<div class="fitflix-form-container">
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Nova avaliação de idoso</h1>
+        <p class="page-subtitle">Dados pessoais, circunferências e testes funcionais.</p>
+    </div>
+</section>
+
+<section class="fitflix-form-container">
     <form method="post">
         {% csrf_token %}
-
-        <div class="fitflix-card">
-            <h1 class="fitflix-title">Nova Avaliação - Idoso</h1>
-
+        <div class="form-card">
             <div class="form-group">
-                <label for="tipo">Tipo de Avaliação</label>
-                <select name="tipo" id="tipo">
+                <label class="form-label" for="tipo">Tipo de avaliação</label>
+                <select class="form-control" name="tipo" id="tipo">
                     <option value="adulto">Adulto</option>
                     <option value="crianca">Criança</option>
                     <option value="idoso" selected>Idoso</option>
@@ -18,62 +24,58 @@
             </div>
         </div>
 
-        <div class="fitflix-card">
-            <h2 class="fitflix-title">Dados Pessoais</h2>
-            {% for field in avaliacao_form %}
+        <div class="form-card mt-16">
+            <h2 class="section-title">Dados pessoais</h2>
+            <div class="form-row mt-16">
+                {% for field in avaliacao_form %}
                 <div class="form-group">
-                    {{ field.label_tag }}
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
-                    {{ field.errors }}
+                    {% if field.errors %}<div class="form-error">{{ field.errors }}</div>{% endif %}
                 </div>
-            {% endfor %}
-        </div>
-
-        <div class="fitflix-card">
-            <h2 class="fitflix-title">Circunferências</h2>
-            {% for field in circ_form %}
-                <div class="form-group">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {{ field.errors }}
-                </div>
-            {% endfor %}
-        </div>
-
-        <div class="fitflix-card">
-            <h2 class="fitflix-title">Testes Funcionais</h2>
-            {% for field in form %}
-                <div class="form-group">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {{ field.errors }}
-                </div>
-            {% endfor %}
-        </div>
-
-        <div class="fitflix-card">
-            <div class="form-group">
-                <button type="submit" class="btn">Salvar avaliação</button>
+                {% endfor %}
             </div>
         </div>
+
+        <div class="form-card mt-16">
+            <h2 class="section-title">Circunferências</h2>
+            <div class="form-row form-row-3 mt-16">
+                {% for field in circ_form %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="form-error">{{ field.errors }}</div>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-card mt-16">
+            <h2 class="section-title">Testes funcionais</h2>
+            <div class="form-row mt-16">
+                {% for field in form %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="form-error">{{ field.errors }}</div>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="d-flex gap-12 mt-24">
+            <button type="submit" class="btn btn-primary">Salvar avaliação</button>
+            <a href="{% url 'core:avaliacoes' %}" class="btn btn-ghost">Cancelar</a>
+        </div>
     </form>
-</div>
+</section>
+{% endblock %}
 
+{% block extra_scripts %}
 <script>
-document.getElementById('tipo').addEventListener('change', function() {
-    const tipo = this.value;
-
-    if (tipo === 'crianca') {
-        window.location.href = "{% url 'core:criar_avaliacao_crianca' %}";
-    }
-
-    if (tipo === 'idoso') {
-        window.location.href = "{% url 'core:criar_avaliacao_idoso' %}";
-    }
-
-    if (tipo === 'adulto') {
-        window.location.href = "{% url 'core:criar_avaliacao' %}";
-    }
+document.getElementById('tipo').addEventListener('change', function () {
+    if (this.value === 'adulto') window.location.href = "{% url 'core:criar_avaliacao' %}";
+    if (this.value === 'crianca') window.location.href = "{% url 'core:criar_avaliacao_crianca' %}";
 });
 </script>
 {% endblock %}

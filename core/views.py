@@ -61,7 +61,7 @@ def home(request):
 
 
 def login_view(request):
-    if request.method == "GET":
+    if request.method != "POST":
         return render(request, "core/login.html")
 
     email = request.POST.get("email").strip().lower()
@@ -578,11 +578,12 @@ def criar_exercicio(request):
         grupo_id = request.POST.get("grupo_muscular")
         grupo = GrupoMuscular.objects.get(id=grupo_id)
 
-        imagem = request.FILES.get("imagem")
         gif = request.FILES.get("gif")
 
         exercicio = VideoExercicio.objects.create(
-            nome=nome, grupo_muscular=grupo, imagem=imagem
+            nome=nome,
+            grupo_muscular=grupo,
+            gif=gif or "",
         )
 
         # 2️⃣ cria a variação depois
@@ -732,12 +733,18 @@ def ver_treino(request, token):
 from django.http import JsonResponse
 
 def buscar_variacoes(request, exercicio_id):
-    variacoes = VariacaoExercicio.objects.filter(
-        exercicio_id=exercicio_id
-    ).values("id", "nome", "gif")
+    variacoes = []
+    for variacao in VariacaoExercicio.objects.filter(exercicio_id=exercicio_id):
+        variacoes.append(
+            {
+                "id": variacao.id,
+                "nome": variacao.nome,
+                "gif_url": variacao.gif.url if variacao.gif else "",
+            }
+        )
 
     return JsonResponse(
-        list(variacoes),
+        variacoes,
         safe=False,
         )
     

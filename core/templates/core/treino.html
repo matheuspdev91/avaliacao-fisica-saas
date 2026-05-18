@@ -1,21 +1,25 @@
-{% for item in itens %}
-<div class="card">
+{% extends 'core/base.html' %}
 
-        <img 
-        src="https://via.placeholder.com/200"
-        data-gif="{{ item.variacao.gif.url }}"
-        class="exercise-img"
-        width="200"
-    />
-        
-         
-    <h3>{{ item.exercicio.nome }}</h3>
-    <p>{{ item.variacao.nome }}</p>
-    
-    <p>Séries: {{ item.series }}</p>
-    <p>Reps: {{ item.repeticoes }}</p>
-    <p>Descanso: {{ item.descanso }}</p>
-    <p>Carga: {{ item.carga }}</p>
-
-</div>
-{% endfor %}
+{% block content %}
+<section class="section mt-24">
+    <div class="exercise-grid">
+        {% for item in itens %}
+        <article class="card">
+            <div class="card-body">
+                {% if item.variacao.gif %}
+                    <img src="{{ item.variacao.gif.url }}" class="fitflix-exercise-thumb" alt="{{ item.variacao.nome }}">
+                {% endif %}
+                <h3 class="section-title">{{ item.exercicio.nome }}</h3>
+                <p class="text-muted">{{ item.variacao.nome }}</p>
+                <div class="exercicio-meta mt-16">
+                    <span class="meta-pill">{{ item.series }} séries</span>
+                    <span class="meta-pill">{{ item.repeticoes }} reps</span>
+                    <span class="meta-pill">{{ item.descanso }}s</span>
+                    <span class="meta-pill">{{ item.carga|default:"sem carga" }}</span>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -3,184 +3,107 @@
 {% block title %}Adicionar exercício | FitFlix{% endblock %}
 
 {% block content %}
-<section class="fitflix-form-page">
-    <div class="fitflix-form-shell">
-        <div class="fitflix-form-heading">
-            <p class="fitflix-eyebrow">Treino</p>
-            <h1 class="fitflix-page-title">Adicionar exercício</h1>
-            <p class="fitflix-page-subtitle">
-                Escolha o exercício, defina a variação e ajuste séries, repetições e descanso com uma experiência mais clara e organizada.
-            </p>
-        </div>
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Adicionar exercício</h1>
+        <p class="page-subtitle">{{ treino.nome }} · {{ treino.aluno.nome }}</p>
+    </div>
+</section>
 
-        <div class="fitflix-form-card">
-            <form method="post" class="fitflix-premium-form">
-                {% csrf_token %}
-
-                <div class="fitflix-field-group">
-                    <label for="exercicio">Exercício</label>
-                    <select name="exercicio" id="exercicio" required>
+<section class="fitflix-form-container">
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="exercicio">Exercício</label>
+                    <select class="form-control" name="exercicio" id="exercicio" required>
                         <option value="">Selecione</option>
                         {% for exercicio in exercicios %}
                             <option value="{{ exercicio.id }}">{{ exercicio.nome }}</option>
                         {% endfor %}
                     </select>
                 </div>
-
-                <div class="fitflix-field-group">
-                    <label for="variacao">Variação</label>
-
-                    <select name="variacao" id="variacao" required>
+                <div class="form-group">
+                    <label class="form-label" for="variacao">Variação</label>
+                    <select class="form-control" name="variacao" id="variacao" required>
                         <option value="">Selecione um exercício primeiro</option>
                     </select>
                 </div>
+            </div>
 
+            <div class="form-group">
+                <img id="preview-gif" src="" alt="Preview do exercício" class="fitflix-exercise-thumb preview-gif is-hidden">
+            </div>
 
-                <div class="fitflix-preview">
-                    <img
-                        id="preview-gif"
-                        src=""
-                        alt="Preview exercicio"
-                        style="display:none; max-width:400px; border-radius:16px;"
-                        >
+            <div class="form-row form-row-3">
+                <div class="form-group">
+                    <label class="form-label" for="series">Séries</label>
+                    <input class="form-control" type="number" name="series" id="series" min="1" value="3" required>
                 </div>
-
-                <div class="fitflix-form-grid">
-                    <div class="fitflix-field-group">
-                        <label for="series">Séries</label>
-                        <input type="number" name="series" id="series" min="1" value="3" required>
-                    </div>
-
-                    <div class="fitflix-field-group">
-                        <label for="repeticoes">Repetições</label>
-                        <input type="number" name="repeticoes" id="repeticoes" min="1" value="12" required>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="repeticoes">Repetições</label>
+                    <input class="form-control" type="number" name="repeticoes" id="repeticoes" min="1" value="12" required>
                 </div>
-
-                <div class="fitflix-form-grid">
-                    <div class="fitflix-field-group">
-                        <label for="descanso">Descanso (segundos)</label>
-                        <input type="number" name="descanso" id="descanso" min="0" value="60" required>
-                    </div>
-
-                    <div class="fitflix-field-group">
-                        <label for="carga">Carga</label>
-                        <input type="text" name="carga" id="carga" placeholder="Ex: 20kg">
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="descanso">Descanso</label>
+                    <input class="form-control" type="number" name="descanso" id="descanso" min="0" value="60" required>
                 </div>
+            </div>
 
-                <div class="fitflix-button-group">
-                    <button type="submit" class="btn fitflix-btn-primary fitflix-btn-wide">
-                        Adicionar exercício
-                    </button>
+            <div class="form-group">
+                <label class="form-label" for="carga">Carga</label>
+                <input class="form-control" type="text" name="carga" id="carga" placeholder="Ex: 20kg">
+            </div>
 
-                    <a href="{% url 'core:editar_treino' treino.id %}" class="btn fitflix-btn-secondary fitflix-btn-wide">
-                        Voltar
-                    </a>
-                </div>
-            </form>
-        </div>
+            <div class="d-flex gap-12">
+                <button type="submit" class="btn btn-primary">Adicionar exercício</button>
+                <a href="{% url 'core:editar_treino' treino.id %}" class="btn btn-ghost">Voltar</a>
+            </div>
+        </form>
     </div>
 </section>
+{% endblock %}
 
-
+{% block extra_scripts %}
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
+    var exercicioSelect = document.getElementById('exercicio');
+    var variacaoSelect = document.getElementById('variacao');
+    var preview = document.getElementById('preview-gif');
 
-    const exercicioSelect =
-        document.getElementById("exercicio");
+    exercicioSelect.addEventListener('change', async function () {
+        var exercicioId = this.value;
+        variacaoSelect.innerHTML = '<option value="">Carregando...</option>';
+        preview.classList.add('is-hidden');
 
-    const variacaoSelect =
-        document.getElementById("variacao");
-
-    const preview =
-        document.getElementById("preview-gif");
-
-
-    exercicioSelect.addEventListener(
-        "change",
-        async function () {
-
-            const exercicioId = this.value;
-
-            variacaoSelect.innerHTML =
-                '<option value="">Carregando...</option>';
-
-            preview.style.display = "none";
-
-            if (!exercicioId) {
-
-                variacaoSelect.innerHTML =
-                    '<option value="">Selecione um exercício primeiro</option>';
-
-                return;
-            }
-
-            try {
-
-                const response = await fetch(
-                    `/api/variacoes/${exercicioId}/`
-                );
-
-                const variacoes =
-                    await response.json();
-
-                variacaoSelect.innerHTML =
-                    '<option value="">Selecione</option>';
-
-                variacoes.forEach((variacao) => {
-
-                    const option =
-                        document.createElement("option");
-
-                    option.value = variacao.id;
-
-                    option.textContent =
-                        variacao.nome;
-
-                    option.dataset.gif =
-                        variacao.gif;
-
-                    variacaoSelect.appendChild(option);
-                });
-
-            } catch (error) {
-
-                variacaoSelect.innerHTML =
-                    '<option value="">Erro ao carregar</option>';
-
-                console.error(error);
-            }
+        if (!exercicioId) {
+            variacaoSelect.innerHTML = '<option value="">Selecione um exercício primeiro</option>';
+            return;
         }
-    );
 
-
-    variacaoSelect.addEventListener(
-        "change",
-        function () {
-
-            const selected =
-                this.options[this.selectedIndex];
-
-            const gif =
-                selected.dataset.gif;
-
-            if (gif) {
-
-                preview.src = "/media/" + gif;
-
-                preview.style.display =
-                    "block";
-
-            } else {
-
-                preview.style.display =
-                    "none";
-            }
+        try {
+            var response = await fetch('/api/variacoes/' + exercicioId + '/');
+            var variacoes = await response.json();
+            variacaoSelect.innerHTML = '<option value="">Selecione</option>';
+            variacoes.forEach(function (variacao) {
+                var option = document.createElement('option');
+                option.value = variacao.id;
+                option.textContent = variacao.nome;
+                option.dataset.gif = variacao.gif_url || '';
+                variacaoSelect.appendChild(option);
+            });
+        } catch (error) {
+            variacaoSelect.innerHTML = '<option value="">Erro ao carregar</option>';
         }
-    );
+    });
 
+    variacaoSelect.addEventListener('change', function () {
+        var selected = this.options[this.selectedIndex];
+        var gif = selected.dataset.gif;
+        preview.src = gif || '';
+        preview.classList.toggle('is-hidden', !gif);
+    });
 });
 </script>
-
 {% endblock %}

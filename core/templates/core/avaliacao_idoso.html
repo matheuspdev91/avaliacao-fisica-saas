@@ -1,23 +1,32 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
+
+{% block title %}Avaliações de idosos | FitFlix{% endblock %}
 
 {% block content %}
-<div class="fitflix-form-container">
-    <div class="fitflix-card">
-        <h1 class="fitflix-title">Avaliações - Idosos</h1>
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Avaliações de idosos</h1>
+        <p class="page-subtitle">Registros funcionais específicos.</p>
+    </div>
+</section>
 
+<section class="section mt-24">
+    <div class="fitflix-grid">
         {% for avaliacao in avaliacoes %}
-            <div class="form-group">
-                <h3>{{ avaliacao.aluno.nome }}</h3>
-                <p><strong>Sentar e levantar:</strong> {{ avaliacao.sentar_levantar }}</p>
-                <p><strong>Tempo TUG:</strong> {{ avaliacao.tug_tempo }}s</p>
-                <p><strong>Equilíbrio:</strong> {{ avaliacao.equilibrio_segundos }}s</p>
-                <p><strong>Caminhada 6 min:</strong> {{ avaliacao.caminhada_6_minutos }}m</p>
+        <article class="card">
+            <div class="card-body">
+                <h2 class="section-title">{{ avaliacao.avaliacao.nome }}</h2>
+                <p class="text-muted">Sentar e levantar: {{ avaliacao.sentar_levantar }}</p>
+                <p class="text-muted">TUG: {{ avaliacao.tug_tempo }}s</p>
+                <p class="text-muted">Caminhada 6 min: {{ avaliacao.caminhada_6min }}m</p>
             </div>
+        </article>
         {% empty %}
-            <div class="form-group">
-                <p>Nenhuma avaliação cadastrada.</p>
-            </div>
+        <div class="empty-state">
+            <h3>Nenhuma avaliação cadastrada</h3>
+            <p>Crie uma avaliação de idoso para listar os resultados.</p>
+        </div>
         {% endfor %}
     </div>
-</div>
+</section>
 {% endblock %}

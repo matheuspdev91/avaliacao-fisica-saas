@@ -1,23 +1,21 @@
 {% extends 'core/base.html' %}
 
-{% block title}Relatório{% endblock %}
+{% block title %}Relatório{% endblock %}
 
 {% block content %}
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Relatório</h1>
+        <p class="page-subtitle">{{ avaliacao.nome }}</p>
+    </div>
+</section>
 
-<h2>Avaliação física</h2>
-<p><strong>Nome:</strong> {{ avaliacao.nome }}</p>
-<p><strong>Peso:</strong> {{ avaliacao.peso }} kg</p>
-
-<p><strong>Percentual de gordura:</strong>
-    {{avaliacao.percentual_gordura|floatformat:2 }} %
-</p>
-
-<p><strong>Massa gorda:</strong>
-    {{ avaliacao.massa_gorda|floatformat:2 }} kg
-</p>
-
-<p><strong>Massa magra:</strong>
-    {{ avaliacao.massa_magra|floatformat2 }} kg
-</p>
-
+<section class="avaliacao-grid">
+    <article class="avaliacao-section">
+        <h2 class="avaliacao-section-title">Avaliação física</h2>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Nome</span><span class="avaliacao-row-value">{{ avaliacao.nome }}</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Peso</span><span class="avaliacao-row-value">{{ avaliacao.peso }} kg</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Gordura</span><span class="avaliacao-row-value">{{ avaliacao.percentual_gordura|floatformat:2 }}%</span></div>
+    </article>
+</section>
 {% endblock %}

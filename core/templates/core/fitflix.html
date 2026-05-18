@@ -1,61 +1,66 @@
-﻿{% extends 'core/base.html' %}
-{% load static %}
+{% extends 'core/base.html' %}
+
+{% block title %}FitFlix{% endblock %}
 
 {% block content %}
-<div class="fitflix-container">
-    <div class="header">
-        <h1>FitFlix</h1>
+<section class="fitflix-header">
+    <div class="fitflix-hero">
+        <h1>Fit<span>Flix</span></h1>
+        <p>Biblioteca de exercícios, variações e criação rápida de treinos.</p>
+    </div>
+</section>
 
-        <div class="actions">
-            <a href="{% url 'core:criar_treino' %}" class="btn">+ Novo Treino</a>
-            <a href="{% url 'core:criar_exercicio' %}" class="btn">+ Novo Exercício</a>
+<div class="fitflix-filters">
+    <a href="{% url 'core:criar_treino' %}" class="btn btn-primary">Novo treino</a>
+    <a href="{% url 'core:criar_exercicio' %}" class="btn btn-outline">Novo exercício</a>
+</div>
+
+{% for grupo in grupos %}
+<section class="section">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">{{ grupo.grupo.nome }}</h2>
+            <p class="text-muted">{{ grupo.total_exercicios }} exercício{{ grupo.total_exercicios|pluralize }}</p>
         </div>
+        <a href="{% url 'core:lista_exercicios' grupo.grupo.id %}" class="btn btn-ghost btn-sm">Ver todos</a>
     </div>
 
-    {% for grupo in grupos %}
-    <a href="{% url 'core:lista_exercicios' grupo.grupo.id %}" style="text-decoration: none; color: inherit;">
-            {{ grupo.grupo.nome }}
-        <div class="fitflix-category">
-            <div class="fitflix-category-header">
-                <h2>{{ grupo.nome }}</h2>
-                <p>{{ grupo.total_exercicios }} exercício{{ grupo.total_exercicios|pluralize }}</p>
-            </div>
-            
-            <div class="fitflix-category-content">
-                <div class="fitflix-list">
-                    {% for exercicio in grupo.exercicios %}
-                    <div class="fitflix-item">
-                        <div class="fitflix-exercise-image">
-                            {% if exercicio.imagem %}
-                            <img src="{{ exercicio.imagem.url }}" class="fitflix-exercise-thumb" alt="{{ exercicio.nome }}">
-                            {% else %}
-                            <img src="{% static 'img/placeholder.png' %}" class="fitflix-exercise-thumb" alt="{{ exercicio.nome }}">
-                            {% endif %}
-                        </div>
-                        
-                            <div class="fitflix-exercise-info">
-                                <h3>{{ exercicio.nome }}</h3>
-
-                                {% for variacao in exercicio.variacoes.all %}
-                                    <p>{{ variacao.nome }}</p>
-                                    {% empty %}
-                                    <p>Nenhuma variação cadastrada.</p>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% empty %}
-                        <p>Nenhum exercício cadastrado.</p>
-                    {% endfor %}
+    <div class="exercise-grid">
+        {% for exercicio in grupo.exercicios %}
+        <a href="{% url 'core:exercicio_detalhe' exercicio.id %}" class="exercise-card">
+            <div class="exercise-thumb">
+                {% with exercicio.variacoes.first as variacao %}
+                    {% if variacao and variacao.gif %}
+                        <img src="{{ variacao.gif.url }}" alt="{{ exercicio.nome }}">
+                    {% else %}
+                        <div class="exercise-thumb-placeholder">Sem mídia</div>
+                    {% endif %}
+                {% endwith %}
+                <div class="exercise-overlay">
+                    <span class="play-btn">▶</span>
+                    <span class="var-badge">{{ exercicio.variacoes.count }} var.</span>
                 </div>
             </div>
+            <div class="exercise-info">
+                <h3 class="exercise-name">{{ exercicio.nome }}</h3>
+                <p class="exercise-group">{{ grupo.grupo.nome }}</p>
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <h3>Nenhum exercício cadastrado</h3>
+            <p>Adicione exercícios para preencher este grupo.</p>
         </div>
-    {% empty %}
-    <div class="fitflix-category">
-        <div class="fitflix-category-content">
-            <p>Nenhum exercício cadastrado.</p>
-        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
-</a>
+</section>
+{% empty %}
+<section class="section">
+    <div class="empty-state">
+        <h3>Nenhum exercício cadastrado</h3>
+        <p>Comece criando o primeiro exercício da biblioteca.</p>
+        <a href="{% url 'core:criar_exercicio' %}" class="btn btn-primary">Criar exercício</a>
+    </div>
+</section>
+{% endfor %}
 {% endblock %}

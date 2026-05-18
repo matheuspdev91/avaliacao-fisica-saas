@@ -3,75 +3,57 @@
 {% block title %}{{ exercicio.nome }} | FitFlix{% endblock %}
 
 {% block content %}
-<section class="fitflix-page">
-    <div class="fitflix-page-header fitflix-page-header--detail">
-        <div>
-            <p class="fitflix-eyebrow">Exercício</p>
-            <h1 class="fitflix-page-title">{{ exercicio.nome }}</h1>
-            <p class="fitflix-page-subtitle">
-                Explore as variações disponíveis e visualize a execução de cada movimento.
-            </p>
-        </div>
+<section class="page-header">
+    <div>
+        <h1 class="page-title">{{ exercicio.nome }}</h1>
+        <p class="page-subtitle">Variações e execução do movimento.</p>
     </div>
+    <a href="{% url 'core:lista_exercicios' exercicio.grupo_muscular.id %}" class="btn btn-ghost">Voltar</a>
+</section>
 
-    {% with variacoes.first as destaque %}
-    <section class="fitflix-detail-hero">
-        <div class="fitflix-detail-player">
-            {% if destaque and destaque.gif %}
-                <img src="{{ destaque.gif.url }}" alt="{{ destaque.nome }}" class="fitflix-detail-image">
-            {% else %}
-                <div class="fitflix-exercise-placeholder fitflix-exercise-placeholder--detail">
-                    <span>Sem mídia</span>
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="fitflix-detail-hero-content">
-            <p class="fitflix-eyebrow">Destaque principal</p>
-            <h2>{{ exercicio.nome }}</h2>
-            <p>
-                {% if destaque %}
-                    Visualização em destaque da variação {{ destaque.nome }}. Abaixo você encontra as demais opções no formato de sugestões.
+<section class="detail-layout">
+    <div class="detail-main">
+        {% with variacoes.first as destaque %}
+        <article class="exercise-player">
+            <div class="player-gif-wrap">
+                {% if destaque and destaque.gif %}
+                    <img src="{{ destaque.gif.url }}" alt="{{ destaque.nome }}">
                 {% else %}
-                    Este exercício ainda não possui uma mídia de destaque, mas a página já está pronta para receber novas variações.
-                {% endif %}
-            </p>
-
-            <div class="fitflix-detail-meta">
-                <span class="fitflix-detail-pill">{{ variacoes|length }} variação{{ variacoes|length|pluralize }}</span>
-                {% if destaque %}
-                <span class="fitflix-detail-pill">{{ destaque.nome }}</span>
+                    <div class="exercise-thumb-placeholder">Sem mídia</div>
                 {% endif %}
             </div>
-        </div>
-    </section>
-    {% endwith %}
-
-    <h2 class="fitflix-section-title">Mais variações</h2>
-
-    <div class="fitflix-grid fitflix-detail-grid">
-        {% for variacao in variacoes %}
-        <article class="fitflix-detail-card fitflix-hover-effect">
-            <div class="fitflix-detail-media">
-                {% if variacao.gif %}
-                    <img src="{{ variacao.gif.url }}" alt="{{ variacao.nome }}" class="fitflix-detail-image">
-                {% else %}
-                    <div class="fitflix-exercise-placeholder fitflix-exercise-placeholder--detail">
-                        <span>Sem mídia</span>
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="fitflix-detail-body">
-                <h3>{{ variacao.nome }}</h3>
+            <div class="player-info">
+                <h2 class="player-title">{{ destaque.nome|default:exercicio.nome }}</h2>
+                <span class="player-group">{{ exercicio.grupo_muscular.nome }}</span>
+                <p class="player-desc">{{ exercicio.descricao|default:"Exercício disponível na biblioteca FitFlix." }}</p>
             </div>
         </article>
-        {% empty %}
-        <div class="fitflix-empty-state">
-            <h2>Nenhuma variação cadastrada</h2>
-            <p>Este exercício ainda não possui variações com mídia associada.</p>
-        </div>
-        {% endfor %}
+        {% endwith %}
     </div>
+
+    <aside class="detail-sidebar">
+        <div class="variacoes-panel">
+            <div class="variacoes-header">Variações</div>
+            <div class="variacoes-list">
+                {% for variacao in variacoes %}
+                <div class="variacao-item{% if forloop.first %} active{% endif %}">
+                    <div class="variacao-thumb">
+                        {% if variacao.gif %}
+                            <img src="{{ variacao.gif.url }}" alt="{{ variacao.nome }}">
+                        {% else %}
+                            <div class="variacao-thumb-placeholder">--</div>
+                        {% endif %}
+                    </div>
+                    <span class="variacao-nome">{{ variacao.nome }}</span>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <h3>Nenhuma variação cadastrada</h3>
+                    <p>Inclua uma variação para mostrar mídia nesta página.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </aside>
 </section>
 {% endblock %}

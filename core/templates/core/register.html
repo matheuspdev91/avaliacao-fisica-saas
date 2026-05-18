@@ -1,67 +1,37 @@
 {% extends 'core/base.html' %}
 
-{% load static %}
+{% block title %}Criar conta | FitFlix{% endblock %}
 
 {% block content %}
-<section class="container" style="max-width: 400px; margin-top: 80px;">
-    <h2>Criar conta</h2>
+<section class="auth-page">
+    <div class="auth-card">
+        <div class="auth-logo">FitFlix</div>
+        <h1 class="auth-title">Criar conta</h1>
+        <p class="auth-subtitle">Configure seu acesso de personal trainer.</p>
 
-    <form method="POST">
-        {% csrf_token %}
-        
-        <!-- ✅ Mensagens - SEM CSS inline com Django tags -->
-        {% if messages %}
-            {% for message in messages %}
-                {% if message.tags == 'error' %}
-                    <div style="color: red; background: #ffe6e6; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                        {{ message }}
-                    </div>
-                {% else %}
-                    <div style="color: green; background: #e6ffe6; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                        {{ message }}
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-      
-        <div>
-            <label>Usuário</label><br>
-            <input type="text" name="username" value="{{ username|default:'' }}" required>
-        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="username">Usuário</label>
+                <input class="form-control" type="text" name="username" id="username" value="{{ username|default:'' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input class="form-control" type="email" name="email" id="email" value="{{ email|default:'' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Senha</label>
+                <input class="form-control" type="password" name="password" id="password" minlength="6" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password_confirm">Confirmar senha</label>
+                <input class="form-control" type="password" name="password_confirm" id="password_confirm" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Criar conta</button>
+        </form>
 
-        <br>
-
-        <div>
-            <label>Email</label><br>
-            <input type="email" name="email" value="{{ email|default:'' }}" required>
-        </div>
-
-        <br>
-
-        <div>
-            <label>Senha</label><br>
-            <input type="password" name="password" minlength="6" required>
-            <small style="color: #666; font-size: 12px;">Mínimo 6 caracteres</small>
-        </div>
-
-        <br>
-
-        <div>
-            <label>Confirmar Senha</label><br>
-            <input type="password" name="password_confirm" required>
-        </div>
-
-        <br>
-        
-        <button type="submit" class="btn btn-primary">
-            Criar conta
-        </button> 
-
-        <br><br>
-        
-        <p style="text-align: center;">
-            Já tem conta? <a href="{% url 'core:login' %}">Entrar</a>
-        </p>
-    </form>
+        <div class="auth-divider"><span></span><em>já tem conta?</em><span></span></div>
+        <p class="text-center"><a href="{% url 'core:login' %}" class="auth-link">Entrar</a></p>
+    </div>
 </section>
 {% endblock %}

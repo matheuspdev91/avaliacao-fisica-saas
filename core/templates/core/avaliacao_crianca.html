@@ -1,23 +1,32 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
+
+{% block title %}Avaliações infantis | FitFlix{% endblock %}
 
 {% block content %}
-<div class="fitflix-form-container">
-    <div class="fitflix-card">
-        <h1 class="fitflix-title">Avaliação - Criança</h1>
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Avaliações infantis</h1>
+        <p class="page-subtitle">Registros específicos de crianças.</p>
+    </div>
+</section>
 
+<section class="section mt-24">
+    <div class="fitflix-grid">
         {% for avaliacao in avaliacoes %}
-            <div class="form-group">
-                <h3>{{ avaliacao.aluno.nome }}</h3>
-                <p><strong>Flexões:</strong> {{ avaliacao.flexoes }}</p>
-                <p><strong>Abdominais:</strong> {{ avaliacao.abdominais }}</p>
-                <p><strong>Corrida (tempo):</strong> {{ avaliacao.corrida_tempo }}s</p>
-                <p><strong>Nível motor:</strong> {{ avaliacao.nivel_motor }}</p>
+        <article class="card">
+            <div class="card-body">
+                <h2 class="section-title">{{ avaliacao.avaliacao.nome }}</h2>
+                <p class="text-muted">Coordenação: {{ avaliacao.coordenacao }}</p>
+                <p class="text-muted">Flexões: {{ avaliacao.flexoes }}</p>
+                <p class="text-muted">Agilidade: {{ avaliacao.agilidade_tempo }}s</p>
             </div>
+        </article>
         {% empty %}
-            <div class="form-group">
-                <p>Nenhuma avaliação cadastrada.</p>
-            </div>
+        <div class="empty-state">
+            <h3>Nenhuma avaliação cadastrada</h3>
+            <p>Crie uma avaliação infantil para listar os resultados.</p>
+        </div>
         {% endfor %}
     </div>
-</div>
+</section>
 {% endblock %}

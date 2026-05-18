@@ -1,27 +1,32 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
+
+{% block title %}Nova avaliação | FitFlix{% endblock %}
 
 {% block content %}
-<div class="fitflix-form-container">
-    <div class="fitflix-card">
-        <h1 class="fitflix-title">Nova Avaliação</h1>
-
-        <div class="form-group">
-            <h3>Adulto</h3>
-            <p>Avaliação completa.</p>
-            <a href="{% url 'core:criar_avaliacao' %}" class="btn">Acessar</a>
-        </div>
-
-        <div class="form-group">
-            <h3>Idoso</h3>
-            <p>Testes funcionais.</p>
-            <a href="{% url 'core:criar_avaliacao_idoso' %}" class="btn">Acessar</a>
-        </div>
-
-        <div class="form-group">
-            <h3>Criança</h3>
-            <p>Avaliação infantil.</p>
-            <a href="{% url 'core:criar_avaliacao_crianca' %}" class="btn">Acessar</a>
-        </div>
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Nova avaliação</h1>
+        <p class="page-subtitle">Escolha o protocolo adequado para o aluno.</p>
     </div>
-</div>
+</section>
+
+<section class="section mt-24">
+    <div class="stats-grid">
+        <a href="{% url 'core:criar_avaliacao' %}" class="stat-card">
+            <div class="stat-label">Adulto</div>
+            <div class="section-title mt-8">Avaliação completa</div>
+            <p class="text-muted mt-8">Dados físicos, circunferências e adipometria.</p>
+        </a>
+        <a href="{% url 'core:criar_avaliacao_idoso' %}" class="stat-card">
+            <div class="stat-label">Idoso</div>
+            <div class="section-title mt-8">Testes funcionais</div>
+            <p class="text-muted mt-8">Equilíbrio, mobilidade e caminhada.</p>
+        </a>
+        <a href="{% url 'core:criar_avaliacao_crianca' %}" class="stat-card">
+            <div class="stat-label">Criança</div>
+            <div class="section-title mt-8">Avaliação infantil</div>
+            <p class="text-muted mt-8">Coordenação, agilidade e saltos.</p>
+        </a>
+    </div>
+</section>
 {% endblock %}

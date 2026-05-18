@@ -1,28 +1,40 @@
-﻿{% extends "core/base.html" %}
+{% extends "core/base.html" %}
+
+{% block title %}Avaliações | FitFlix{% endblock %}
 
 {% block content %}
-<div class="fitflix-form-container">
-    <div class="fitflix-card">
-        <h1 class="fitflix-title">Avaliações</h1>
-
-        <div class="form-group">
-            <a href="{% url 'core:criar_avaliacao' %}" class="btn">Nova Avaliação</a>
-        </div>
-
-        {% if avaliacoes %}
-            {% for avaliacao in avaliacoes %}
-                <div class="form-group">
-                    <h3>{{ avaliacao.nome }}</h3>
-                    <p>{{ avaliacao.criado_em|date:"d/m/Y" }}</p>
-                    <a href="{% url 'core:detalhe_avaliacao' avaliacao.id %}" class="btn">Visualizar</a>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="form-group">
-                <p>Você ainda não possui avaliações.</p>
-                <a href="{% url 'core:criar_avaliacao' %}" class="btn">Criar primeira avaliação</a>
-            </div>
-        {% endif %}
+<section class="page-header">
+    <div>
+        <h1 class="page-title">Avaliações</h1>
+        <p class="page-subtitle">Histórico de avaliações físicas e funcionais.</p>
     </div>
-</div>
+    <a href="{% url 'core:escolher_tipo' %}" class="btn btn-primary">Nova avaliação</a>
+</section>
+
+<section class="section mt-24">
+    {% if avaliacoes %}
+    <div class="list-card">
+        <div class="list-card-header">
+            <h3>Registros recentes</h3>
+            <span class="badge badge-green">{{ avaliacoes|length }}</span>
+        </div>
+        {% for avaliacao in avaliacoes %}
+        <a href="{% url 'core:detalhe_avaliacao' avaliacao.id %}" class="list-item">
+            <div class="list-avatar">{{ avaliacao.nome|slice:":2"|upper }}</div>
+            <div class="list-info">
+                <div class="list-name">{{ avaliacao.nome }}</div>
+                <div class="list-sub">{{ avaliacao.criado_em|date:"d/m/Y" }} · {{ avaliacao.get_sexo_display }} · IMC {{ avaliacao.imc|default:"-" }}</div>
+            </div>
+            <span class="badge badge-gray">Visualizar</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h3>Você ainda não possui avaliações</h3>
+        <p>Crie a primeira avaliação para iniciar o acompanhamento.</p>
+        <a href="{% url 'core:escolher_tipo' %}" class="btn btn-primary">Criar avaliação</a>
+    </div>
+    {% endif %}
+</section>
 {% endblock %}

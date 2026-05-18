@@ -1,44 +1,60 @@
 {% extends "core/base.html" %}
+
+{% block title %}{{ avaliacao.nome }} | FitFlix{% endblock %}
+
 {% block content %}
+<section class="page-header">
+    <div>
+        <h1 class="page-title">{{ avaliacao.nome }}</h1>
+        <p class="page-subtitle">{{ tipo|title }} · {{ avaliacao.criado_em|date:"d/m/Y" }}</p>
+    </div>
+    <div class="d-flex gap-8">
+        <a href="{% url 'core:dashboard' avaliacao.id %}" class="btn btn-primary">Dashboard</a>
+        <a href="{% url 'core:editar_avaliacao' avaliacao.id %}" class="btn btn-outline">Editar</a>
+        <a href="{% url 'core:excluir_avaliacao' avaliacao.id %}" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta avaliação?')">Excluir</a>
+    </div>
+</section>
 
-<div class="acoes">
-    <a href="{% url 'core:dashboard' avaliacao.id %}" class="btn btn-primary">
-        Ver Dashboard
-    </a>
+<section class="avaliacao-grid">
+    <article class="avaliacao-section">
+        <h2 class="avaliacao-section-title">Dados gerais</h2>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Sexo</span><span class="avaliacao-row-value">{{ avaliacao.get_sexo_display }}</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Idade</span><span class="avaliacao-row-value">{{ avaliacao.idade }}</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Altura</span><span class="avaliacao-row-value">{{ avaliacao.altura }} m</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Peso</span><span class="avaliacao-row-value">{{ avaliacao.peso }} kg</span></div>
+    </article>
 
-    <a href="{% url 'core:editar_avaliacao' avaliacao.id %}" class="btn btn-editar">
-        Editar
-    </a>
+    <article class="avaliacao-section">
+        <h2 class="avaliacao-section-title">IMC</h2>
+        <div class="imc-display">
+            <div class="imc-value">{{ avaliacao.imc|default:"-" }}</div>
+            <div class="imc-class">Índice de massa corporal</div>
+        </div>
+    </article>
 
-    <a href="{% url 'core:excluir_avaliacao' avaliacao.id %}"
-        class="btn btn-excluir"
-        onclick="return confirm('Tem certeza que deseja excluir esta avaliação?')">
-        Excluir
-    </a>
-</div>
+    <article class="avaliacao-section">
+        <h2 class="avaliacao-section-title">Objetivo</h2>
+        <div class="card-body">
+            <p class="text-muted">{{ avaliacao.objetivo|default:"Nenhum objetivo informado." }}</p>
+        </div>
+    </article>
 
-<h1>{{ avaliacao.nome }}</h1>
-<p><strong>Percentual:</strong> {{ avaliacao.percentual|floatformat:2 }}%</p>
-<p><strong>Sexo:</strong> {{ avaliacao.get_sexo_display }}</p>
-<p><strong>Altura:</strong> {{ avaliacao.altura }}</p>
-<p><strong>Peso:</strong> {{ avaliacao.peso }}</p>
-
-<h5>Saúde muscular</h5>
-<p>
-    Panturrilha média: {{ avaliacao.idoso.panturrilha_media }} cm
-</p>
-    
-<p>
-    Diagnóstico:
-    {% if avaliacao.idoso.panturrilha_media < 31 %}
-    <span style="color: red; font-weight: bold;">
-        Risco de sarcopenia
-    </span>
-    {% else %}
-    <span style="color: Green;">
-        Normal
-    </span>
+    {% if tipo == "idoso" %}
+    <article class="avaliacao-section">
+        <h2 class="avaliacao-section-title">Testes funcionais</h2>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Sentar e levantar</span><span class="avaliacao-row-value">{{ avaliacao.idoso.sentar_levantar }}</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">TUG</span><span class="avaliacao-row-value">{{ avaliacao.idoso.tug_tempo }}s</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Equilíbrio</span><span class="avaliacao-row-value">{{ avaliacao.idoso.equilibrio_segundos }}s</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Caminhada 6 min</span><span class="avaliacao-row-value">{{ avaliacao.idoso.caminhada_6min }}m</span></div>
+    </article>
+    {% elif tipo == "crianca" %}
+    <article class="avaliacao-section">
+        <h2 class="avaliacao-section-title">Testes infantis</h2>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Coordenação</span><span class="avaliacao-row-value">{{ avaliacao.crianca.coordenacao }}</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Equilíbrio</span><span class="avaliacao-row-value">{{ avaliacao.crianca.equilibrio_segundos }}s</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Flexões</span><span class="avaliacao-row-value">{{ avaliacao.crianca.flexoes }}</span></div>
+        <div class="avaliacao-row"><span class="avaliacao-row-label">Agilidade</span><span class="avaliacao-row-value">{{ avaliacao.crianca.agilidade_tempo }}s</span></div>
+    </article>
     {% endif %}
-</p>
-
+</section>
 {% endblock %}
