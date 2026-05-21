@@ -11,6 +11,10 @@ import string
 from collections import defaultdict
 from django.http import HttpResponse
 from core.util.gif import comprimir_gif
+import os
+from django.conf import settings
+from django.db.models import Q
+
 
 from .models import (
     Aluno,
@@ -724,3 +728,69 @@ def ver_treino(request, token):
     link = request.build_absolute_uri(treino.get_link())
 
     return render(request, "core/treino_publico.html", {"treino": treino, "link": link})
+
+
+
+# ================
+# VINCULAR GIFS
+# ================
+
+@login_required
+def vincular_gifs(request):
+    pasta_gifs = os.path.join(settings.MEDIA_ROOT, 'exercicios/gif')
+
+    arquivos = []
+
+    if os.path.exists(pasta_gifs):
+        arquivos = [
+            f for f in os.listdir(pasta_gifs)
+            if f.lower().endswith((".gif", ".mp4", ".webp"))
+        ]
+        
+
+   
+    variacoes = VariacaoExercicio.objects.select_related(
+        "exercicio"
+    ).order_by(
+        "exercicio__nome",
+        "nome"
+    )
+        
+    
+
+        # Arquivos já vinculados
+    ja_vinculados = set(
+        VariacaoExercicio.objects.exclude(gif="")
+        .values_list("gif", flat=True)
+    )
+
+    ja_vinculados_nomes = {
+        p.split("/")[-1] 
+        for p in ja_vinculados 
+        if p
+    }
+
+    if request.method == "POST":
+        variacao_id = request.POST.get("variacao")
+        arquivo = request.POST.get("arquivo")
+
+        variacao = get_object_or_404(
+            VariacaoExercicio,
+            id=variacao_id
+        )
+
+        variacao.gif = f"exercicios/gif/{arquivo}"
+
+        variacao.save(update_fields=["gif"])
+
+        return redirect("core:vincular_gifs")
+
+
+
+    context = {
+        "arquivos": arquivos,
+        "variacoes": variacoes,
+        "ja_vinculados": ja_vinculados_nomes,
+    }
+
+    return render(request, "core/vincular_gifs.html", context)

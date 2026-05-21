@@ -58,4 +58,12 @@ urlpatterns = [
     ),
     # Editar treino
     path("treino/<int:treino_id>/editar/", views.editar_treino, name="editar_treino"),
+
+    #vincular gifs
+    path(
+    "vincular-gifs/",
+    views.vincular_gifs,
+    name="vincular_gifs"
+),
+
 ]

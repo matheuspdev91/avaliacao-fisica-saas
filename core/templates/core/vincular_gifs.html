@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="fitflix-page">
+
+    <div class="fitflix-header">
+        <h1>Vincular GIFs</h1>
+        <span style="color:var(--text-muted); font-size:14px;">
+            {{ arquivos|length }} arquivo(s) encontrado(s)
+        </span>
+    </div>
+
+    {% if not arquivos %}
+        <p style="color:var(--text-muted);">Nenhum arquivo encontrado em media/exercicios/gif/</p>
+    {% endif %}
+
+    <div style="display:grid; gap:16px;">
+
+        {% for arquivo in arquivos %}
+
+        <div style="
+            display:flex;
+            align-items:flex-start;
+            gap:24px;
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:20px;
+            background:#111;
+        ">
+    
+
+            {# GIF preview #}
+            <img
+            src="/media/exercicios/gif/{{ arquivo }}"
+            
+                alt="{{ arquivo }}"
+                style="width:180px; height:130px; object-fit:cover; border-radius:8px; flex-shrink:0;"
+                loading="lazy"
+            >
+
+            <div style="flex:1; min-width:0;">
+
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px; word-break:break-all;">
+                    {{ arquivo }}
+                </p>
+
+                {% if arquivo in ja_vinculados %}
+
+                    <p style="color:#22c55e; font-size:13px; font-weight:600;">
+                        ✓ Já vinculado
+                    </p>
+
+                {% else %}
+
+                    <form method="POST" action="{% url 'core:vincular_gifs' %}" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        {% csrf_token %}
+
+                        <input type="hidden" name="arquivo" value="{{ arquivo }}">
+
+                        <select name="variacao" required style="flex:1; min-width:220px; max-width:420px;">
+                            <option value="">Selecione a variação</option>
+                            {% for v in variacoes %}
+                                <option value="{{ v.id }}">{{ v.exercicio.nome }} — {{ v.nome }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="submit" class="btn">
+                            Vincular
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}
