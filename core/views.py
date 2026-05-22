@@ -750,11 +750,10 @@ def vincular_gifs(request):
 
    
     variacoes = VariacaoExercicio.objects.select_related(
-        "exercicio"
-    ).order_by(
-        "exercicio__nome",
-        "nome"
-    )
+    "exercicio"
+).order_by(
+    "nome"
+)
         
     
 

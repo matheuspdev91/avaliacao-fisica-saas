@@ -61,7 +61,9 @@
                         <select name="variacao" required style="flex:1; min-width:220px; max-width:420px;">
                             <option value="">Selecione a variação</option>
                             {% for v in variacoes %}
-                                <option value="{{ v.id }}">{{ v.exercicio.nome }} — {{ v.nome }}</option>
+                                <option value="{{ v.id }}">
+                                    {{ v.exercicio.nome }} — {{ v.nome }}
+                                </option>
                             {% endfor %}
                         </select>
 
