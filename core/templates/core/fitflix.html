@@ -26,11 +26,18 @@
                     {% for exercicio in grupo.exercicios %}
                     <div class="fitflix-item">
                         <div class="fitflix-exercise-image">
-                            {% if exercicio.imagem %}
-                            <img src="{{ exercicio.imagem.url }}" class="fitflix-exercise-thumb" alt="{{ exercicio.nome }}">
-                            {% else %}
-                            <img src="{% static 'img/placeholder.png' %}" class="fitflix-exercise-thumb" alt="{{ exercicio.nome }}">
-                            {% endif %}
+                            {% with variacao=exercicio.variacoes.first %}
+
+                                {% if variacao and variacao.gif %}
+                                    <img src="{{ variacao.gif.url }}"
+                                        class="fitflix-exercise-thumb"
+                                        alt="{{ exercicio.nome }}">
+                                {% else %}
+                                    <img src="{% static 'img/placeholder.png' %}"
+                                        class="fitflix-exercise-thumb"
+                                        alt="{{ exercicio.nome }}">
+                                {% endif %}
+                            {% endwith %}
                         </div>
                         
                             <div class="fitflix-exercise-info">

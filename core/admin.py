@@ -8,7 +8,6 @@ from .models import (
     AvaliacaoFisica,
     AvaliacaoIdoso,
     Circunferencia,
-    Exercicio,
     ExercicioTreino,
     GrupoMuscular,
     Treino,
@@ -124,7 +123,7 @@ class GrupoMuscularAdmin(admin.ModelAdmin):
 class VariacaoInline(admin.TabularInline):
     model = VariacaoExercicio
     extra = 1
-    fields = ("nome", "grupo_muscular", "gif")
+    fields = ("nome", "gif")
 
 
 @admin.register(VideoExercicio)
@@ -141,17 +140,16 @@ class VideoExercicioAdmin(admin.ModelAdmin):
 
 @admin.register(VariacaoExercicio)
 class VariacaoExercicioAdmin(admin.ModelAdmin):
-    list_display = ("nome", "exercicio", "grupo_muscular")
-    list_filter = ("grupo_muscular", "exercicio")
-    search_fields = ("nome", "exercicio__nome", "grupo_muscular__nome")
-    ordering = ("exercicio__nome", "nome")
+    list_display = ("nome", "exercicio", "criado_em")
+    list_filter = ("exercicio",)
+    search_fields = ("nome", "exercicio__nome")
 
+    ordering = ("exercicio__nome", "nome")
 
 class ExercicioTreinoInline(admin.TabularInline):
     model = ExercicioTreino
     extra = 1
     fields = (
-        "exercicio",
         "variacao",
         "series",
         "repeticoes",
@@ -159,7 +157,6 @@ class ExercicioTreinoInline(admin.TabularInline):
         "carga",
         "ordem",
     )
-
 
 @admin.register(Treino)
 class TreinoAdmin(admin.ModelAdmin):
@@ -169,28 +166,25 @@ class TreinoAdmin(admin.ModelAdmin):
     ordering = ("-criado_em",)
     readonly_fields = ("token", "criado_em")
     inlines = [ExercicioTreinoInline]
-
-
 @admin.register(ExercicioTreino)
 class ExercicioTreinoAdmin(admin.ModelAdmin):
     list_display = (
         "treino",
-        "exercicio",
         "variacao",
         "series",
         "repeticoes",
         "ordem",
     )
-    list_filter = ("treino", "exercicio")
-    search_fields = ("treino__nome", "exercicio__nome", "variacao__nome")
+
+    list_filter = ("treino",)
+
+    search_fields = (
+        "treino__nome",
+        "variacao__nome",
+        "variacao__exercicio__nome",
+    )
+
     ordering = ("treino__nome", "ordem")
 
 
-@admin.register(Exercicio)
-class ExercicioAdmin(admin.ModelAdmin):
-    list_display = ("nome",)
-    search_fields = ("nome",)
-    ordering = ("nome",)
 
-
-# force deploy

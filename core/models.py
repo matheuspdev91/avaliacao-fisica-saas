@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import uuid
+from cloudinary.models import CloudinaryField
 
 
 # ========================
@@ -192,40 +193,65 @@ class Aluno(models.Model):
 
 
 class GrupoMuscular(models.Model):
-    nome = models.CharField(max_length=50)
+   nome = models.CharField(
+    max_length=50,
+    unique=True
+   )
 
-    def __str__(self):
-        return self.nome
+   def __str__(self):
+     return self.nome
 
 
 class VideoExercicio(models.Model):
-    nome = models.CharField(max_length=100)
-    grupo_muscular = models.ForeignKey(
-    GrupoMuscular, on_delete=models.CASCADE, related_name="exercicios"
+    nome = models.CharField(
+        max_length=100,
+        unique=True
     )
-    gif = models.FileField(upload_to='gifs/', max_length=300)
+
+    grupo_muscular = models.ForeignKey(
+        GrupoMuscular,
+        on_delete=models.CASCADE,
+        related_name="exercicios"
+    )
+
+    categoria = models.CharField(
+        max_length=50,
+        blank=True
+    )
+
     descricao = models.TextField(blank=True)
+
     criado_em = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.nome
 
-
+# =========================
+# VARIAÇÃO DE EXERCÍCIO
+# ========================
 class VariacaoExercicio(models.Model):
     exercicio = models.ForeignKey(
-    VideoExercicio, 
-    on_delete=models.CASCADE, related_name="variacoes"
+        VideoExercicio,
+        on_delete=models.CASCADE,
+        related_name="variacoes"
     )
-    nome = models.CharField(max_length=300)
-    gif = models.FileField(upload_to='gifs/', max_length=300)
 
-    grupo_muscular = models.ForeignKey(
-    GrupoMuscular, on_delete=models.SET_NULL, null=True, blank=True
+    nome = models.CharField(max_length=300)
+
+    gif = CloudinaryField(
+        "gif",
+        folder="fitflix/exercicios/gif"
     )
+
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("exercicio", "nome")
+
 
     def __str__(self):
         return f"{self.exercicio.nome} - {self.nome}"
-
+    
 
 # ========================
 # TREINO
@@ -235,7 +261,7 @@ class VariacaoExercicio(models.Model):
 class Treino(models.Model):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
     nome = models.CharField(max_length=100)
-    descricao = models.TextField()
+    descricao = models.TextField(blank=True)
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     criado_em = models.DateTimeField(auto_now_add=True)
 
@@ -248,10 +274,16 @@ class Treino(models.Model):
 
 class ExercicioTreino(models.Model):
     treino = models.ForeignKey(
-        Treino, on_delete=models.CASCADE, related_name="exercicios"
+        Treino,
+        on_delete=models.CASCADE,
+        related_name="exercicios"
     )
-    exercicio = models.ForeignKey(VideoExercicio, on_delete=models.CASCADE)
-    variacao = models.ForeignKey(VariacaoExercicio, on_delete=models.CASCADE)
+
+    variacao = models.ForeignKey(
+        VariacaoExercicio,
+        on_delete=models.CASCADE,
+        related_name="treinos"
+    )
 
     series = models.IntegerField()
     repeticoes = models.IntegerField()
@@ -261,16 +293,4 @@ class ExercicioTreino(models.Model):
     ordem = models.IntegerField()
 
     def __str__(self):
-        return f"{self.treino.nome} - {self.exercicio.nome}"
-
-
-# ============
-# Exercício
-# ===========
-
-
-class Exercicio(models.Model):
-    nome = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.nome
+        return f"{self.treino.nome} - {self.variacao.nome}"

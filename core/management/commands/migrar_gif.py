@@ -113,6 +113,8 @@ BASE_MAP = {
     "pes a barra": "Pés à Barra",
 
     # Cardio
+
+    "esteira": "Esteira",
     "airbike": "Airbike",
     "eliptica": "Elíptica",
     "eliptico": "Elíptica",
@@ -265,17 +267,20 @@ CATEGORIA_MAP = {
     "rosca": "Força",
     "triceps": "Força",
     "desenvolvimento": "Força",
+
     # Cardio
     "corrida": "Cardio",
     "bike": "Cardio",
     "esteira": "Cardio",
     "airbike": "Cardio",
+
     # Calistenia
     "barra fixa": "Calistenia",
     "pull up": "Calistenia",
     "muscle up": "Calistenia",
     "paralela": "Calistenia",
     "flexao": "Calistenia",
+
     # Funcional
     "burpee": "Funcional",
     "kettlebell": "Funcional",
@@ -283,6 +288,7 @@ CATEGORIA_MAP = {
     "mobilidade": "Mobilidade",
     "alongamento": "Mobilidade",
     "liberacao": "Mobilidade",
+
     # Abdômen
     "abdominal": "Abdômen",
     "prancha": "Abdômen",

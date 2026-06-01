@@ -1,178 +1,404 @@
 {% extends 'core/base.html' %}
-
 {% block title %}Adicionar exercício | FitFlix{% endblock %}
 
 {% block content %}
-<section class="fitflix-form-page">
-    <div class="fitflix-form-shell">
-        <div class="fitflix-form-heading">
-            <p class="fitflix-eyebrow">Treino</p>
-            <h1 class="fitflix-page-title">Adicionar exercício</h1>
-            <p class="fitflix-page-subtitle">
-                Escolha o exercício, defina a variação e ajuste séries, repetições e descanso com uma experiência mais clara e organizada.
-            </p>
-        </div>
 
-        <div class="fitflix-form-card">
-            <form method="post" class="fitflix-premium-form">
-                {% csrf_token %}
+{# ── JSON data island ─────────────────────────────────────────────────── #}
+{# Serializa exercícios + variações + gif URLs em um único objeto JSON.    #}
+{# O JS lê isso — zero requests extras, zero attributes em <option>.       #}
+<script id="ff-exercicios-data" type="application/json">
+{
+  "exercicios": [
+    {% for ex in exercicios %}
+    {
+      "id": {{ ex.id }},
+      "nome": "{{ ex.nome|escapejs }}",
+      "variacoes": [
+        {% for v in ex.variacoes.all %}
+        {
+          "id": {{ v.id }},
+          "nome": "{{ v.nome|escapejs }}",
+          "gif": "{% if v.gif %}{{ v.gif.url|escapejs }}{% endif %}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
 
-                <div class="fitflix-field-group">
-                    <label for="exercicio">Exercício</label>
-                    <select name="exercicio" id="exercicio" required>
-                        <option value="">Selecione</option>
-                        {% for exercicio in exercicios %}
-                            <option value="{{ exercicio.id }}">{{ exercicio.nome }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+<section class="ff-add-page">
+  <div class="ff-add-shell">
 
-                <div class="fitflix-field-group">
-                    <label for="variacao">Variação</label>
-                    <select name="variacao" id="variacao" required>
-                        <option value="">Selecione</option>
-                        {% for exercicio in exercicios %}
-                            {% for variacao in exercicio.variacoes.all %}
-                                <option value="{{ variacao.id }}" data-exercicio="{{ exercicio.id }}" data-gif="{% if variacao.gif %}{{ variacao.gif.url }}{% endif %}">{{ variacao.nome }}</option>
-                            {% endfor %}
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div id="gif-preview-wrapper" style="display:none; margin-bottom:8px;">
-                    <img id="gif-preview"
-                         src=""
-                         alt="Preview da variação"
-                        style="
-                            width:100%;
-                            height:260px;
-                            object-fit:contain;
-                            border-radius:12px;
-                            display:block;
-                            background:red;
-                            ">                
-                            </div>
-                            
-                <div id="gif-placeholder" style="display:none; align-items:center; justify-content:center; height:140px; border-radius:12px; border:1px dashed rgba(255,255,255,0.12); color:rgba(255,255,255,0.35); font-size:13px; margin-bottom:8px;">
-                    Sem mídia para esta variação
-                </div>
-
-                <div class="fitflix-form-grid">
-                    <div class="fitflix-field-group">
-                        <label for="series">Séries</label>
-                        <input type="number" name="series" id="series" min="1" value="3" required>
-                    </div>
-
-                    <div class="fitflix-field-group">
-                        <label for="repeticoes">Repetições</label>
-                        <input type="number" name="repeticoes" id="repeticoes" min="1" value="12" required>
-                    </div>
-                </div>
-
-                <div class="fitflix-form-grid">
-                    <div class="fitflix-field-group">
-                        <label for="descanso">Descanso (segundos)</label>
-                        <input type="number" name="descanso" id="descanso" min="0" value="60" required>
-                    </div>
-
-                    <div class="fitflix-field-group">
-                        <label for="carga">Carga</label>
-                        <input type="text" name="carga" id="carga" placeholder="Ex: 20kg">
-                    </div>
-                </div>
-
-                <div class="fitflix-button-group">
-                    <button type="submit" class="btn fitflix-btn-primary fitflix-btn-wide">
-                        Adicionar exercício
-                    </button>
-
-                    <a href="{% url 'core:editar_treino' treino.id %}" class="btn fitflix-btn-secondary fitflix-btn-wide">
-                        Voltar
-                    </a>
-                </div>
-            </form>
-        </div>
+    {# ── Cabeçalho ── #}
+    <div class="ff-add-heading">
+      <p class="fitflix-eyebrow">{{ treino.nome }}</p>
+      <h1 class="fitflix-page-title">Adicionar exercício</h1>
+      <p class="ff-add-subtitle">Selecione o exercício, a variação e configure a série.</p>
     </div>
+
+    {# ── Mensagens Django ── #}
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="ff-alert ff-alert--{{ msg.tags }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" class="ff-add-form" id="ff-add-form" novalidate>
+      {% csrf_token %}
+
+      {# ── Step 1: Exercício ── #}
+      <div class="ff-card ff-step" id="ff-step-exercicio">
+        <div class="ff-step-label">
+          <span class="ff-step-num">1</span>
+          Exercício
+        </div>
+
+        <div class="ff-search-wrap">
+          <input
+            type="text"
+            id="ff-exercicio-search"
+            class="ff-search-input"
+            placeholder="Buscar exercício…"
+            autocomplete="off"
+            spellcheck="false"
+          >
+        </div>
+
+        <div class="ff-option-list" id="ff-exercicio-list" role="listbox" aria-label="Exercícios"></div>
+
+        {# hidden — enviado no POST #}
+        <input type="hidden" name="exercicio" id="exercicio" required>
+      </div>
+
+      {# ── Step 2: Variação + preview ── #}
+      <div class="ff-card ff-step ff-step--locked" id="ff-step-variacao" aria-disabled="true">
+        <div class="ff-step-label">
+          <span class="ff-step-num">2</span>
+          Variação
+          <span class="ff-step-sub" id="ff-exercicio-chosen-label"></span>
+        </div>
+
+        <div class="ff-variacao-layout">
+
+          {# Lista de variações #}
+          <div class="ff-option-list ff-variacao-list" id="ff-variacao-list" role="listbox" aria-label="Variações"></div>
+
+          {# Preview GIF #}
+          <div class="ff-gif-panel" id="ff-gif-panel">
+            <div class="ff-gif-empty" id="ff-gif-empty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="6" width="20" height="14" rx="2"/>
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <circle cx="12" cy="13" r="2"/>
+              </svg>
+              <span>Selecione uma variação</span>
+            </div>
+            <img
+              id="ff-gif-img"
+              class="ff-gif-img"
+              src=""
+              alt="Preview da variação"
+              style="display:none;"
+            >
+            <div class="ff-gif-no-media" id="ff-gif-no-media" style="display:none;">
+              <span>Sem prévia disponível</span>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" name="variacao" id="variacao" required>
+      </div>
+
+      {# ── Step 3: Configuração ── #}
+      <div class="ff-card ff-step ff-step--locked" id="ff-step-config" aria-disabled="true">
+        <div class="ff-step-label">
+          <span class="ff-step-num">3</span>
+          Configuração da série
+        </div>
+
+        <div class="ff-config-grid">
+          <div class="ff-field">
+            <label for="series">Séries</label>
+            <div class="ff-num-wrap">
+              <button type="button" class="ff-num-btn" data-target="series" data-delta="-1">−</button>
+              <input type="number" name="series" id="series" min="1" max="20" value="3" required>
+              <button type="button" class="ff-num-btn" data-target="series" data-delta="1">+</button>
+            </div>
+          </div>
+
+          <div class="ff-field">
+            <label for="repeticoes">Repetições</label>
+            <div class="ff-num-wrap">
+              <button type="button" class="ff-num-btn" data-target="repeticoes" data-delta="-1">−</button>
+              <input type="number" name="repeticoes" id="repeticoes" min="1" max="100" value="12" required>
+              <button type="button" class="ff-num-btn" data-target="repeticoes" data-delta="1">+</button>
+            </div>
+          </div>
+
+          <div class="ff-field">
+            <label for="descanso">Descanso (seg.)</label>
+            <div class="ff-num-wrap">
+              <button type="button" class="ff-num-btn" data-target="descanso" data-delta="-15">−</button>
+              <input type="number" name="descanso" id="descanso" min="0" max="600" step="15" value="60" required>
+              <button type="button" class="ff-num-btn" data-target="descanso" data-delta="15">+</button>
+            </div>
+          </div>
+
+          <div class="ff-field">
+            <label for="carga">Carga</label>
+            <input type="text" name="carga" id="carga" placeholder="Ex: 20 kg, peso corporal…" class="ff-text-input">
+          </div>
+        </div>
+      </div>
+
+      {# ── Ações ── #}
+      <div class="ff-actions">
+        <button type="submit" class="ff-btn ff-btn--primary" id="ff-submit-btn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+          </svg>
+          Adicionar ao treino
+        </button>
+        <a href="{% url 'core:editar_treino' treino.id %}" class="ff-btn ff-btn--ghost">
+          Voltar
+        </a>
+      </div>
+
+    </form>
+  </div>
 </section>
 
 {% endblock %}
 
 {% block scripts %}
-{% load static %}
-
 <script>
+/* =========================================================
+   FitFlix — Adicionar Exercício
+   Arquitetura: data island → estado reativo → DOM puro
+   Sem jQuery, sem frameworks, sem dependências externas.
+   ========================================================= */
 (function () {
-    var variacaoSelect = document.getElementById('variacao');
-    var exercicioSelect = document.getElementById('exercicio');
-    var previewWrapper = document.getElementById('gif-preview-wrapper');
-    var previewImg = document.getElementById('gif-preview');
-    var placeholder = document.getElementById('gif-placeholder');
+  'use strict';
 
-function clearPreview() {
-    previewWrapper.style.display = 'none';
-    placeholder.style.display = 'none';
-    previewImg.src = '';
-}
+  /* ── 1. Lê o data island ───────────────────────────────── */
+  const rawData = document.getElementById('ff-exercicios-data');
+  if (!rawData) return;
 
-function updatePreview() {
-    var selected = variacaoSelect.options[variacaoSelect.selectedIndex];
+  let DATA;
+  try {
+    DATA = JSON.parse(rawData.textContent);
+  } catch (e) {
+    console.error('[FitFlix] Erro ao parsear dados de exercícios:', e);
+    return;
+  }
 
-    if (!selected || selected.value === '') {
-        clearPreview();
-        return;
+  const exercicios = DATA.exercicios; // [{id, nome, variacoes:[{id,nome,gif}]}]
+
+  /* ── 2. Estado central ─────────────────────────────────── */
+  const state = {
+    exercicioId:  null,
+    exercicioNome: null,
+    variacaoId:   null,
+    variacaoNome: null,
+    variacaoGif:  null,
+  };
+
+  /* ── 3. Elementos do DOM ───────────────────────────────── */
+  const elSearch        = document.getElementById('ff-exercicio-search');
+  const elExercicioList = document.getElementById('ff-exercicio-list');
+  const elVariacaoList  = document.getElementById('ff-variacao-list');
+  const elChosenLabel   = document.getElementById('ff-exercicio-chosen-label');
+  const elGifImg        = document.getElementById('ff-gif-img');
+  const elGifEmpty      = document.getElementById('ff-gif-empty');
+  const elGifNoMedia    = document.getElementById('ff-gif-no-media');
+  const elGifPanel      = document.getElementById('ff-gif-panel');
+  const elHiddenEx      = document.getElementById('exercicio');
+  const elHiddenVar     = document.getElementById('variacao');
+  const elSubmit        = document.getElementById('ff-submit-btn');
+  const stepVariacao    = document.getElementById('ff-step-variacao');
+  const stepConfig      = document.getElementById('ff-step-config');
+
+  /* ── 4. Helpers de render ──────────────────────────────── */
+
+  function renderExercicios(lista) {
+    elExercicioList.innerHTML = '';
+    if (lista.length === 0) {
+      elExercicioList.innerHTML = '<p class="ff-empty-msg">Nenhum exercício encontrado.</p>';
+      return;
     }
-
-    var gif = selected.getAttribute('data-gif');
-
-    if (gif) {
-        previewImg.src = gif;
-        previewWrapper.style.display = 'block';
-        placeholder.style.display = 'none';
-    } else {
-        previewWrapper.style.display = 'none';
-        placeholder.style.display = 'flex';
-    }
-}
-
-
-// guarda todas opções originais
-const todasVariacoes = Array.from(variacaoSelect.options);
-
-function filtrarVariacoes() {
-    var exercicioId = exercicioSelect.value;
-
-    // limpa select
-    variacaoSelect.innerHTML = '';
-
-    // option padrão
-    var defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.textContent = 'Selecione';
-    variacaoSelect.appendChild(defaultOption);
-
-    // se não tiver exercício, para aqui
-    if (!exercicioId) {
-        clearPreview();
-        return;
-    }
-
-    // adiciona somente as variações do exercício
-    todasVariacoes.forEach(function(option) {
-        if (!option.value) return;
-
-        var optionExercicio = option.getAttribute('data-exercicio');
-
-        if (optionExercicio === exercicioId) {
-            variacaoSelect.appendChild(option.cloneNode(true));
-        }
+    lista.forEach(function (ex) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ff-option-btn' + (state.exercicioId === ex.id ? ' is-active' : '');
+      btn.dataset.id = ex.id;
+      btn.textContent = ex.nome;
+      btn.addEventListener('click', function () { selectExercicio(ex); });
+      elExercicioList.appendChild(btn);
     });
+  }
 
-    clearPreview();
-}
+  function renderVariacoes(variacoes) {
+    elVariacaoList.innerHTML = '';
+    variacoes.forEach(function (v) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ff-option-btn ff-option-btn--variacao' +
+                      (state.variacaoId === v.id ? ' is-active' : '');
+      btn.dataset.id  = v.id;
+      btn.dataset.gif = v.gif || '';
 
+      // Indicador de gif disponível
+      const dot = v.gif
+        ? '<span class="ff-gif-dot" title="GIF disponível"></span>'
+        : '<span class="ff-gif-dot ff-gif-dot--none" title="Sem GIF"></span>';
 
-exercicioSelect.addEventListener('change', filtrarVariacoes);
-variacaoSelect.addEventListener('change', updatePreview);
+      btn.innerHTML = dot + '<span>' + escHtml(v.nome) + '</span>';
+      btn.addEventListener('click', function () { selectVariacao(v); });
+      elVariacaoList.appendChild(btn);
+    });
+  }
+
+  function updateGifPanel(gif) {
+    if (gif) {
+      elGifImg.src = gif;
+      elGifImg.style.display  = 'block';
+      elGifEmpty.style.display   = 'none';
+      elGifNoMedia.style.display = 'none';
+      // Fade-in ao carregar
+      elGifImg.onload = function () { elGifImg.classList.add('is-loaded'); };
+      elGifImg.onerror = function () {
+        elGifImg.style.display   = 'none';
+        elGifNoMedia.style.display = 'flex';
+      };
+    } else {
+      elGifImg.src = '';
+      elGifImg.style.display   = 'none';
+      elGifImg.classList.remove('is-loaded');
+      elGifEmpty.style.display   = 'none';
+      elGifNoMedia.style.display = 'flex';
+    }
+  }
+
+  function unlockStep(el) {
+    el.classList.remove('ff-step--locked');
+    el.removeAttribute('aria-disabled');
+  }
+
+  function lockStep(el) {
+    el.classList.add('ff-step--locked');
+    el.setAttribute('aria-disabled', 'true');
+  }
+
+  function syncSubmit() {
+    const ready = state.exercicioId !== null && state.variacaoId !== null;
+    elSubmit.disabled = !ready;
+  }
+
+  /* ── 5. Ações de seleção ───────────────────────────────── */
+
+  function selectExercicio(ex) {
+    state.exercicioId   = ex.id;
+    state.exercicioNome = ex.nome;
+    // Limpa variação ao trocar exercício
+    state.variacaoId   = null;
+    state.variacaoNome = null;
+    state.variacaoGif  = null;
+
+    elHiddenEx.value  = ex.id;
+    elHiddenVar.value = '';
+
+    elChosenLabel.textContent = ex.nome;
+
+    // Atualiza visual do passo 1
+    renderExercicios(
+      exercicios.filter(function (e) {
+        return normalize(e.nome).includes(normalize(elSearch.value));
+      })
+    );
+
+    // Passo 2: desbloqueia e popula variações
+    unlockStep(stepVariacao);
+    renderVariacoes(ex.variacoes);
+
+    // Preview: volta ao estado vazio
+    elGifImg.style.display     = 'none';
+    elGifImg.classList.remove('is-loaded');
+    elGifNoMedia.style.display = 'none';
+    elGifEmpty.style.display   = 'flex';
+
+    lockStep(stepConfig);
+    syncSubmit();
+
+    // Scroll suave para o passo 2
+    stepVariacao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function selectVariacao(v) {
+    state.variacaoId   = v.id;
+    state.variacaoNome = v.nome;
+    state.variacaoGif  = v.gif || null;
+
+    elHiddenVar.value = v.id;
+
+    // Atualiza visual do passo 2
+    renderVariacoes(
+      exercicios.find(function (e) { return e.id === state.exercicioId; }).variacoes
+    );
+
+    updateGifPanel(state.variacaoGif);
+    unlockStep(stepConfig);
+    syncSubmit();
+
+    // Scroll suave para o passo 3
+    stepConfig.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ── 6. Busca de exercícios ────────────────────────────── */
+
+  function normalize(s) {
+    return s
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')  // remove acentos
+      .replace(/[^a-z0-9\s]/g, '');
+  }
+
+  elSearch.addEventListener('input', function () {
+    const q = normalize(this.value.trim());
+    const filtrado = q
+      ? exercicios.filter(function (e) { return normalize(e.nome).includes(q); })
+      : exercicios;
+    renderExercicios(filtrado);
+  });
+
+  /* ── 7. Botões +/- de número ───────────────────────────── */
+
+  document.querySelectorAll('.ff-num-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const input = document.getElementById(this.dataset.target);
+      const delta = parseInt(this.dataset.delta, 10);
+      const min   = parseInt(input.min, 10)  || 0;
+      const max   = parseInt(input.max, 10)  || 9999;
+      const val   = parseInt(input.value, 10) || 0;
+      input.value = Math.min(max, Math.max(min, val + delta));
+    });
+  });
+
+  /* ── 8. Escape HTML helper ─────────────────────────────── */
+
+  function escHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /* ── 9. Init ───────────────────────────────────────────── */
+
+  renderExercicios(exercicios);
 
 })();
 </script>

@@ -80,18 +80,23 @@ class Command(BaseCommand):
                         resource_type="image",
                         overwrite=overwrite,
                         unique_filename=False,
+                        format="gif",
                     )
                     uploaded += 1
                     cloudinary_url = result.get("secure_url") or result.get("url")
                     self.stdout.write(f"UPLOAD {label}: {local_file.name} -> {cloudinary_url}")
 
-                if variacao.gif.name != public_id:
-                    variacao.gif.name = public_id
+                saved_name = cloudinary_url
+
+
+                if variacao.gif.name != saved_name:
+                    variacao.gif.name = saved_name
                     variacao.save(update_fields=["gif"])
                     updated += 1
-                    self.stdout.write(f"SALVO {label}: gif={public_id}")
+
                 else:
-                    self.stdout.write(f"SEM MUDANCA {label}: campo gif ja esta atualizado.")
+                    self.stdout.write
+                    (f"SEM MUDANCA {label}: campo gif ja esta atualizado.")
 
             except Exception as exc:
                 failed += 1

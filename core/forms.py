@@ -238,34 +238,42 @@ class CriarAlunoForm(forms.ModelForm):
 class ExercicioTreinoForm(forms.ModelForm):
     class Meta:
         model = ExercicioTreino
+
         fields = [
-            "exercicio",
             "variacao",
+            "series",
+            "repeticoes",
+            "descanso",
+            "carga",
+            "ordem",
         ]
 
         labels = {
-            "exercicio": "Exercício",
             "variacao": "Variação",
             "series": "Séries",
             "repeticoes": "Repetições",
             "descanso": "Descanso (segundos)",
             "carga": "Carga",
         }
+
         widgets = {
-            "exercicio": forms.Select(),
             "variacao": forms.Select(),
             "series": forms.NumberInput(attrs={"min": 1}),
             "repeticoes": forms.NumberInput(attrs={"min": 1}),
             "descanso": forms.NumberInput(attrs={"min": 0}),
-            "carga": forms.TextInput(attrs={"placeholder": "Ex: 20kg"}),
+            "carga": forms.TextInput(
+                attrs={"placeholder": "Ex: 20kg"}
+            ),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["exercicio"].queryset = VideoExercicio.objects.order_by("nome")
-        self.fields["variacao"].queryset = VariacaoExercicio.objects.select_related(
-            "exercicio"
-        ).order_by("exercicio__nome", "nome")
+
+        self.fields["variacao"].queryset = (
+            VariacaoExercicio.objects
+            .select_related("exercicio")
+            .order_by("exercicio__nome", "nome")
+        )
 
 
 ExercicioTreinoFormSet = inlineformset_factory(
