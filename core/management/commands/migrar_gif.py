@@ -64,23 +64,27 @@ BASE_MAP = {
     "deltoide posterior": "Crucifixo Inverso",
     "levantamento frontal": "Elevação Frontal",
     "elevacao frontal": "Elevação Frontal",
+    "levantamento de halteres de 3 maneiras": "Elevação Lateral",
+    "levantamento de halteres de 4 maneiras": "Elevação Lateral",
+    "protracao e retracao da escapula": "Protração e Retração da Escápula",
 
     # Pernas
     "agachamento": "Agachamento",
     "leg press": "Leg Press",
     "flexora": "Mesa Flexora",
+    "mesa flexora": "Mesa Flexora",
+    "cadeira flexora": "Cadeira Flexora",
     "extensora": "Cadeira Extensora",
+    "cadeira extensora": "Cadeira Extensora",
     "levantamento terra": "Levantamento Terra",
     "terra romeno": "Levantamento Terra",
     "stiff": "Stiff",
     "afundo": "Afundo",
-    "leg press": "Leg Press",
-    "mesa flexora": "Mesa Flexora",
-    "cadeira flexora": "Cadeira Flexora",
-    "cadeira extensora": "Cadeira Extensora",
+    "avanco": "Afundo",
     "flexao nordica": "Flexão Nórdica",
     "bom dia": "Bom Dia",
-    "avanco": "Afundo",
+    "abducao": "Abdução",
+    "aducao": "Adução",
 
     # Glúteos
     "gluteo": "Glúteo",
@@ -92,14 +96,12 @@ BASE_MAP = {
 
     # Panturrilhas
     "panturrilha": "Panturrilha",
-    
+
     # Abdômen
     "abdominal": "Abdominal",
-    "prancha": "Prancha",
     "abdominais": "Abdominal",
     "abdominais obliquos": "Abdominal Oblíquo",
-    "abducao": "Abdução",
-    "aducao": "Adução",
+    "prancha": "Prancha",
     "alpinista": "Mountain Climber",
     "superman": "Superman",
     "inseto morto": "Dead Bug",
@@ -111,9 +113,21 @@ BASE_MAP = {
     "step": "Step Up",
     "subida no step": "Step Up",
     "pes a barra": "Pés à Barra",
+    "sit up": "Sit Up",
+    "v up": "V Up",
+    "dragon flag": "Dragon Flag",
+    "wall sit": "Wall Sit",
+    "wallsit": "Wall Sit",
+    "l sit": "L Sit",
+    "torcao": "Torção",
+    "giro": "Torção",
+    "tesoura": "Tesoura",
+    "swimming": "Swimming",
+    "quadrupede": "Quadrúpede",
+    "quatro apoios": "Quadrúpede",
+    "rolando como uma bola": "Rolando como uma Bola",
 
     # Cardio
-
     "esteira": "Esteira",
     "airbike": "Airbike",
     "eliptica": "Elíptica",
@@ -122,14 +136,18 @@ BASE_MAP = {
     "polichinelo": "Polichinelo",
     "bicicleta": "Bike",
     "bicicleta ergometrica": "Bike",
-    "esteira": "Esteira",
     "corrida": "Corrida",
     "corda de batalha": "Corda de Batalha",
 
     # Funcional
     "burpee": "Burpee",
+    "soco": "Socos",
+    "socos": "Socos",
+    "salto": "Saltos",
+    "snap jump": "Snap Jump",
+    "snap jumps": "Snap Jump",
 
-    # CALISTENIA
+    # Calistenia
     "paralela": "Paralela",
     "paralelas": "Paralela",
     "muscle up": "Muscle Up",
@@ -138,38 +156,23 @@ BASE_MAP = {
     "bandeira humana": "Bandeira Humana",
     "suspensao passiva": "Suspensão Passiva",
     "mergulho coreano": "Mergulho Coreano",
-    "back lever": "Back Lever",
-    "bandeira humana": "Bandeira Humana",
-    "back lever": "Back Lever",
-    "bandeira humana": "Bandeira Humana",
-
-    # ABDÔMEN
-    "sit up": "Sit Up",
-    "v up": "V Up",
-    "dragon flag": "Dragon Flag",
-    "wall sit": "Wall Sit",
-    "wallsit": "Wall Sit",
-    "l sit": "L Sit",
-    "superman": "Superman",
-    "inseto morto": "Dead Bug",
-    "besouro morto": "Dead Bug",
-    "posicao do barco": "Barco",
-    "canoinha": "Barco",
-    "toque de calcanhar": "Toque de Calcanhar",
-    "elevacao de pernas": "Elevação de Pernas",
-    "pes a barra": "Pés à Barra",
-    "torcao": "Torção",
-    "giro": "Torção",
 
     # Mobilidade
     "alongamento": "Alongamento",
     "rolamento": "Alongamento",
     "rolo de espuma": "Alongamento",
+    "rolagem de espuma": "Liberação Miofascial",
     "rotacao externa": "Rotação Externa",
     "rotacao interna": "Rotação Interna",
     "pendulo de ombro": "Pêndulo de Ombro",
-    "rolagem de espuma": "Liberação Miofascial",
+    "rotacao": "Rotação",
+    "tração lateral": "Tração Lateral",
+    "tracao lateral": "Tração Lateral",
 }
+
+# ===============
+# DETECTAR BASE
+# ===============
 
 def detectar_base(nome):
     nome = normalizar(nome)
@@ -284,6 +287,7 @@ CATEGORIA_MAP = {
     # Funcional
     "burpee": "Funcional",
     "kettlebell": "Funcional",
+
     # Mobilidade
     "mobilidade": "Mobilidade",
     "alongamento": "Mobilidade",
