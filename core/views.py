@@ -667,7 +667,6 @@ def editar_treino(request, treino_id):
     treino = get_object_or_404(Treino, id=treino_id)
 
     exercicios_treino = treino.exercicios.select_related(
-        "exercicio",
         "variacao",
     ).order_by("ordem")
 
