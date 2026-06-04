@@ -4,3 +4,7 @@ db.sqlite3
 .env
 *.pyc
 staticfiles/
+audit_*.csv
+log_*.csv
+segunda_passagem.csv
+variacoes_sem_gif.csv
