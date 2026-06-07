@@ -2,20 +2,73 @@
 
 {% block content %}
 
-{% if treino.exercicios.exists %}
-    <ul>
-        {% for item in treino.exercicios.all|dictsort:"ordem" %}
-            <li>
-                <strong>{{ item.exercicio.nome }}</strong><br>
-                Série: {{ item.series }} |
-                Reps: {{ item.repeticoes }} |
-                Descanso: {{ item.descanso }}s
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Nenhum exercício cadastrado.</p>
+<div class="treino-publico">
 
-{% endif %}
+    <h1 style="margin-bottom: 30px;">
+        {{ treino.nome }}
+    </h1>
+
+    {% for item in treino.exercicios.all|dictsort:"ordem" %}
+
+        <div class="treino-publico-card">
+
+            {% if item.variacao.gif %}
+                <img
+                    src="{{ item.variacao.gif.url }}"
+                    alt="{{ item.variacao.nome }}"
+                    class="treino-publico-gif">
+                   
+                    
+            {% endif %}
+            
+            <div class="treino-publico-info"> 
+
+                
+                <h2>
+                    {{ item.variacao.exercicio.nome }}
+                </h2>
+                
+                <p style="opacity: .8;">
+                    {{ item.variacao.nome }}
+                </p>
+
+                <div class="treino-publico-metricas">
+
+                    <div class="treino-metrica">
+                        <span>Séries</span>
+                        <strong>{{ item.serie }}</strong>
+                    </div>
+
+                    <div class="treino-metrica">
+                        <span>Repetições</span>
+                        <strong>{{ item.repeticoes }}</strong>
+                    </div>
+
+                    <div class="treino-metrica">
+                        <span>Descanso</span>
+                        <strong>{{ item.descanso }}</strong>
+                    </div>
+
+                    {% if item.carga %}
+                    <div class="treino-metrica">
+                        <span>Carga</span>
+                        <strong>{{ item.carga }}</strong>
+                    </div>
+                        
+                    {% endif %}
+                    </div>
+                </div>
+
+               
+
+        </div>
+
+        {% empty %}
+
+        <p>Nenhum exercício cadastrado.</p>
+
+        {% endfor %}
+        
+    </div>
 
 {% endblock %}

@@ -548,7 +548,6 @@ def adicionar_exercicio(request, treino_id):
 
         ExercicioTreino.objects.create(
             treino=treino,
-            exercicio=exercicio,
             variacao=variacao,
             series=int(series),
             repeticoes=int(repeticoes),

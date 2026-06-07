@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
+{% load static %}
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Treino</title>
-</head>
-<body style="font-family: Arial; padding: 20px; background: #0f172a; color: white">
-
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/fitflix.css' %}" />
+  </head>
+  <body>
     {% block content %}{% endblock %}
-    
-    
-</body>
+  </body>
 </html>

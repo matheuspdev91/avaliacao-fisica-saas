@@ -1679,3 +1679,135 @@ select {
   .ff-btn { padding: 12px 18px; font-size: 13px; }
 }
 
+
+/* ======== TREINO PÚBLICO ========== */
+
+.treino-publico {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.treino-publico-card {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+
+    min-height: auto;
+    align-items: center;
+
+    padding: 24px;
+    margin-bottom: 24px;
+
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,.08);
+
+    background:
+        radial-gradient(circle at top right,
+        rgba(0,255,136,.18),
+        transparent 45%),
+        linear-gradient(
+        180deg,
+        #161616,
+        #090909    
+    );
+box-shadow:
+0 20px 60px rgba(0,0,0,0.5),
+0 0 40px rgba(0,255,136,08);
+
+}
+
+.treino-publico-gif {
+    width: 100%;
+    border-radius: 16px;
+}
+
+.treino-publico-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.treino-publico-titulo {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.treino-publico-subtitulo {
+    color: rgba(255,255,255,.65);
+    margin-bottom: 20px;
+}
+
+.treino-publico-metricas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.treino-publico-body {
+    background: #0b0f0d;
+    color: #fff;
+    padding: 20px;
+}
+
+
+@media (max-width: 768px) {
+
+    .treino-publico-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow:
+        0 8px 30px rgba(0,0,0,.4),
+        0 0 12px rgba(0,255,136,.12);
+    }
+
+    .treino-publico-gif {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .treino-publico-info {
+        margin-top: 12px;
+    }
+
+    .treino-publico-titulo,
+    .treino-publico-info h2 {
+        font-size: 1.8rem;
+    }
+
+}
+
+.treino-publico-metricas{
+    display:flex;
+    gap:12px;
+    margin-top:18px;
+    flex-wrap:wrap;
+    justify-content: center;
+}
+
+.treino-metrica{
+    min-width:90px;
+    padding:10px 14px;
+    border-radius:12px;
+
+    background:rgba(0, 255, 136, 0.08);
+    border:1px solid rgba(0, 255, 136, 0.18);
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    flex: 1
+}
+
+.treino-metrica span{
+    font-size:12px;
+    color:#a0a0a0;
+    margin-bottom:4px;
+}
+
+.treino-metrica strong{
+    font-size:18px;
+    color:#fff;
+}
