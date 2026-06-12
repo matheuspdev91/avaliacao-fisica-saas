@@ -13,6 +13,7 @@
     {
       "id": {{ ex.id }},
       "nome": "{{ ex.nome|escapejs }}",
+      "grupo": "{{ex.grupo_muscular.nome|escapejs}}",
       "variacoes": [
         {% for v in ex.variacoes.all %}
         {

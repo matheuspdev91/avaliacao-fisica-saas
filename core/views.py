@@ -389,24 +389,6 @@ def excluir_avaliacao(request, id):
     return redirect("core:avaliacoes")
 
 
-# ===================
-# ATALHO ADM
-# ===================
-
-
-def fix_admin(request):
-    User = get_user_model()
-
-    user, created = User.objects.get_or_create(email="mpdev34@gmail.com")
-
-    user.is_staff = True
-    user.is_superuser = True
-    user.set_password("123123asd")
-    user.save()
-
-    return HttpResponse("ADMIN FIXADO")
-
-
 # =========================
 # EDITAR AVALIAÇÃO
 # =========================
@@ -518,7 +500,12 @@ def criar_avaliacao_crianca(request):
 @login_required
 def adicionar_exercicio(request, treino_id):
     treino = get_object_or_404(Treino, id=treino_id)
-    exercicios = VideoExercicio.objects.prefetch_related("variacoes").order_by("nome")
+    exercicios = (
+        VideoExercicio.objects
+        .select_related("grupo_muscular")
+        .prefetch_related('variacoes')
+        .order_by("grupo_muscular__nome", "nome")
+    )
 
     if request.method == "POST":
         exercicio_id = request.POST.get("exercicio")
@@ -584,9 +571,13 @@ def criar_exercicio(request):
         imagem = request.FILES.get("imagem")
         gif = request.FILES.get("gif")
 
-        exercicio = VideoExercicio.objects.create(
-            nome=nome, grupo_muscular=grupo, imagem=imagem
+        exercicio = (
+             VariacaoExercicio.objects
+             .select_related("grupo_muscular")
+             .prefetch_related("variacoes")
+             .order_by("grupo_muscular__nome", "nome")
         )
+
 
         # 2️⃣ cria a variação depois
         variacao = VariacaoExercicio.objects.create(exercicio=exercicio, nome="Padrão")
