@@ -2,13 +2,20 @@ from django.core.management.base import BaseCommand
 from core.models import VideoExercicio, VariacaoExercicio
 from core.models import GrupoMuscular
 from core.util.texto import nome_bonito
+from django.conf import settings
 
 import os
 import re
 import unicodedata
 
-BASE_PATH = "/home/matheus/Área de trabalho/django_pratica/media/exercicios/gif"
+BASE_PATH = os.path.join(
+    settings.MEDIA_ROOT,
+    "exercicios",
+    "gif"
+)
 
+print("Pasta:", BASE_PATH)
+print("Existe?", os.path.exists(BASE_PATH))
 # =========================
 # NORMALIZAÇÃO
 # =========================

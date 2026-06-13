@@ -1,38 +1,56 @@
-{% extends "core/base.html" %}
+{% extends "core/base_auth.html" %}
 {% load static %}
 
 {% block content %}
 
-<section class="container" style="max-width: 400px; margin-top: 80px;">
-    <h2>Entrar</h2>
+<div style="
+    min-height: 100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+">
 
-    <form method="POST">
+    <div style="
+        width:100%;
+        max-width:420px;
+        background:#000000;
+        padding:40px;
+        border-radius:20px;
+        box-shadow:0 0 30px rgba(0, 255, 128, 0.299);
+    ">
+
+        <h1 style="
+            text-align:center;
+            margin-bottom:10px;
+            color:#00ff88;
+        ">
+            FitFlix
+        </h1>
+
+        <p style="
+            text-align:center;
+            color:#9ca3af;
+            margin-bottom:30px;
+        ">
+            Acesse sua conta
+        </p>
+
+         <form method="POST">
         {% csrf_token %}
 
-        <div>
-            <label>Email</label>
-            <input type="email" name="email" required>
-        </div>
-        
-        <br>
-        <div>
-            <label>SENHA</label><br>
-            <input type="password" name="password" required>
-        </div>
-        
-        <br>
+        <label>Email</label>
+        <input type="email" name="email" required>
 
-        <button type="submit" class="btn btn-primary">
-            Entrar            
+        <label>Senha</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">
+            Entrar
         </button>
     </form>
 
-    <p style="margin-top: 15px; text-align: center;">
-        <a href="{% url 'core:password_reset' %}">
-            Esqueci minha senha
-        </a>
-    </p>
-</section>
+</div>
+
 {% endblock %}
 
         

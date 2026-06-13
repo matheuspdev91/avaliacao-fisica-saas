@@ -732,12 +732,19 @@ def ver_treino(request, token):
 from django.http import JsonResponse
 
 def buscar_variacoes(request, exercicio_id):
-    variacoes = VariacaoExercicio.objects.filter(
+    variacoes = []
+
+    for v in VariacaoExercicio.objects.filter(
         exercicio_id=exercicio_id
-    ).values("id", "nome", "gif")
+    ):
+        variacoes.append({
+            "id": v.id,
+            "nome": v.nome,
+            "gif": v.gif.url if v.gif else ""
+        })
 
     return JsonResponse(
-        list(variacoes),
-        safe=False,
-        )
+        variacoes,
+        safe=False
+    )
     
