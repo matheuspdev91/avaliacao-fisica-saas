@@ -514,7 +514,14 @@ def criar_avaliacao_crianca(request):
 @login_required
 def adicionar_exercicio(request, treino_id):
     treino = get_object_or_404(Treino, id=treino_id)
-    exercicios = VideoExercicio.objects.prefetch_related("variacoes").order_by("nome")
+    exercicios = (
+    VideoExercicio.objects
+    .filter(variacoes__gif__isnull=False)
+    .exclude(variacoes__gif="")
+    .distinct()
+    .prefetch_related("variacoes")
+    .order_by("nome")
+)
 
     if request.method == "POST":
         exercicio_id = request.POST.get("exercicio")
@@ -735,8 +742,9 @@ def buscar_variacoes(request, exercicio_id):
     variacoes = []
 
     for v in VariacaoExercicio.objects.filter(
-        exercicio_id=exercicio_id
-    ):
+        exercicio_id=exercicio_id,
+        gif__isnull=False
+    ).exclude(gif=""):
         variacoes.append({
             "id": v.id,
             "nome": v.nome,

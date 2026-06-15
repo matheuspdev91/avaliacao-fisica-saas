@@ -24,13 +24,15 @@ id,exercicio,variacao
 731,Stiff,Smith
 733,Afundo,Smith
 734,Afundo,Passada
+1163,Abdominal,Abdominal Com Joelhos
+840,Supino,Supino Inclinado Na Máquina Com Pegada
+841,Supino,Supino Inclinado
 834,Supino,Supino Inclinado Com Halteres E Pegada
 836,Supino,Supino Declinada
 837,Outros,Pullover Com Halteres Na Bola
 838,Supino,Supino Pegada
 839,Outros,Mergulho De Peito
-840,Supino,Supino Inclinado Na Máquina Com Pegada
-841,Supino,Supino Inclinado
+1164,Abdominal,Abdominal Com Bola
 846,Supino,Supino Invertido Com Pegada
 847,Supino,Supino Unilateral
 849,Supino,Supino Declinado Pegada
@@ -64,6 +66,7 @@ id,exercicio,variacao
 906,Outros,Flexão De Pernas
 907,Leg Press,Leg Press
 908,Outros,Flexão De Pernas Com Halteres
+1165,Abdominal,Abdominal Com Braços
 910,Agachamento,Agachamento Unilateral Cruzado
 911,Outros,Pressão Unilateral Assistida Por
 916,Tríceps Francês,Tríceps Francês
@@ -125,6 +128,7 @@ id,exercicio,variacao
 1018,Outros,Bicicleta Ergométrica
 1024,Outros,Elevação
 1030,Panturrilha,Levantamento De Panturrilha Com Apoio E
+1293,Outros,Flexão De Diamante
 1039,Agachamento,Agachamento Com Sustentação E Elevação
 1040,Panturrilha,Levantamento De Panturrilha
 1041,Rosca,Rosca Concentrada Com Pegada Fechada
@@ -154,6 +158,7 @@ id,exercicio,variacao
 1090,Outros,Torção Com Barra
 1094,Prancha,Prancha De Frente Para A Prancha
 1095,Outros,Máquina De Torção
+1162,Abdominal,Abdominal Com Elevação
 1098,Prancha,Prancha Com Abertura De Pernas - Perna
 1099,Outros,Toque Nos Dedos Dos Pés Com Giro
 1100,Outros,Meio
@@ -185,10 +190,6 @@ id,exercicio,variacao
 1155,Outros,Abdução De Quadril No Apoio
 1156,Abdominal,Abdominal Com Giro
 1158,Outros,Elevação De Perna
-1162,Abdominal,Abdominal Com Elevação
-1163,Abdominal,Abdominal Com Joelhos
-1164,Abdominal,Abdominal Com Bola
-1165,Abdominal,Abdominal Com Braços
 1167,Outros,Inclinação
 1168,Outros,Levantamento De Braço Apoiado
 1172,Outros,Postura Da Virilha
@@ -253,7 +254,6 @@ id,exercicio,variacao
 1284,Panturrilha,Alongamento Da Panturrilha
 1290,Outros,Alongamento Do Peitoral
 1291,Outros,Flexão De Punho
-1293,Outros,Flexão De Diamante
 1295,Outros,Barra Fixa Com Pegada Invertida
 1296,Outros,Avanço Sem Peso
 1297,Outros,Barra Fixa Com Pegada
