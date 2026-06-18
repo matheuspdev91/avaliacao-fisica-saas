@@ -558,6 +558,8 @@ def adicionar_exercicio(request, treino_id):
         .order_by("nome")
     )
 
+    grupos = GrupoMuscular.objects.order_by("nome")
+
     if request.method == "POST":
         exercicio_id = request.POST.get("exercicio")
         variacao_id = request.POST.get("variacao")
@@ -574,6 +576,7 @@ def adicionar_exercicio(request, treino_id):
                 {
                     "treino": treino,
                     "exercicios": exercicios,
+                    "grupos": grupos,
                 },
             )
 
@@ -603,6 +606,7 @@ def adicionar_exercicio(request, treino_id):
         {
             "treino": treino,
             "exercicios": exercicios,
+            "grupos": grupos,
         },
     )
 

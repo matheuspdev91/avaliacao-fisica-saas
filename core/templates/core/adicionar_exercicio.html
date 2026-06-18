@@ -17,12 +17,35 @@
             <form method="post" class="fitflix-premium-form">
                 {% csrf_token %}
 
+        <div class="fitflix-field-group">
+            <label for="grupo">Grupo Muscular</label>
+
+            <select id="grupo" name="grupo">
+                <option value="">Selecione</option>
+
+                {% for grupo in grupos %}
+                    <option value="{{ grupo.id }}">
+                        {{ grupo.nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
                 <div class="fitflix-field-group">
                     <label for="exercicio">Exercício</label>
-                    <select name="exercicio" id="exercicio" required>
+                    <select name="exercicio" 
+                            id="exercicio"
+                            required
+                            select = desabld>
+                         
                         <option value="">Selecione</option>
                         {% for exercicio in exercicios %}
-                            <option value="{{ exercicio.id }}">{{ exercicio.nome }}</option>
+                            <option 
+                            value="{{ exercicio.id}}"
+                            data-grupo="{{ exercicio.grupo_muscular.id }}">
+                            
+                            {{ exercicio.nome }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -96,6 +119,57 @@ document.addEventListener("DOMContentLoaded", function () {
     const preview =
         document.getElementById("preview-gif");
 
+    const grupoSelect = 
+        document.getElementById("grupo");
+
+    const exerciciosOriginais =
+        Array.from(exercicioSelect.options); 
+
+
+grupoSelect.addEventListener(
+    "change",
+    function () {
+
+        const grupoId = this.value;
+
+        console.log("Grupo selecionado:", grupoId);
+
+        exercicioSelect.innerHTML =
+            '<option value="">Selecione</option>';
+
+        variacaoSelect.innerHTML =
+            '<option value="">Selecione um exercício primeiro</option>';
+
+        preview.style.display = "none";
+
+        if (!grupoId) {
+            exercicioSelect.disabled = true;
+            return;
+        }
+
+        exercicioSelect.disabled = false;
+
+        exerciciosOriginais.forEach(option => {
+                    console.log(
+            "Exercício:",
+            option.text,
+            "Grupo:",
+            option.dataset.grupo
+);
+
+            if (!option.value)
+                return;
+
+            if (
+                option.dataset.grupo === grupoId
+            ) {
+                exercicioSelect.appendChild(
+                    option.cloneNode(true)
+                );
+            }
+        });
+    }
+);
 
     exercicioSelect.addEventListener(
         "change",
