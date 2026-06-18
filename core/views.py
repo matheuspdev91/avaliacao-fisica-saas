@@ -236,10 +236,46 @@ def dashboard(request, id):
 
     composicao = calcular_composicao(avaliacao)
 
+    avaliacao_anterior = (
+        AvaliacaoFisica.objects.filter(
+            nome=avaliacao.nome,
+            criado_em_lt=avaliacao.criado_em,
+        )
+        .order_by("-criado_em")
+        .first()
+    )
+
+    comparativo = None
+
+    if avaliacao_anterior:
+        comparativo = {
+            "peso": {
+                "anterior": avaliacao_anterior.peso,
+                "atual": avaliacao.peso,
+                "diferenca": round(
+                    float(avaliacao.peso) - float(avaliacao_anterior.peso), 2
+                ),
+            },
+            "percentual_gordura": {
+                "anterior": avaliacao_anterior.percentual_gordura,
+                "atual": avaliacao.percentual_gordura,
+                "diferenca": round(
+                    float(avaliacao.percentual_gordura or 0)
+                    - float(avaliacao_anterior.percentual_gordura or 0),
+                    2,
+                ),
+            },
+        }
+
     return render(
         request,
         "core/dashboard.html",
-        {"avaliacao": avaliacao, "composicao": composicao},
+        {
+            "avaliacao": avaliacao,
+            "composicao": composicao,
+            "comparativo": comparativo,
+            "avaliacao_anterior": avaliacao_anterior,
+        },
     )
 
 
@@ -515,13 +551,12 @@ def criar_avaliacao_crianca(request):
 def adicionar_exercicio(request, treino_id):
     treino = get_object_or_404(Treino, id=treino_id)
     exercicios = (
-    VideoExercicio.objects
-    .filter(variacoes__gif__isnull=False)
-    .exclude(variacoes__gif="")
-    .distinct()
-    .prefetch_related("variacoes")
-    .order_by("nome")
-)
+        VideoExercicio.objects.filter(variacoes__gif__isnull=False)
+        .exclude(variacoes__gif="")
+        .distinct()
+        .prefetch_related("variacoes")
+        .order_by("nome")
+    )
 
     if request.method == "POST":
         exercicio_id = request.POST.get("exercicio")
@@ -732,27 +767,22 @@ def ver_treino(request, token):
 
     return render(request, "core/treino_publico.html", {"treino": treino, "link": link})
 
+
 # =====================
 # CRIAR VIEW JSON
 # =====================
 
 from django.http import JsonResponse
 
+
 def buscar_variacoes(request, exercicio_id):
     variacoes = []
 
     for v in VariacaoExercicio.objects.filter(
-        exercicio_id=exercicio_id,
-        gif__isnull=False
+        exercicio_id=exercicio_id, gif__isnull=False
     ).exclude(gif=""):
-        variacoes.append({
-            "id": v.id,
-            "nome": v.nome,
-            "gif": v.gif.url if v.gif else ""
-        })
+        variacoes.append(
+            {"id": v.id, "nome": v.nome, "gif": v.gif.url if v.gif else ""}
+        )
 
-    return JsonResponse(
-        variacoes,
-        safe=False
-    )
-    
+    return JsonResponse(variacoes, safe=False)

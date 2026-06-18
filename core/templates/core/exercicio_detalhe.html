@@ -51,21 +51,20 @@
 
     <div class="fitflix-grid fitflix-detail-grid">
         {% for variacao in variacoes %}
+        {% if variacao.gif %}
         <article class="fitflix-detail-card fitflix-hover-effect">
+            
             <div class="fitflix-detail-media">
-                {% if variacao.gif %}
-                    <img src="{{ variacao.gif.url }}" alt="{{ variacao.nome }}" class="fitflix-detail-image">
-                {% else %}
-                    <div class="fitflix-exercise-placeholder fitflix-exercise-placeholder--detail">
-                        <span>Sem mídia</span>
-                    </div>
-                {% endif %}
+                    <img src="{{ variacao.gif.url }}"
+                    alt="{{ variacao.nome }}" 
+                    class="fitflix-detail-image">
             </div>
 
             <div class="fitflix-detail-body">
                 <h3>{{ variacao.nome }}</h3>
             </div>
         </article>
+        {% endif %}
         {% empty %}
         <div class="fitflix-empty-state">
             <h2>Nenhuma variação cadastrada</h2>
