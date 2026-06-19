@@ -36,13 +36,26 @@
                     <div class="ff-selection-grid">
                         <div class="fitflix-field-group">
                             <label for="grupo">Grupo Muscular</label>
-                            <select id="grupo" name="grupo">
-                                <option value="">Selecione</option>
+
+                            <div class="ff-muscle-grid">
                                 {% for grupo in grupos %}
-                                    <option value="{{ grupo.id }}">{{ grupo.nome }}</option>
+                                
+                                <button
+                                    type="button"
+                                    class="ff-muscle-chip"
+                                    data-id="{{ grupo.id }}">
+
+                                    {{ grupo.nome }}
+                                </button>
                                 {% endfor %}
-                            </select>
-                        </div>
+                            </div>
+
+                            <input
+                                type="hidden"
+                                id="grupo"
+                                name="grupo">
+                            
+                            </div>
 
                         <div class="fitflix-field-group">
                             <label for="exercicio">Exercício</label>
@@ -146,6 +159,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const preview = document.getElementById("preview-gif");
     const grupoSelect = document.getElementById("grupo");
     const exerciciosOriginais = Array.from(exercicioSelect.options);
+
+    const chips = document.querySelectorAll(".ff-muscle-chip");
+
+chips.forEach(chip => {
+    chip.addEventListener("click", function () {
+
+        chips.forEach(c => c.classList.remove("active"));
+        this.classList.add("active");
+
+        grupoSelect.value = this.dataset.id;
+
+        grupoSelect.dispatchEvent(new Event("change"));
+    });
+});
 
     grupoSelect.addEventListener("change", function () {
         const grupoId = this.value;
