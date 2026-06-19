@@ -3,101 +3,133 @@
 {% block title %}Adicionar exercício | FitFlix{% endblock %}
 
 {% block content %}
-<section class="fitflix-form-page">
-    <div class="fitflix-form-shell">
-        <div class="fitflix-form-heading">
-            <p class="fitflix-eyebrow">Treino</p>
+<section class="fitflix-form-page ff-add-exercise-page">
+    <div class="fitflix-form-shell ff-add-exercise-shell">
+        <div class="fitflix-form-heading ff-add-exercise-heading">
+            <div class="ff-heading-meta">
+                <p class="fitflix-eyebrow">Treino</p>
+                <span class="ff-badge">{{ treino.nome }}</span>
+            </div>
+
             <h1 class="fitflix-page-title">Adicionar exercício</h1>
+
             <p class="fitflix-page-subtitle">
-                Escolha o exercício, defina a variação e ajuste séries, repetições e descanso com uma experiência mais clara e organizada.
+                Escolha o grupo, selecione o movimento e ajuste a carga de forma clara e organizada.
             </p>
         </div>
 
-        <div class="fitflix-form-card">
-            <form method="post" class="fitflix-premium-form">
+        <div class="fitflix-form-card ff-add-exercise-card">
+            <form method="post" class="fitflix-premium-form ff-add-exercise-form">
                 {% csrf_token %}
 
-        <div class="fitflix-field-group">
-            <label for="grupo">Grupo Muscular</label>
-
-            <select id="grupo" name="grupo">
-                <option value="">Selecione</option>
-
-                {% for grupo in grupos %}
-                    <option value="{{ grupo.id }}">
-                        {{ grupo.nome }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-                <div class="fitflix-field-group">
-                    <label for="exercicio">Exercício</label>
-                    <select name="exercicio" 
-                            id="exercicio"
-                            required
-                            select desabled>
-                         
-                        <option value="">Selecione</option>
-                        {% for exercicio in exercicios %}
-                            <option 
-                            value="{{ exercicio.id}}"
-                            data-grupo="{{ exercicio.grupo_muscular.id }}">
-                            
-                            {{ exercicio.nome }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="fitflix-field-group">
-                    <label for="variacao">Variação</label>
-
-                    <select name="variacao" id="variacao" required>
-                        <option value="">Selecione um exercício primeiro</option>
-                    </select>
-                </div>
-
-
-                <div class="fitflix-preview">
-                    <img
-                        id="preview-gif"
-                        src=""
-                        alt="Preview exercicio"
-                        style="display:none; max-width:400px; border-radius:16px;"
-                        >
-                </div>
-
-                <div class="fitflix-form-grid">
-                    <div class="fitflix-field-group">
-                        <label for="series">Séries</label>
-                        <input type="number" name="series" id="series" min="1" value="3" required>
+                <div class="ff-card ff-card-selection">
+                    <div class="ff-card-header">
+                        <div>
+                            <p class="fitflix-eyebrow">01</p>
+                            <h2 class="ff-card-title">Seleção de movimento</h2>
+                        </div>
+                        <p class="ff-card-copy">
+                            Filtre por grupo muscular, escolha o exercício e depois selecione a variação.
+                        </p>
                     </div>
 
-                    <div class="fitflix-field-group">
-                        <label for="repeticoes">Repetições</label>
-                        <input type="number" name="repeticoes" id="repeticoes" min="1" value="12" required>
+                    <div class="ff-selection-grid">
+                        <div class="fitflix-field-group">
+                            <label for="grupo">Grupo Muscular</label>
+                            <select id="grupo" name="grupo">
+                                <option value="">Selecione</option>
+                                {% for grupo in grupos %}
+                                    <option value="{{ grupo.id }}">{{ grupo.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="fitflix-field-group">
+                            <label for="exercicio">Exercício</label>
+                            <select name="exercicio" id="exercicio" required disabled>
+                                <option value="">Selecione</option>
+                                {% for exercicio in exercicios %}
+                                    <option value="{{ exercicio.id }}" data-grupo="{{ exercicio.grupo_muscular.id }}">
+                                        {{ exercicio.nome }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="fitflix-field-group">
+                            <label for="variacao">Variação</label>
+                            <select name="variacao" id="variacao" required>
+                                <option value="">Selecione um exercício primeiro</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <div class="fitflix-form-grid">
-                    <div class="fitflix-field-group">
-                        <label for="descanso">Descanso (segundos)</label>
-                        <input type="number" name="descanso" id="descanso" min="0" value="60" required>
-                    </div>
+                <div class="ff-card ff-card-layout">
+                    <div class="ff-layout-grid">
+                        <section class="ff-preview-panel">
+                            <div class="ff-panel-header">
+                                <div>
+                                    <p class="fitflix-eyebrow">02</p>
+                                    <h3 class="ff-panel-title">Preview do movimento</h3>
+                                </div>
+                            </div>
 
-                    <div class="fitflix-field-group">
-                        <label for="carga">Carga</label>
-                        <input type="text" name="carga" id="carga" placeholder="Ex: 20kg">
+                            <div class="ff-preview-frame">
+                                <div class="ff-preview-label">GIF</div>
+                                <div class="fitflix-preview ff-preview-box">
+                                    <img
+                                        id="preview-gif"
+                                        src=""
+                                        alt="Preview exercicio"
+                                    >
+                                </div>
+                            </div>
+
+                            <p class="ff-preview-copy">
+                                A variação escolhida será exibida aqui assim que estiver disponível.
+                            </p>
+                        </section>
+
+                        <section class="ff-config-panel">
+                            <div class="ff-panel-header">
+                                <div>
+                                    <p class="fitflix-eyebrow">03</p>
+                                    <h3 class="ff-panel-title">Configuração do treino</h3>
+                                </div>
+                            </div>
+
+                            <div class="ff-config-grid">
+                                <div class="fitflix-field-group">
+                                    <label for="series">Séries</label>
+                                    <input type="number" name="series" id="series" min="1" value="3" required>
+                                </div>
+                                <div class="fitflix-field-group">
+                                    <label for="repeticoes">Repetições</label>
+                                    <input type="number" name="repeticoes" id="repeticoes" min="1" value="12" required>
+                                </div>
+                                <div class="fitflix-field-group">
+                                    <label for="descanso">Descanso (segundos)</label>
+                                    <input type="number" name="descanso" id="descanso" min="0" value="60" required>
+                                </div>
+                                <div class="fitflix-field-group">
+                                    <label for="carga">Carga</label>
+                                    <input type="text" name="carga" id="carga" placeholder="Ex: 20kg">
+                                </div>
+                            </div>
+
+                            <p class="ff-config-copy">
+                                Ajuste a carga e o tempo para manter o treino fluido e profissional.
+                            </p>
+                        </section>
                     </div>
                 </div>
 
-                <div class="fitflix-button-group">
-                    <button type="submit" class="btn fitflix-btn-primary fitflix-btn-wide">
+                <div class="ff-action-bar">
+                    <button type="submit" class="btn fitflix-btn-primary ff-btn-primary">
                         Adicionar exercício
                     </button>
-
-                    <a href="{% url 'core:editar_treino' treino.id %}" class="btn fitflix-btn-secondary fitflix-btn-wide">
+                    <a href="{% url 'core:editar_treino' treino.id %}" class="btn fitflix-btn-secondary ff-btn-secondary">
                         Voltar
                     </a>
                 </div>
@@ -106,40 +138,20 @@
     </div>
 </section>
 
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    const exercicioSelect =
-        document.getElementById("exercicio");
+    const exercicioSelect = document.getElementById("exercicio");
+    const variacaoSelect = document.getElementById("variacao");
+    const preview = document.getElementById("preview-gif");
+    const grupoSelect = document.getElementById("grupo");
+    const exerciciosOriginais = Array.from(exercicioSelect.options);
 
-    const variacaoSelect =
-        document.getElementById("variacao");
-
-    const preview =
-        document.getElementById("preview-gif");
-
-    const grupoSelect = 
-        document.getElementById("grupo");
-
-    const exerciciosOriginais =
-        Array.from(exercicioSelect.options); 
-
-
-grupoSelect.addEventListener(
-    "change",
-    function () {
-
+    grupoSelect.addEventListener("change", function () {
         const grupoId = this.value;
 
-        console.log("Grupo selecionado:", grupoId);
-
-        exercicioSelect.innerHTML =
-            '<option value="">Selecione</option>';
-
-        variacaoSelect.innerHTML =
-            '<option value="">Selecione um exercício primeiro</option>';
-
+        exercicioSelect.innerHTML = '<option value="">Selecione</option>';
+        variacaoSelect.innerHTML = '<option value="">Selecione um exercício primeiro</option>';
         preview.style.display = "none";
 
         if (!grupoId) {
@@ -150,110 +162,53 @@ grupoSelect.addEventListener(
         exercicioSelect.disabled = false;
 
         exerciciosOriginais.forEach(option => {
-                    console.log(
-            "Exercício:",
-            option.text,
-            "Grupo:",
-            option.dataset.grupo
-);
-
-            if (!option.value)
-                return;
-
-            if (
-                option.dataset.grupo === grupoId
-            ) {
-                exercicioSelect.appendChild(
-                    option.cloneNode(true)
-                );
+            if (!option.value) return;
+            if (option.dataset.grupo === grupoId) {
+                exercicioSelect.appendChild(option.cloneNode(true));
             }
         });
-    }
-);
+    });
 
-    exercicioSelect.addEventListener(
-        "change",
-        async function () {
+    exercicioSelect.addEventListener("change", async function () {
+        const exercicioId = this.value;
 
-            const exercicioId = this.value;
+        variacaoSelect.innerHTML = '<option value="">Carregando...</option>';
+        preview.style.display = "none";
 
-            variacaoSelect.innerHTML =
-                '<option value="">Carregando...</option>';
+        if (!exercicioId) {
+            variacaoSelect.innerHTML = '<option value="">Selecione um exercício primeiro</option>';
+            return;
+        }
 
+        try {
+            const response = await fetch(`/api/variacoes/${exercicioId}/`);
+            const variacoes = await response.json();
+
+            variacaoSelect.innerHTML = '<option value="">Selecione</option>';
+            variacoes.forEach((variacao) => {
+                const option = document.createElement("option");
+                option.value = variacao.id;
+                option.textContent = variacao.nome;
+                option.dataset.gif = variacao.gif;
+                variacaoSelect.appendChild(option);
+            });
+        } catch (error) {
+            variacaoSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+            console.error(error);
+        }
+    });
+
+    variacaoSelect.addEventListener("change", function () {
+        const selected = this.options[this.selectedIndex];
+        const gif = selected.dataset.gif;
+
+        if (gif) {
+            preview.src = gif;
+            preview.style.display = "block";
+        } else {
             preview.style.display = "none";
-
-            if (!exercicioId) {
-
-                variacaoSelect.innerHTML =
-                    '<option value="">Selecione um exercício primeiro</option>';
-
-                return;
-            }
-
-            try {
-
-                const response = await fetch(
-                    `/api/variacoes/${exercicioId}/`
-                );
-
-                const variacoes =
-                    await response.json();
-
-                variacaoSelect.innerHTML =
-                    '<option value="">Selecione</option>';
-
-                variacoes.forEach((variacao) => {
-
-                    const option =
-                        document.createElement("option");
-
-                    option.value = variacao.id;
-
-                    option.textContent =
-                        variacao.nome;
-
-                    option.dataset.gif =
-                        variacao.gif;
-
-                    variacaoSelect.appendChild(option);
-                });
-
-            } catch (error) {
-
-                variacaoSelect.innerHTML =
-                    '<option value="">Erro ao carregar</option>';
-
-                console.error(error);
-            }
         }
-    );
-
-
-    variacaoSelect.addEventListener(
-        "change",
-        function () {
-
-            const selected =
-                this.options[this.selectedIndex];
-
-            const gif =
-                selected.dataset.gif;
-
-            if (gif) {
-
-                preview.src = gif;
-
-                preview.style.display =
-                    "block";
-
-            } else {
-
-                preview.style.display =
-                    "none";
-            }
-        }
-    );
-
+    });
 });
 </script>
 

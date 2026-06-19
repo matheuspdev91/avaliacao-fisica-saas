@@ -313,7 +313,7 @@ select:focus {
 
 .fitflix-form-shell {
     width: 100%;
-    max-width: 600px;
+    max-width: 900px;
     display: grid;
     gap: 24px;
 }
@@ -325,8 +325,8 @@ select:focus {
 }
 
 .fitflix-form-card {
-    padding: 24px;
-    border-radius: 16px;
+    padding: 28px;
+    border-radius: 22px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     background:
         radial-gradient(circle at top right, rgba(0, 255, 136, 0.08), transparent 38%),
@@ -336,7 +336,7 @@ select:focus {
 
 .fitflix-premium-form {
     display: grid;
-    gap: 16px;
+    gap: 20px;
 }
 
 .fitflix-form-grid {
@@ -430,6 +430,196 @@ textarea:focus {
 .fitflix-btn-secondary:hover {
     background: rgba(0, 255, 136, 0.06);
     box-shadow: 0 0 18px rgba(0, 255, 136, 0.12);
+}
+
+/* Nova estrutura de layout para adicionar exercício */
+.ff-add-exercise-page {
+    padding: 10px 0 24px;
+}
+
+.ff-add-exercise-shell {
+    display: grid;
+    gap: 28px;
+}
+
+.ff-add-exercise-heading {
+    gap: 12px;
+}
+
+.ff-heading-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.ff-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 255, 136, 0.24);
+    background: rgba(0, 255, 136, 0.08);
+    color: #e8fff3;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.ff-add-exercise-card {
+    display: grid;
+    gap: 22px;
+}
+
+.ff-card {
+    padding: 22px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: linear-gradient(180deg, rgba(12, 12, 12, 0.98), rgba(20, 20, 20, 0.96));
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+}
+
+.ff-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.ff-card-title,
+.ff-panel-title {
+    margin: 0;
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+}
+
+.ff-card-copy,
+.ff-preview-copy,
+.ff-config-copy {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.62);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.ff-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.ff-layout-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 20px;
+}
+
+.ff-preview-panel,
+.ff-config-panel {
+    display: grid;
+    gap: 14px;
+}
+
+.ff-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.ff-preview-frame {
+    display: grid;
+    gap: 14px;
+}
+
+.ff-preview-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(0, 255, 136, 0.08);
+    color: #b5ffe3;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.ff-preview-box {
+    min-height: 260px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 255, 136, 0.12);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.ff-preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.ff-config-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.ff-action-bar {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: 4px;
+}
+
+.ff-btn-primary {
+    min-width: 220px;
+}
+
+.ff-btn-secondary {
+    min-width: 180px;
+}
+
+@media (max-width: 1100px) {
+    .ff-selection-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ff-layout-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .fitflix-form-shell {
+        max-width: 100%;
+    }
+
+    .ff-card,
+    .fitflix-form-card {
+        padding: 20px;
+    }
+
+    .ff-preview-box {
+        min-height: 220px;
+    }
+
+    .ff-config-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ff-action-bar {
+        justify-content: stretch;
+    }
 }
 
 .fitflix-student-shell {
