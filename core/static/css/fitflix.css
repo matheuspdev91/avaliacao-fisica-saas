@@ -1224,3 +1224,47 @@ textarea:focus {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* 2. Select desabilitado — visual consistente com o tema */
+.fitflix-form-card select:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.fitflix-preview {
+    min-height: 200px;
+    border-radius: 14px;
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* 4. Separação visual entre seleção do exercício e configuração da série.*/
+
+.fitflix-form-card .fitflix-form-grid:first-of-type {
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* 5. Espaçamento entre grupos de campos — um pouco mais de respiro */
+.fitflix-form-card .fitflix-premium-form {
+    gap: 20px;
+}
+
+/* 6. Responsividade mobile */
+@media (max-width: 540px) {
+    .fitflix-form-card {
+        padding: 16px;
+    }
+
+    .fitflix-btn-wide {
+        min-width: 0;
+        flex: 1 1 120px;
+    }
+}
