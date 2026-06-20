@@ -5,34 +5,96 @@
 
 {% block content %}
 <div class="dashboard-container">
-    <div class="modelo-3d">
-        {% if avaliacao.sexo == 'M' %}
-            <img src="{% static 'img/masculino.png' %}" class="modelo-img" alt="Modelo masculino">
-        {% elif avaliacao.sexo == 'F' %}
-            <img src="{% static 'img/feminino.png' %}" class="modelo-img" alt="Modelo feminino">
-        {% endif %}
-    </div>
-
-    <div class="grafico-area">
-        <div class="grafico-card">
+    <div class="dashboard-top-grid">
+        <section class="dashboard-card grafico-card">
             <h2>Composição Corporal</h2>
-            
-            <!-- ✅ CANVAS COM ID CORRETO -->
-            <div style="width: 300px; height: 300px; margin: 0 auto;">
+
+            <div class="grafico-wrapper">
                 <canvas id="graficoPizza"></canvas>
             </div>
 
-            <!-- Dados para debug (pode remover depois) -->
-            <div style="margin-top: 20px; text-align: center;">
-                <p><strong>Percentual:</strong> {{ composicao.percentual|default:"0" }}%</p>
-                <p><strong>Massa gorda:</strong> {{ composicao.massa_gorda|default:"0" }}kg</p>
-                <p><strong>Massa magra:</strong> {{ composicao.massa_magra|default:"0" }}kg</p>
-                <p><strong>Massa residual:</strong> {{ composicao.massa_residual|default:"0" }}kg</p>
+            <div class="grafico-metrics">
+                <div class="grafico-metric">
+                    <span>Percentual</span>
+                    <strong>{{ composicao.percentual|default:"0" }}%</strong>
+                </div>
+                <div class="grafico-metric">
+                    <span>Massa gorda</span>
+                    <strong>{{ composicao.massa_gorda|default:"0" }}kg</strong>
+                </div>
+                <div class="grafico-metric">
+                    <span>Massa magra</span>
+                    <strong>{{ composicao.massa_magra|default:"0" }}kg</strong>
+                </div>
+                <div class="grafico-metric">
+                    <span>Massa residual</span>
+                    <strong>{{ composicao.massa_residual|default:"0" }}kg</strong>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <section class="dashboard-card modelo-card">
+            <h2>Imagem Corporal</h2>
+            <div class="modelo-3d">
+                {% if avaliacao.sexo == 'M' %}
+                    <img src="{% static 'img/masculino.png' %}" class="modelo-img" alt="Modelo masculino">
+                {% elif avaliacao.sexo == 'F' %}
+                    <img src="{% static 'img/feminino.png' %}" class="modelo-img" alt="Modelo feminino">
+                {% endif %}
+            </div>
+        </section>
     </div>
 
-    <a href="{% url 'core:detalhe_avaliacao' avaliacao.id %}" class="btn">Voltar</a>
+    {% if comparativo %}
+    <section class="dashboard-card evolucao-card-wrapper">
+        <h2>Evolução Corporal</h2>
+
+        <div class="evolucao-grid">
+            <div class="evolucao-card">
+                <span class="titulo">Peso</span>
+
+                    <div class="valor-atual">
+                    {{ comparativo.peso.atual }} kg
+                </div>
+                <div class="evolucao-meta">Atual</div>
+                <div class="evolucao-divider"></div>
+
+                <div class="diferenca badge {% if comparativo.peso.diferenca < 0 %}negativo{% else %}positivo{% endif %}">
+                    {% if comparativo.peso.diferenca < 0 %}▼ {% else %}▲ {% endif %}{{ comparativo.peso.diferenca }} kg
+                </div>
+                <div class="evolucao-divider"></div>
+
+                <div class="historico">
+                    <span>Avaliação anterior</span>
+                    <strong>{{ comparativo.peso.anterior }} kg</strong>
+                </div>
+            </div>
+
+            <div class="evolucao-card">
+                <span class="titulo">% Gordura</span>
+
+                <div class="valor-atual">
+                    {{ comparativo.percentual_gordura.atual }}%
+                </div>
+                <div class="evolucao-meta">Atual</div>
+                <div class="evolucao-divider"></div>
+
+                <div class="diferenca badge {% if comparativo.percentual_gordura.diferenca < 0 %}negativo{% else %}positivo{% endif %}">
+                    {% if comparativo.percentual_gordura.diferenca < 0 %}▼ {% else %}▲ {% endif %}{{ comparativo.percentual_gordura.diferenca }}%
+                </div>
+                <div class="evolucao-divider"></div>
+
+                <div class="historico">
+                    <span>Avaliação anterior</span>
+                    <strong>{{ comparativo.percentual_gordura.anterior }}%</strong>
+                </div>
+            </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <a href="{% url 'core:detalhe_avaliacao' avaliacao.id %}" class="btn dashboard-action-btn">Voltar</a>
 </div>
 {% endblock %}
 

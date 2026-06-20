@@ -238,34 +238,49 @@ def dashboard(request, id):
 
     avaliacao_anterior = (
         AvaliacaoFisica.objects.filter(
-            nome=avaliacao.nome,
-            criado_em_lt=avaliacao.criado_em,
+            usuario=avaliacao.usuario,
+            criado_em__lt=avaliacao.criado_em,
         )
         .order_by("-criado_em")
         .first()
     )
 
+    composicao = calcular_composicao(avaliacao)
+
+    composicao_anterior = None
     comparativo = None
 
     if avaliacao_anterior:
-        comparativo = {
-            "peso": {
-                "anterior": avaliacao_anterior.peso,
-                "atual": avaliacao.peso,
-                "diferenca": round(
-                    float(avaliacao.peso) - float(avaliacao_anterior.peso), 2
+     composicao_anterior = calcular_composicao(avaliacao_anterior)
+
+    comparativo = {
+        "peso": {
+            "anterior": avaliacao_anterior.peso,
+            "atual": avaliacao.peso,
+            "diferenca": round(
+                float(avaliacao.peso) -
+                float(avaliacao_anterior.peso),
+                2,
+            ),
+        },
+        "percentual_gordura": {
+            "anterior": composicao_anterior["percentual"]
+            if composicao_anterior
+            else 0,
+            "atual": composicao["percentual"]
+            if composicao
+            else 0,
+            "diferenca": round(
+                float(composicao["percentual"] if composicao else 0)
+                - float(
+                    composicao_anterior["percentual"]
+                    if composicao_anterior
+                    else 0
                 ),
-            },
-            "percentual_gordura": {
-                "anterior": avaliacao_anterior.percentual_gordura,
-                "atual": avaliacao.percentual_gordura,
-                "diferenca": round(
-                    float(avaliacao.percentual_gordura or 0)
-                    - float(avaliacao_anterior.percentual_gordura or 0),
-                    2,
-                ),
-            },
-        }
+                2,
+            ),
+        },
+    }
 
     return render(
         request,
