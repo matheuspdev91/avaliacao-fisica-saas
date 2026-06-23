@@ -7,15 +7,47 @@
 <div class="dashboard-container">
     <div class="dashboard-top-grid">
         <section class="dashboard-card grafico-card">
-            <h2>Composição Corporal</h2>
+            <div class="dashboard-card-header">
+                <div>
+                    <span class="dashboard-eyebrow">Análise atual</span>
+                    <h2>Composição Corporal</h2>
+                </div>
+                <span class="dashboard-badge">Atual</span>
+            </div>
 
-            <div class="grafico-wrapper">
-                <canvas id="graficoPizza"></canvas>
+            <div class="composition-layout">
+                <div class="grafico-wrapper">
+                    <canvas id="graficoPizza"></canvas>
+                </div>
+
+                <div class="composition-breakdown" aria-label="Resumo da composição corporal">
+                    <div class="composition-line composition-line-fat">
+                        <span class="composition-dot"></span>
+                        <div>
+                            <span>Massa Gorda</span>
+                            <strong>{{ composicao.massa_gorda|default:"0" }} kg</strong>
+                        </div>
+                    </div>
+                    <div class="composition-line composition-line-lean">
+                        <span class="composition-dot"></span>
+                        <div>
+                            <span>Massa Magra</span>
+                            <strong>{{ composicao.massa_magra|default:"0" }} kg</strong>
+                        </div>
+                    </div>
+                    <div class="composition-line composition-line-residual">
+                        <span class="composition-dot"></span>
+                        <div>
+                            <span>Massa Residual</span>
+                            <strong>{{ composicao.massa_residual|default:"0" }} kg</strong>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="grafico-metrics">
                 <div class="grafico-metric">
-                    <span>Percentual</span>
+                    <span>% Gordura</span>
                     <strong>{{ composicao.percentual|default:"0" }}%</strong>
                 </div>
                 <div class="grafico-metric">
@@ -34,77 +66,101 @@
         </section>
 
         <section class="dashboard-card modelo-card">
-            <section class="dashboard-card modelo-card">
-                <h2>Imagem Corporal</h2>
-            
-                <div class="body-layout">
-            
-                    <div class="body-stats">
-            
-                        <div class="body-stat">
-                            <span>Peso Atual</span>
-                            <strong>{{ avaliacao.peso }} kg</strong>
-                        </div>
-            
-                        <div class="body-stat">
-                            <span>% Gordura</span>
-                            <strong>{{ composicao.percentual }}%</strong>
-                        </div>
-            
-                        <div class="body-stat">
-                            <span>Massa Magra</span>
-                            <strong>{{ composicao.massa_magra }} kg</strong>
-                        </div>
-            
-                        <div class="body-stat">
-                            <span>Massa Residual</span>
-                            <strong>{{ composicao.massa_residual }} kg</strong>
-                        </div>
-            
-                    </div>
-            
-                    <div class="body-visual">
-            
-                        <div class="radar radar-1"></div>
-                        <div class="radar radar-2"></div>
-                        <div class="radar radar-3"></div>
-            
-                        {% if avaliacao.sexo == 'M' %}
-                            <img src="{% static 'img/masculino.png' %}"
-                                 class="modelo-img"
-                                 alt="Modelo masculino">
-                        {% elif avaliacao.sexo == 'F' %}
-                            <img src="{% static 'img/feminino.png' %}"
-                                 class="modelo-img"
-                                 alt="Modelo feminino">
-                        {% endif %}
-            
-                    </div>
-            
+            <div class="dashboard-card-header dashboard-card-header-centered">
+                <div>
+                    <span class="dashboard-eyebrow">Visualização Atual</span>
+                    <h2>Imagem Corporal</h2>
                 </div>
-            
-            </section>
+            </div>
+
+            <div class="body-layout">
+                <div class="body-visual">
+                    <div class="body-tech-grid"></div>
+                    <div class="radar radar-1"></div>
+                    <div class="radar radar-2"></div>
+                    <div class="radar radar-3"></div>
+
+                    {% if avaliacao.sexo == 'M' %}
+                        <img src="{% static 'img/masculino.png' %}"
+                             class="modelo-img"
+                             alt="Modelo masculino">
+                    {% elif avaliacao.sexo == 'F' %}
+                        <img src="{% static 'img/feminino.png' %}"
+                             class="modelo-img"
+                             alt="Modelo feminino">
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="dashboard-card body-metrics-card">
+        <div class="dashboard-card-header">
+            <div>
+                <span class="dashboard-eyebrow">Indicadores</span>
+                <h2>Métricas Corporais</h2>
+            </div>
+            <span class="dashboard-badge dashboard-badge-muted">5 indicadores</span>
+        </div>
+
+        <div class="body-stats">
+            <div class="body-stat">
+                <span class="body-stat-icon">KG</span>
+                <strong>{{ avaliacao.peso }} kg</strong>
+                <span>Peso</span>
+            </div>
+
+            <div class="body-stat">
+                <span class="body-stat-icon">%</span>
+                <strong>{{ composicao.percentual|default:"0" }}%</strong>
+                <span>Gordura</span>
+            </div>
+
+            <div class="body-stat">
+                <span class="body-stat-icon">MM</span>
+                <strong>{{ composicao.massa_magra|default:"0" }} kg</strong>
+                <span>Massa Magra</span>
+            </div>
+
+            <div class="body-stat">
+                <span class="body-stat-icon">MR</span>
+                <strong>{{ composicao.massa_residual|default:"0" }} kg</strong>
+                <span>Massa Residual</span>
+            </div>
+
+            <div class="body-stat">
+                <span class="body-stat-icon">IMC</span>
+                <strong>{{ avaliacao.imc|default:"0" }}</strong>
+                <span>IMC</span>
+            </div>
+        </div>
+    </section>
            
 
     {% if comparativo %}
     <section class="dashboard-card evolucao-card-wrapper">
-        <h2>Evolução Corporal</h2>
+        <div class="dashboard-card-header">
+            <div>
+                <span class="dashboard-eyebrow">Histórico</span>
+                <h2>Evolução Corporal</h2>
+            </div>
+            <span class="dashboard-badge">Comparativo</span>
+        </div>
 
         <div class="evolucao-grid">
             <div class="evolucao-card">
-                <span class="titulo">Peso</span>
-
+                <div class="evolucao-main">
+                    <span class="titulo">Peso</span>
                     <div class="valor-atual">
-                    {{ comparativo.peso.atual }} kg
+                        {{ comparativo.peso.atual }} kg
+                    </div>
                 </div>
-                <div class="evolucao-meta">Atual</div>
-                <div class="evolucao-divider"></div>
-
-                <div class="diferenca badge {% if comparativo.peso.diferenca < 0 %}negativo{% else %}positivo{% endif %}">
-                    {% if comparativo.peso.diferenca < 0 %}▼ {% else %}▲ {% endif %}{{ comparativo.peso.diferenca }} kg
+                <div class="evolucao-change">
+                    <div class="diferenca badge {% if comparativo.peso.diferenca < 0 %}negativo{% else %}positivo{% endif %}">
+                        {% if comparativo.peso.diferenca < 0 %}▼ {% else %}▲ {% endif %}{{ comparativo.peso.diferenca }} kg
+                    </div>
+                    <span class="evolucao-meta">Atual</span>
                 </div>
-                <div class="evolucao-divider"></div>
-
                 <div class="historico">
                     <span>Avaliação anterior</span>
                     <strong>{{ comparativo.peso.anterior }} kg</strong>
@@ -112,24 +168,22 @@
             </div>
 
             <div class="evolucao-card">
-                <span class="titulo">% Gordura</span>
-
-                <div class="valor-atual">
-                    {{ comparativo.percentual_gordura.atual }}%
+                <div class="evolucao-main">
+                    <span class="titulo">% Gordura</span>
+                    <div class="valor-atual">
+                        {{ comparativo.percentual_gordura.atual }}%
+                    </div>
                 </div>
-                <div class="evolucao-meta">Atual</div>
-                <div class="evolucao-divider"></div>
-
-                <div class="diferenca badge {% if comparativo.percentual_gordura.diferenca < 0 %}negativo{% else %}positivo{% endif %}">
-                    {% if comparativo.percentual_gordura.diferenca < 0 %}▼ {% else %}▲ {% endif %}{{ comparativo.percentual_gordura.diferenca }}%
+                <div class="evolucao-change">
+                    <div class="diferenca badge {% if comparativo.percentual_gordura.diferenca < 0 %}negativo{% else %}positivo{% endif %}">
+                        {% if comparativo.percentual_gordura.diferenca < 0 %}▼ {% else %}▲ {% endif %}{{ comparativo.percentual_gordura.diferenca }}%
+                    </div>
+                    <span class="evolucao-meta">Atual</span>
                 </div>
-                <div class="evolucao-divider"></div>
-
                 <div class="historico">
                     <span>Avaliação anterior</span>
                     <strong>{{ comparativo.percentual_gordura.anterior }}%</strong>
                 </div>
-            </div>
             </div>
         </div>
     </section>
