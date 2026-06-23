@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .forms import CriarAlunoForm
-from .models import Aluno
+from .models import Aluno, AvaliacaoFisica, Treino
 from .views import gerar_senha_aleatoria
 
 
@@ -153,3 +153,96 @@ class SenhaAleatoriaTests(TestCase):
     def test_senha_gerada_tem_o_formato_esperado(self):
         senha = gerar_senha_aleatoria()
         self.assertRegex(senha, r"^[A-Za-z0-9]{8}$")
+
+
+class IsolamentoMultiTenantTests(TestCase):
+    def setUp(self):
+        self.user_model = get_user_model()
+        self.personal_a = self.user_model.objects.create_user(
+            username="personal-a@example.com",
+            email="personal-a@example.com",
+            password="Senha123",
+        )
+        self.personal_b = self.user_model.objects.create_user(
+            username="personal-b@example.com",
+            email="personal-b@example.com",
+            password="Senha123",
+        )
+
+        self.avaliacao_b = AvaliacaoFisica.objects.create(
+            usuario=self.personal_b,
+            nome="Aluno B",
+            sexo="M",
+            data_nascimento="2000-01-01",
+            altura="1.80",
+            peso="80.00",
+        )
+
+        self.aluno_b_user = self.user_model.objects.create_user(
+            username="aluno-b@example.com",
+            email="aluno-b@example.com",
+            password="Senha123",
+            tipo_usuario="ALUNO",
+        )
+        self.aluno_b = Aluno.objects.create(
+            personal=self.personal_b,
+            user=self.aluno_b_user,
+            nome="Aluno B",
+            data_nascimento="2000-01-01",
+        )
+        self.treino_b = Treino.objects.create(
+            aluno=self.aluno_b,
+            nome="Treino B",
+            descricao="",
+        )
+
+    def test_avaliacao_de_outro_usuario_retorna_404(self):
+        self.client.force_login(self.personal_a)
+
+        urls = [
+            reverse("core:detalhe_avaliacao", args=[self.avaliacao_b.id]),
+            reverse("core:dashboard", args=[self.avaliacao_b.id]),
+            reverse("core:editar_avaliacao", args=[self.avaliacao_b.id]),
+            reverse("core:excluir_avaliacao", args=[self.avaliacao_b.id]),
+        ]
+
+        for url in urls:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 404)
+
+    def test_treino_de_outro_personal_retorna_404(self):
+        self.client.force_login(self.personal_a)
+
+        urls = [
+            reverse("core:treino_detail", args=[self.treino_b.id]),
+            reverse("core:editar_treino", args=[self.treino_b.id]),
+            reverse("core:adicionar_exercicio", args=[self.treino_b.id]),
+            reverse("core:painel_aluno", args=[self.aluno_b.id]),
+        ]
+
+        for url in urls:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 404)
+
+    def test_form_treino_lista_apenas_alunos_do_personal_logado(self):
+        aluno_a_user = self.user_model.objects.create_user(
+            username="aluno-a@example.com",
+            email="aluno-a@example.com",
+            password="Senha123",
+            tipo_usuario="ALUNO",
+        )
+        aluno_a = Aluno.objects.create(
+            personal=self.personal_a,
+            user=aluno_a_user,
+            nome="Aluno A",
+            data_nascimento="2000-01-01",
+        )
+
+        self.client.force_login(self.personal_a)
+        response = self.client.get(reverse("core:criar_treino"))
+
+        alunos = response.context["form"].fields["aluno"].queryset
+        self.assertIn(aluno_a, alunos)
+        self.assertNotIn(self.aluno_b, alunos)

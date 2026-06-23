@@ -9,12 +9,27 @@ import uuid
 # USUÁRIO
 # ========================
 class Usuario(AbstractUser):
+
+    TIPO_CHOICES = (
+        ("ADMIN", "Administrador"),
+        ("PERSONAL", "Personal"),
+        ("ALUNO", "Aluno"),
+    )
+
     email = models.EmailField(unique=True)
-    cref = models.CharField(max_length=20)
-    telefone = models.CharField(max_length=20)
+    cref = models.CharField(max_length=20, blank=True)
+    telefone = models.CharField(max_length=20, blank=True)
+
+    tipo_usuario = models.CharField(
+        max_length=20,
+        choices=TIPO_CHOICES,
+        default="PERSONAL",
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
+
+    
 
 
 # ========================
@@ -175,7 +190,19 @@ class AvaliacaoIdoso(models.Model):
 # ALUNO
 # ========================
 class Aluno(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    personal = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="alunos",
+        null=True,
+        blank=True,
+    )
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+
     nome = models.CharField(max_length=100)
     telefone = models.CharField(max_length=20, blank=True)
     data_nascimento = models.DateField()
@@ -184,6 +211,18 @@ class Aluno(models.Model):
 
     def __str__(self):
         return self.nome
+
+    @property
+    def idade(self):
+        hoje = date.today()
+        return (
+            hoje.year
+            - self.data_nascimento.year
+            - (
+                (hoje.month, hoje.day)
+                < (self.data_nascimento.month, self.data_nascimento.day)
+            )
+        )
 
 
 # ========================

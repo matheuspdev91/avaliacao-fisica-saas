@@ -131,12 +131,14 @@ class TreinoForm(forms.ModelForm):
             ),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["aluno"].queryset = (
-            Aluno.objects.order_by("nome")
-        )
+        alunos = Aluno.objects.none()
+        if user is not None and user.is_authenticated:
+            alunos = Aluno.objects.filter(personal=user)
+
+        self.fields["aluno"].queryset = alunos.order_by("nome")
 
         field_classes = "treino-input"
 

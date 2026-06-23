@@ -218,7 +218,3 @@ CLOUDINARY_STORAGE = {
     "PREFIX": "",
 }
 
-
-print("CLOUDINARY NAME:", os.getenv("CLOUDINARY_CLOUD_NAME"))
-print("CLOUDINARY KEY:", os.getenv("CLOUDINARY_API_KEY"))
-print("CLOUDINARY SECRET:", os.getenv("CLOUDINARY_API_SECRET"))

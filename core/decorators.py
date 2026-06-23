@@ -6,11 +6,10 @@ def apenas_personal(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return redirect("login")  # ajusta sua rota
+            return redirect("core:login")
 
-        # se for aluno → bloqueia
         if hasattr(request.user, "aluno"):
-            return redirect("core:painel_aluno")
+            return redirect("core:painel_aluno", aluno_id=request.user.aluno.id)
 
         return view_func(request, *args, **kwargs)
 

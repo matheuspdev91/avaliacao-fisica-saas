@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 from urllib.parse import urlencode
 from decimal import Decimal
@@ -120,15 +121,17 @@ def gerar_senha_aleatoria(tamanho=8):
     return "".join(secrets.choice(caracteres) for _ in range(tamanho))
 
 
-def criar_aluno_minimo(nome_aluno):
+def criar_aluno_minimo(nome_aluno, personal):
     sufixo = secrets.token_hex(4)
     email = f"aluno-{sufixo}@fitflix.local"
     user = User.objects.create_user(
         username=email,
         email=email,
         password=gerar_senha_aleatoria(),
+        tipo_usuario="ALUNO",
     )
     return Aluno.objects.create(
+        personal=personal,
         user=user,
         nome=nome_aluno,
         data_nascimento=timezone.localdate(),
@@ -155,9 +158,11 @@ def criar_aluno(request):
                     username=email,
                     email=email,
                     password=senha,
+                    tipo_usuario="ALUNO",
                 )
 
                 aluno = form.save(commit=False)
+                aluno.personal = request.user
                 aluno.user = user
                 aluno.save()
 
@@ -167,7 +172,7 @@ def criar_aluno(request):
                     senha=senha,
                 )
 
-            messages.success(request, "Aluno criado com sucesso!")
+            messages.success(request, "Aluno cadastrado com sucesso!")
             return redirect("core:home")
 
     else:
@@ -183,14 +188,17 @@ def criar_aluno(request):
 
 @login_required
 def avaliacoes(request):
-    if hasattr(request.user, "aluno"):
-        avaliacoes = AvaliacaoFisica.objects.filter(usuario=request.user).order_by(
-            "-criado_em"
-        )
-    else:
-        avaliacoes = AvaliacaoFisica.objects.all().order_by("-criado_em")
 
-    return render(request, "core/avaliacoes.html", {"avaliacoes": avaliacoes})
+    avaliacoes = AvaliacaoFisica.objects.filter(
+        usuario=request.user
+    ).order_by('-criado_em')
+    
+
+    return render(
+        request,
+        'core/avaliacoes.html',
+        {"avaliacoes": avaliacoes}
+    )
 
 
 # ==================
@@ -200,10 +208,7 @@ def avaliacoes(request):
 
 @login_required
 def detalhe_avaliacao(request, id):
-    avaliacao = get_object_or_404(AvaliacaoFisica, id=id)
-
-    if hasattr(request.user, "aluno") and avaliacao.usuario != request.user:
-        return redirect("core:home")
+    avaliacao = get_object_or_404(AvaliacaoFisica, id=id, usuario=request.user)
 
     if hasattr(avaliacao, "idoso"):
         tipo = "idoso"
@@ -229,10 +234,7 @@ def detalhe_avaliacao(request, id):
 
 @login_required
 def dashboard(request, id):
-    avaliacao = get_object_or_404(AvaliacaoFisica, id=id)
-
-    if hasattr(request.user, "aluno") and avaliacao.usuario != request.user:
-        return redirect("core:home")
+    avaliacao = get_object_or_404(AvaliacaoFisica, id=id, usuario=request.user)
 
     composicao = calcular_composicao(avaliacao)
 
@@ -253,34 +255,35 @@ def dashboard(request, id):
     if avaliacao_anterior:
      composicao_anterior = calcular_composicao(avaliacao_anterior)
 
-    comparativo = {
-        "peso": {
-            "anterior": avaliacao_anterior.peso,
-            "atual": avaliacao.peso,
-            "diferenca": round(
-                float(avaliacao.peso) -
-                float(avaliacao_anterior.peso),
-                2,
-            ),
-        },
-        "percentual_gordura": {
-            "anterior": composicao_anterior["percentual"]
-            if composicao_anterior
-            else 0,
-            "atual": composicao["percentual"]
-            if composicao
-            else 0,
-            "diferenca": round(
-                float(composicao["percentual"] if composicao else 0)
-                - float(
-                    composicao_anterior["percentual"]
-                    if composicao_anterior
-                    else 0
+    if avaliacao_anterior:
+        comparativo = {
+            "peso": {
+                "anterior": avaliacao_anterior.peso,
+                "atual": avaliacao.peso,
+                "diferenca": round(
+                    float(avaliacao.peso) -
+                    float(avaliacao_anterior.peso),
+                    2,
                 ),
-                2,
-            ),
-        },
-    }
+            },
+            "percentual_gordura": {
+                "anterior": composicao_anterior["percentual"]
+                if composicao_anterior
+                else 0,
+                "atual": composicao["percentual"]
+                if composicao
+                else 0,
+                "diferenca": round(
+                    float(composicao["percentual"] if composicao else 0)
+                    - float(
+                        composicao_anterior["percentual"]
+                        if composicao_anterior
+                        else 0
+                    ),
+                    2,
+                ),
+            },
+        }
 
     return render(
         request,
@@ -330,10 +333,11 @@ def fitflix(request):
 
 @login_required
 def painel_aluno(request, aluno_id):
-    if not hasattr(request.user, "aluno") or request.user.aluno.id != aluno_id:
-        return redirect("core:login")
-
-    aluno = get_object_or_404(Aluno, id=aluno_id)
+    aluno_filter = Q(id=aluno_id, user=request.user) | Q(
+        id=aluno_id,
+        personal=request.user,
+    )
+    aluno = get_object_or_404(Aluno, aluno_filter)
     treinos = Treino.objects.filter(aluno=aluno)
 
     return render(
@@ -431,7 +435,7 @@ def criar_avaliacao(request):
 
 @login_required
 def excluir_avaliacao(request, id):
-    avaliacao = get_object_or_404(AvaliacaoFisica, id=id)
+    avaliacao = get_object_or_404(AvaliacaoFisica, id=id, usuario=request.user)
     avaliacao.delete()
     return redirect("core:avaliacoes")
 
@@ -461,7 +465,7 @@ def fix_admin(request):
 
 @login_required
 def editar_avaliacao(request, id):
-    avaliacao = get_object_or_404(AvaliacaoFisica, id=id)
+    avaliacao = get_object_or_404(AvaliacaoFisica, id=id, usuario=request.user)
 
     if request.method == "POST":
         form = AvaliacaoFisicaForm(request.POST, instance=avaliacao)
@@ -563,8 +567,9 @@ def criar_avaliacao_crianca(request):
 
 
 @login_required
+@apenas_personal
 def adicionar_exercicio(request, treino_id):
-    treino = get_object_or_404(Treino, id=treino_id)
+    treino = get_object_or_404(Treino, id=treino_id, aluno__personal=request.user)
     exercicios = (
         VideoExercicio.objects.filter(variacoes__gif__isnull=False)
         .exclude(variacoes__gif="")
@@ -632,6 +637,7 @@ def adicionar_exercicio(request, treino_id):
 
 
 @login_required
+@apenas_personal
 def criar_exercicio(request):
     if request.method == "POST":
         nome = request.POST.get("nome")
@@ -683,9 +689,10 @@ def exercicio_detalhe(request, id):
 
 
 @login_required
+@apenas_personal
 def criar_treino(request):
     if request.method == "POST":
-        form = CriarTreinoForm(request.POST)
+        form = CriarTreinoForm(request.POST, user=request.user)
 
         if form.is_valid():
             aluno = form.cleaned_data.get("aluno")
@@ -693,7 +700,7 @@ def criar_treino(request):
 
             with transaction.atomic():
                 if not aluno and nome_aluno:
-                    aluno = criar_aluno_minimo(nome_aluno)
+                    aluno = criar_aluno_minimo(nome_aluno, request.user)
 
                 treino = Treino.objects.create(
                     aluno=aluno,
@@ -707,7 +714,7 @@ def criar_treino(request):
             messages.error(request, "Erro no formulário.")
 
     else:
-        form = CriarTreinoForm()
+        form = CriarTreinoForm(user=request.user)
 
     return render(
         request, "core/criar_treino.html", {"form": form, "modo_edicao": False}
@@ -720,8 +727,9 @@ def criar_treino(request):
 
 
 @login_required
+@apenas_personal
 def editar_treino(request, treino_id):
-    treino = get_object_or_404(Treino, id=treino_id)
+    treino = get_object_or_404(Treino, id=treino_id, aluno__personal=request.user)
 
     exercicios_treino = treino.exercicios.select_related(
         "exercicio",
@@ -765,7 +773,11 @@ def lista_exercicios(request, id):
 
 @login_required
 def treino_detail(request, treino_id):
-    treino = get_object_or_404(Treino, id=treino_id)
+    treino = get_object_or_404(
+        Treino,
+        Q(id=treino_id, aluno__personal=request.user)
+        | Q(id=treino_id, aluno__user=request.user),
+    )
 
     itens = treino.exercicios.select_related("exercicio", "variacao").order_by("ordem")
 
