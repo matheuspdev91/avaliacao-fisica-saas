@@ -34,16 +34,57 @@
         </section>
 
         <section class="dashboard-card modelo-card">
-            <h2>Imagem Corporal</h2>
-            <div class="modelo-3d">
-                {% if avaliacao.sexo == 'M' %}
-                    <img src="{% static 'img/masculino.png' %}" class="modelo-img" alt="Modelo masculino">
-                {% elif avaliacao.sexo == 'F' %}
-                    <img src="{% static 'img/feminino.png' %}" class="modelo-img" alt="Modelo feminino">
-                {% endif %}
-            </div>
-        </section>
-    </div>
+            <section class="dashboard-card modelo-card">
+                <h2>Imagem Corporal</h2>
+            
+                <div class="body-layout">
+            
+                    <div class="body-stats">
+            
+                        <div class="body-stat">
+                            <span>Peso Atual</span>
+                            <strong>{{ avaliacao.peso }} kg</strong>
+                        </div>
+            
+                        <div class="body-stat">
+                            <span>% Gordura</span>
+                            <strong>{{ composicao.percentual }}%</strong>
+                        </div>
+            
+                        <div class="body-stat">
+                            <span>Massa Magra</span>
+                            <strong>{{ composicao.massa_magra }} kg</strong>
+                        </div>
+            
+                        <div class="body-stat">
+                            <span>Massa Residual</span>
+                            <strong>{{ composicao.massa_residual }} kg</strong>
+                        </div>
+            
+                    </div>
+            
+                    <div class="body-visual">
+            
+                        <div class="radar radar-1"></div>
+                        <div class="radar radar-2"></div>
+                        <div class="radar radar-3"></div>
+            
+                        {% if avaliacao.sexo == 'M' %}
+                            <img src="{% static 'img/masculino.png' %}"
+                                 class="modelo-img"
+                                 alt="Modelo masculino">
+                        {% elif avaliacao.sexo == 'F' %}
+                            <img src="{% static 'img/feminino.png' %}"
+                                 class="modelo-img"
+                                 alt="Modelo feminino">
+                        {% endif %}
+            
+                    </div>
+            
+                </div>
+            
+            </section>
+           
 
     {% if comparativo %}
     <section class="dashboard-card evolucao-card-wrapper">
