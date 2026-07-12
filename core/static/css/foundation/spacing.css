@@ -1,0 +1,89 @@
+/* ==========================================================
+   FITFLIX DESIGN SYSTEM
+   FOUNDATION - SPACING
+========================================================== */
+
+
+/* ==========================================================
+   CONTAINERS
+========================================================== */
+
+.container {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    padding-inline: var(--space-lg);
+}
+
+
+/* ==========================================================
+   SECTIONS
+========================================================== */
+
+.section {
+    padding-block: var(--space-3xl);
+}
+
+.section-sm {
+    padding-block: var(--space-xl);
+}
+
+.section-lg {
+    padding-block: 5rem;
+}
+
+
+/* ==========================================================
+   STACK
+   Espaçamento vertical automático
+========================================================== */
+
+.stack-xs > * + * {
+    margin-top: var(--space-xs);
+}
+
+.stack-sm > * + * {
+    margin-top: var(--space-sm);
+}
+
+.stack-md > * + * {
+    margin-top: var(--space-md);
+}
+
+.stack-lg > * + * {
+    margin-top: var(--space-lg);
+}
+
+.stack-xl > * + * {
+    margin-top: var(--space-xl);
+}
+
+
+/* ==========================================================
+   CLUSTER
+   Espaçamento horizontal automático
+========================================================== */
+
+.cluster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.cluster-sm {
+    gap: var(--space-sm);
+}
+
+.cluster-lg {
+    gap: var(--space-lg);
+}
+
+
+/* ==========================================================
+   FLOW
+   Espaçamento padrão entre elementos
+========================================================== */
+
+.flow > * + * {
+    margin-top: var(--space-md);
+}

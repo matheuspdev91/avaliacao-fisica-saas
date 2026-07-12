@@ -1,0 +1,83 @@
+/* ==========================================================
+   FITFLIX DESIGN SYSTEM
+   COMPONENTS - BADGES
+========================================================== */
+
+
+/* ==========================================================
+   BASE
+========================================================== */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+
+    padding: .35rem .75rem;
+
+    border-radius: var(--radius-full);
+
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-semibold);
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   VARIANTS
+========================================================== */
+
+.badge-primary {
+    background: rgba(0, 255, 136, .15);
+    color: var(--color-primary);
+}
+
+.badge-success {
+    background: rgba(34, 197, 94, .15);
+    color: var(--color-success);
+}
+
+.badge-warning {
+    background: rgba(250, 204, 21, .15);
+    color: #D4A300;
+}
+
+.badge-danger {
+    background: rgba(239, 68, 68, .15);
+    color: var(--color-danger);
+}
+
+.badge-info {
+    background: rgba(59, 130, 246, .15);
+    color: var(--color-info);
+}
+
+.badge-secondary {
+    background: var(--color-surface-light);
+    color: var(--color-text-secondary);
+}
+
+
+/* ==========================================================
+   OUTLINE
+========================================================== */
+
+.badge-outline {
+    background: transparent;
+    border: 1px solid currentColor;
+}
+
+
+/* ==========================================================
+   SIZES
+========================================================== */
+
+.badge-sm {
+    padding: .2rem .5rem;
+}
+
+.badge-lg {
+    padding: .5rem 1rem;
+}

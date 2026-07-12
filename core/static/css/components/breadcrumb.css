@@ -1,0 +1,34 @@
+/* ==========================================================
+   FITFLIX DESIGN SYSTEM
+   COMPONENTS - BREADCRUMB
+========================================================== */
+
+.breadcrumb {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: var(--space-sm);
+
+    font-size: var(--font-size-sm);
+
+}
+
+.breadcrumb a {
+
+    color: var(--color-text-muted);
+
+}
+
+.breadcrumb a:hover {
+
+    color: var(--color-primary);
+
+}
+
+.breadcrumb-separator {
+
+    color: var(--color-text-muted);
+
+}

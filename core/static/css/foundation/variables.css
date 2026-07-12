@@ -1,0 +1,122 @@
+/* ==========================================================
+   FITFLIX DESIGN SYSTEM
+   FOUNDATION - VARIABLES
+========================================================== */
+
+:root {
+
+    /* ======================================================
+       COLORS
+    ====================================================== */
+
+    --color-primary: #00FF88;
+    --color-primary-hover: #00E67A;
+
+    --color-background: #090909;
+    --color-surface: #131313;
+    --color-surface-light: #1B1B1B;
+
+    --color-border: #2A2A2A;
+
+    --color-text: #F5F5F5;
+    --color-text-secondary: #A8A8A8;
+    --color-text-muted: #6E6E6E;
+
+    --color-success: #22C55E;
+    --color-warning: #FACC15;
+    --color-danger: #EF4444;
+    --color-info: #3B82F6;
+
+
+    /* ======================================================
+       TYPOGRAPHY
+    ====================================================== */
+
+    --font-primary: "Inter", sans-serif;
+
+    --font-size-xs: 0.75rem;      /* 12px */
+    --font-size-sm: 0.875rem;     /* 14px */
+    --font-size-md: 1rem;         /* 16px */
+    --font-size-lg: 1.125rem;     /* 18px */
+    --font-size-xl: 1.5rem;       /* 24px */
+    --font-size-2xl: 2rem;        /* 32px */
+    --font-size-3xl: 3rem;        /* 48px */
+
+
+    /* ======================================================
+       FONT WEIGHT
+    ====================================================== */
+
+    --font-light: 300;
+    --font-regular: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+
+
+    /* ======================================================
+       SPACING
+    ====================================================== */
+
+    --space-xs: .25rem;   /* 4px */
+    --space-sm: .5rem;    /* 8px */
+    --space-md: 1rem;     /* 16px */
+    --space-lg: 1.5rem;   /* 24px */
+    --space-xl: 2rem;     /* 32px */
+    --space-2xl: 3rem;    /* 48px */
+    --space-3xl: 4rem;    /* 64px */
+
+
+    /* ======================================================
+       BORDER RADIUS
+    ====================================================== */
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+
+    /* ======================================================
+       SHADOWS
+    ====================================================== */
+
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, .20);
+
+    --shadow-md: 0 6px 20px rgba(0, 0, 0, .30);
+
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, .40);
+
+
+    /* ======================================================
+       TRANSITIONS
+    ====================================================== */
+
+    --transition-fast: .15s ease;
+    --transition-normal: .30s ease;
+    --transition-slow: .50s ease;
+
+
+    /* ======================================================
+       LAYOUT
+    ====================================================== */
+
+    --sidebar-width: 280px;
+    --topbar-height: 70px;
+
+    --container-max-width: 1440px;
+
+
+    /* ======================================================
+       Z-INDEX
+    ====================================================== */
+
+    --z-dropdown: 100;
+    --z-sticky: 500;
+    --z-fixed: 900;
+    --z-modal: 1000;
+    --z-toast: 1100;
+    --z-tooltip: 1200;
+
+}

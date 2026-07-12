@@ -1,0 +1,105 @@
+/* ==========================================================
+   FITFLIX DESIGN SYSTEM
+   COMPONENTS - ALERTS
+========================================================== */
+
+
+/* ==========================================================
+   BASE
+========================================================== */
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+
+    width: 100%;
+
+    padding: var(--space-lg);
+
+    border-radius: var(--radius-lg);
+
+    border: 1px solid transparent;
+
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+}
+
+
+/* ==========================================================
+   ICON
+========================================================== */
+
+.alert-icon {
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+
+/* ==========================================================
+   CONTENT
+========================================================== */
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-title {
+    margin-bottom: var(--space-xs);
+
+    font-weight: var(--font-semibold);
+
+    color: inherit;
+}
+
+.alert-text {
+    margin: 0;
+}
+
+
+/* ==========================================================
+   VARIANTS
+========================================================== */
+
+.alert-success {
+    background: rgba(34,197,94,.10);
+    border-color: rgba(34,197,94,.25);
+    color: var(--color-success);
+}
+
+.alert-warning {
+    background: rgba(250,204,21,.10);
+    border-color: rgba(250,204,21,.25);
+    color: #D4A300;
+}
+
+.alert-danger {
+    background: rgba(239,68,68,.10);
+    border-color: rgba(239,68,68,.25);
+    color: var(--color-danger);
+}
+
+.alert-info {
+    background: rgba(59,130,246,.10);
+    border-color: rgba(59,130,246,.25);
+    color: var(--color-info);
+}
+
+
+/* ==========================================================
+   DISMISSIBLE
+========================================================== */
+
+.alert-dismissible {
+    justify-content: space-between;
+}
+
+.alert-close {
+    cursor: pointer;
+    opacity: .7;
+    transition: opacity var(--transition-fast);
+}
+
+.alert-close:hover {
+    opacity: 1;
+}
