@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     {% load static %}
 
@@ -15,105 +16,149 @@
 
 <body>
 
-<div class="fitflix-layout">
+    <div class="app-layout">
 
-    <!-- SIDEBAR -->
-    <aside class="fitflix-sidebar">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <!-- LOGO -->
+            <div class="sidebar-header">
 
-        <!-- LOGO -->
-        <div class="fitflix-logo">
-            <a href="{% url 'core:avaliacoes' %}">
-                <span>Fit</span><span class="flix">Flix</span>
-            </a>
-        </div>
+                <div class="sidebar-logo">
 
-        <nav class="fitflix-nav">
+                    <a href="{% url 'core:avaliacoes' %}">
 
-            {% if user.is_authenticated %}
-
-            <!-- FITFLIX -->
-            <a href="{% url 'core:fitflix' %}"
-               class="fitflix-nav-link {% if request.resolver_match.url_name == 'fitflix' %}active{% endif %}">
-                <span>FitFlix</span>
-            </a>
-
-            <!-- MENU -->
-            <div class="fitflix-nav-section">
-                <p class="fitflix-nav-title">Menu</p>
-
-                {% if user.aluno %}
-                    <a href="{% url 'core:painel_aluno' user.aluno.id %}" class="fitflix-nav-link">
-                        <span>Meus Treinos</span>
+                        <span class="logo-primary">Fit</span>
+                        <span class="logo-accent">Flix</span>
                     </a>
-                {% else %}
-                    <a href="{% url 'core:avaliacoes' %}" class="fitflix-nav-link">
-                        <span>Avaliações</span>
-                    </a>
-
-                    <a href="{% url 'core:escolher_tipo' %}" class="fitflix-nav-link">
-                        <span>Nova Avaliação</span>
-                    </a>
-
-                    <a href="{% url 'core:criar_aluno' %}" class="fitflix-nav-link">
-                        <span>Cadastrar Aluno</span>
-                    </a>
-                {% endif %}
+                </div>
             </div>
 
-            <!-- CONTA -->
-            <div class="fitflix-nav-section">
-                <p class="fitflix-nav-title">Conta</p>
+            <nav class="fitflix-nav">
 
-                <a href="{% url 'core:logout' %}" class="fitflix-nav-link">
-                    <span>Sair</span>
+                {% if user.is_authenticated %}
+
+                <!-- FITFLIX -->
+                <a href="{% url 'core:fitflix' %}"
+                    class="fitflix-nav-link {% if request.resolver_match.url_name == 'fitflix' %}active{% endif %}">
+                    <span>FitFlix</span>
                 </a>
-            </div>
 
+                <!-- MENU -->
+                <div class="sidebar-section">
+
+                    <p class="sidebar-section-title">Menu</p>
+
+                    <ul class="sidebar-menu">
+
+                        {% if user.aluno %}
+
+                        <li class="sidebar-item">
+                            <a href="{% url 'core:painel_aluno' user.aluno.id %}" class="sidebar-link">
+                                <span>Meus Treinos</span>
+                            </a>
+                        </li>
+
+                        {% else %}
+
+                        <li class="sidebar-item">
+                            <a href="{% url 'core:avaliacoes' %}" class="sidebar-link">
+                                <span>Avaliações</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{% url 'core:escolher_tipo' %}" class="sidebar-link">
+                                <span>Nova Avaliação</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{% url 'core:criar_aluno' %}" class="sidebar-link">
+                                <span>Cadastrar Aluno</span>
+                            </a>
+                        </li>
+
+                        {% endif %}
+
+                    </ul>
+
+                </div>
+                <!-- CONTA -->
+                <div class="sidebar-section">
+                    <p class="sidebar-section-title">
+                        Conta
+                    </p>
+
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-item">
+
+                            <a href="{% url 'core:logout' %}" class="sidebar-link">
+                                <span>Sair</span>
+                            </a>
+
+                        </li>
+                    </ul>
+
+                </div>
+
+
+                {% endif %}
+
+            </nav>
+
+            <!-- USER -->
+            {% if user.is_authenticated %}
+            <div class="sidebar-footer">
+
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">
+                        {{ user.username|first|upper }}
+                    </div>
+
+                    <div class="sidebar-user-info">
+                        <span class="sidebar-user-name">
+                            {{ user.username }}
+                        </span>
+
+                    </div>
+                </div>
+            </div>
             {% endif %}
 
-        </nav>
+        </aside>
 
-        <!-- USER -->
-        {% if user.is_authenticated %}
-        <div class="fitflix-user">
-            <div class="fitflix-user-avatar">
-                {{ request.user.username|first|upper }}
+        <!-- MAIN -->
+        <main class="main-content">
+
+            {% if messages %}
+            <div class="alerts-container">
+
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} ">
+                    {{ message }}
+                </div>
+                {% endfor %}
             </div>
-            <span class="fitflix-user-name">
-                {{ request.user.username }}
-            </span>
-        </div>
-        {% endif %}
+            {% endif %}
+            <section class="page-content">
+                {% block content %}{% endblock %}
+            </section>
 
-    </aside>
 
-    <!-- MAIN -->
-    <main class="fitflix-main">
+        </main>
 
-        {% if messages %}
-        <div class="fitflix-messages">
-            {% for message in messages %}
-            <div class="fitflix-message">
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+    </div>
 
-        {% block content %}{% endblock %}
+    <footer class="app-footer">
+        <small>© 2026 - FitFlix</small>
+    </footer>
 
-    </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
 
-</div>
-
-<footer class="fitflix-footer">
-    <small>© 2026 - FitFlix</small>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'js/fitflix.js' %}"></script>
-
-{% block scripts %}{% endblock %}
+    {% block scripts %}
+    {% endblock %}
 
 </body>
+
 </html>
