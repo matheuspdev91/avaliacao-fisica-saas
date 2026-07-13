@@ -4,15 +4,15 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-top-grid">
-        <section class="dashboard-card grafico-card">
-            <div class="dashboard-card-header">
+<div class="page">
+    <div class="grid">
+        <section class="card composition-card">
+            <div class="card-header">
                 <div>
-                    <span class="dashboard-eyebrow">Análise atual</span>
+                    <span class="card-eyebrow">Análise atual</span>
                     <h2>Composição Corporal</h2>
                 </div>
-                <span class="dashboard-badge">Atual</span>
+                <span class="badge">Atual</span>
             </div>
 
             <div class="composition-layout">
@@ -65,10 +65,10 @@
             </div>
         </section>
 
-        <section class="dashboard-card modelo-card">
-            <div class="dashboard-card-header dashboard-card-header-centered">
+        <section class="card modelo-card">
+            <div class="card-header card-header-centered">
                 <div>
-                    <span class="dashboard-eyebrow">Visualização Atual</span>
+                    <span class="card-eyebrow">Visualização Atual</span>
                     <h2>Imagem Corporal</h2>
                 </div>
             </div>
@@ -94,13 +94,13 @@
         </section>
     </div>
 
-    <section class="dashboard-card body-metrics-card">
-        <div class="dashboard-card-header">
+    <section class="card body-metrics-card">
+        <div class="card-header">
             <div>
-                <span class="dashboard-eyebrow">Indicadores</span>
+                <span class="card-eyebrow">Indicadores</span>
                 <h2>Métricas Corporais</h2>
             </div>
-            <span class="dashboard-badge dashboard-badge-muted">5 indicadores</span>
+            <span class="badge badge-muted">5 indicadores</span>
         </div>
 
         <div class="body-stats">
@@ -138,13 +138,13 @@
            
 
     {% if comparativo %}
-    <section class="dashboard-card evolucao-card-wrapper">
-        <div class="dashboard-card-header">
+    <section class="card evolucao-card-wrapper">
+        <div class="card-header">
             <div>
-                <span class="dashboard-eyebrow">Histórico</span>
+                <span class="card-eyebrow">Histórico</span>
                 <h2>Evolução Corporal</h2>
             </div>
-            <span class="dashboard-badge">Comparativo</span>
+            <span class="badge">Comparativo</span>
         </div>
 
         <div class="evolucao-grid">
@@ -189,7 +189,7 @@
     </section>
     {% endif %}
 
-    <a href="{% url 'core:detalhe_avaliacao' avaliacao.id %}" class="btn dashboard-action-btn">Voltar</a>
+    <a href="{% url 'core:detalhe_avaliacao' avaliacao.id %}" class="btn action-btn">Voltar</a>
 </div>
 {% endblock %}
 
