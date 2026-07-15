@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand
-
-from media_pipeline.scanner import scan_directory
-from media_pipeline.inventory import salvar_inventario
-from media_pipeline.utils import validar_pasta
-
+from core.media_pipeline.models import Inventory
+from core.media_pipeline.scanner import MediaScanner
+from core.media_pipeline.inventory import save_inventory
+from core.media_pipeline.utils import validate_directory
 
 class Command(BaseCommand):
 
@@ -19,23 +18,27 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        pasta = validar_pasta(options["path"])
+        pasta = validate_directory(options["path"])
 
         self.stdout.write("")
         self.stdout.write("=" * 50)
         self.stdout.write("FITFLIX MEDIA SCANNER")
         self.stdout.write("=" * 50)
 
-        inventario = scan_directory(pasta)
+        scanner = MediaScanner()
 
-        salvar_inventario(
-            inventario,
+        inventory: Inventory = scanner.scan(pasta)
+
+        save_inventory(
+            inventory,
             "media_pipeline/inventario.json",
         )
 
         self.stdout.write("")
+        total = len(inventory.media_files)
+
         self.stdout.write(
             self.style.SUCCESS(
-                f"{len(inventario)} arquivos encontrados."
+                f"{total} arquivos encontrados."
             )
         )

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol
 
-from .inventory import MediaInventory
+from .models import Inventory
 
 
 @dataclass(frozen=True, slots=True)
@@ -16,4 +16,4 @@ class AuditFinding:
 
 
 class InventoryAuditor(Protocol):
-    def audit(self, inventory: MediaInventory) -> tuple[AuditFinding, ...]: ...
+    def audit(self, inventory: Inventory) -> tuple[AuditFinding, ...]: ...

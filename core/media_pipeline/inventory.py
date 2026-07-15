@@ -1,76 +1,51 @@
-"""Tipos e serialização do inventário de mídias."""
+"""Persistência JSON para o inventário de mídias."""
 
-from __future__ import annotations
-
-from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
-from typing import Iterable, Iterator
+
+from .models import Inventory, MediaFile
 
 
-@dataclass(frozen=True, slots=True)
-class MediaAsset:
-    """Um arquivo de mídia encontrado, sem qualquer dependência de banco."""
-
-    category: str
-    muscle_group: str
-    filename: str
-    original_name: str
-    normalized_name: str
-    extension: str
-    size: int
-    sha256: str
-    path: Path
-
-    def to_dict(self) -> dict[str, object]:
-        data = asdict(self)
-        data["path"] = str(self.path)
-        # Chaves em português preservam o formato que os scripts legados esperam.
-        return {
-            **data,
-            "categoria": self.category,
-            "grupo": self.muscle_group,
-            "arquivo": self.filename,
-            "nome_original": self.original_name,
-            "nome_normalizado": self.normalized_name,
-            "extensao": self.extension,
-            "tamanho": self.size,
-            "caminho": str(self.path),
-        }
-
-
-@dataclass(frozen=True, slots=True)
-class MediaInventory:
-    root: Path
-    assets: tuple[MediaAsset, ...]
-
-    def __iter__(self) -> Iterator[MediaAsset]:
-        return iter(self.assets)
-
-    def __len__(self) -> int:
-        return len(self.assets)
-
-    def to_records(self) -> list[dict[str, object]]:
-        return [asset.to_dict() for asset in self.assets]
-
-    def save_json(self, destination: str | Path) -> Path:
-        target = Path(destination)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(
-            json.dumps(self.to_records(), indent=2, ensure_ascii=False), encoding="utf-8"
-        )
-        return target
-
-
-def save_inventory(inventory: MediaInventory | Iterable[MediaAsset] | Iterable[dict], destination: str | Path) -> Path:
-    """Persiste inventários novos ou a lista de dicionários usada legadamente."""
-    if isinstance(inventory, MediaInventory):
-        return inventory.save_json(destination)
-    records = [item.to_dict() if isinstance(item, MediaAsset) else item for item in inventory]
+def save_inventory(inventory: Inventory, destination: str | Path) -> Path:
+    """Persiste um :class:`Inventory` como uma lista de registros JSON."""
+    records = [media.to_dict() for media in inventory.media_files]
     target = Path(destination)
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(records, indent=2, ensure_ascii=False), encoding="utf-8")
+    target.write_text(
+        json.dumps(records, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
     return target
 
 
-salvar_inventario = save_inventory
+def load_inventory(source: str | Path) -> Inventory:
+    """Carrega um inventário salvo nos formatos atual ou legado."""
+    records = json.loads(Path(source).read_text(encoding="utf-8"))
+    if not isinstance(records, list):
+        raise ValueError("O inventário JSON deve conter uma lista de mídias.")
+
+    def value(record: dict[str, object], current: str, legacy: str) -> object:
+        if current in record:
+            return record[current]
+        if legacy in record:
+            return record[legacy]
+        raise ValueError(f"Registro de mídia sem o campo '{current}'.")
+
+    media_files: list[MediaFile] = []
+    for record in records:
+        if not isinstance(record, dict):
+            raise ValueError("Cada registro de mídia deve ser um objeto JSON.")
+        media_files.append(
+            MediaFile(
+                category=str(value(record, "category", "categoria")),
+                muscle_group=str(value(record, "muscle_group", "grupo")),
+                filename=str(value(record, "filename", "arquivo")),
+                stem=str(value(record, "stem", "nome_original")),
+                normalized_name=str(value(record, "normalized_name", "nome_normalizado")),
+                extension=str(value(record, "extension", "extensao")),
+                size=int(value(record, "size", "tamanho")),
+                sha256=str(record["sha256"]),
+                path=Path(str(value(record, "path", "caminho"))),
+            )
+        )
+    return Inventory(media_files=media_files)

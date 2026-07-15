@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from .inventory import MediaInventory
+from .models import Inventory
 
 
 class CatalogBuilder(Protocol):
-    def build(self, inventory: MediaInventory) -> None:
+    def build(self, inventory: Inventory) -> None:
         """Persistirá GrupoMuscular, VideoExercicio e VariacaoExercicio no futuro."""

@@ -2,17 +2,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Protocol, Sequence
 
-
-@dataclass(frozen=True, slots=True)
-class MatchResult:
-    source: str
-    candidate: str
-    score: float
-    strategy: str
+from .models import Exercise, MatchResult, Variation
 
 
 class NameMatcher(Protocol):
-    def match(self, source: str, candidates: Sequence[str]) -> MatchResult | None: ...
+    def match(
+        self,
+        exercise: Exercise,
+        variations: Sequence[Variation],
+    ) -> MatchResult | None: ...

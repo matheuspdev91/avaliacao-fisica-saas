@@ -5,15 +5,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol, Sequence
 
-from .inventory import MediaAsset
+from .models import MediaFile
 
 
 @dataclass(frozen=True, slots=True)
 class ExerciseCluster:
     canonical_name: str
-    assets: tuple[MediaAsset, ...]
+    media_files: tuple[MediaFile, ...]
     confidence: float
 
 
 class AssetGrouper(Protocol):
-    def group(self, assets: Sequence[MediaAsset]) -> tuple[ExerciseCluster, ...]: ...
+    def group(self, media_files: Sequence[MediaFile]) -> tuple[ExerciseCluster, ...]: ...
