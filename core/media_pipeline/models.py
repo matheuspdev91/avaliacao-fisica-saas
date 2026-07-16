@@ -80,15 +80,18 @@ class MatchResult:
     Resultado produzido pelo Matcher.
     """
 
-    exercise: Exercise
+    matched: bool
 
-    variation: Variation
+    media: MediaFile | None = None
 
-    media: MediaFile
+    exercise: Exercise | None = None
 
-    score: float
+    variation: Variation | None = None
 
-    strategy: str
+    score: float = 0.0
+
+    reason: str = ""
+    
 
 @dataclass(slots=True)
 class Inventory:

@@ -1,5 +1,3 @@
-"""Persistência JSON para o inventário de mídias."""
-
 import json
 from pathlib import Path
 
