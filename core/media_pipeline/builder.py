@@ -1,12 +1,14 @@
-"""Contrato para futura persistência do catálogo no Django ORM."""
+"""Contrato para construção do catálogo."""
 
 from __future__ import annotations
 
 from typing import Protocol
 
-from .models import Inventory
-
+from .models import Exercise, Inventory
 
 class CatalogBuilder(Protocol):
-    def build(self, inventory: Inventory) -> None:
-        """Persistirá GrupoMuscular, VideoExercicio e VariacaoExercicio no futuro."""
+    def build(
+        self,
+        inventory: Inventory,
+    ) -> list[Exercise]:
+        """Constrói o catálogo a partir do Inventory."""

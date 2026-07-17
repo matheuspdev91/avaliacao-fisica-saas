@@ -7,6 +7,7 @@ from pathlib import Path
 import unittest
 
 from .inventory import load_inventory, save_inventory
+from .memory_builder import InMemoryCatalogBuilder
 from .models import Inventory, MediaFile
 from .normalizer import normalize_name
 from .parser import ExerciseNameParser
@@ -68,6 +69,43 @@ class InventoryPersistenceTests(unittest.TestCase):
             loaded = load_inventory(path)
 
         self.assertEqual(loaded.media_files, [media])
+
+
+class InMemoryCatalogBuilderTests(unittest.TestCase):
+    def test_groups_variations_under_the_parsed_exercise(self) -> None:
+        media_files = [
+            MediaFile(
+                path=Path("supino_reto.gif"),
+                category="ACADEMIA",
+                muscle_group="PEITORAL",
+                filename="Supino - Reto.gif",
+                stem="Supino - Reto",
+                normalized_name="supino reto",
+                extension=".gif",
+                size=1,
+                sha256="a",
+            ),
+            MediaFile(
+                path=Path("supino_inclinado.gif"),
+                category="ACADEMIA",
+                muscle_group="PEITORAL",
+                filename="Supino - Inclinado.gif",
+                stem="Supino - Inclinado",
+                normalized_name="supino inclinado",
+                extension=".gif",
+                size=1,
+                sha256="b",
+            ),
+        ]
+
+        catalog = InMemoryCatalogBuilder().build(Inventory(media_files))
+
+        self.assertEqual(len(catalog), 1)
+        self.assertEqual(catalog[0].name, "Supino")
+        self.assertEqual(
+            [variation.name for variation in catalog[0].variations],
+            ["Reto", "Inclinado"],
+        )
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 """Interpretação semântica leve de nomes de exercícios, independente do catálogo."""
 
-from os import name
 from dataclasses import dataclass
 from pathlib import Path
 import re

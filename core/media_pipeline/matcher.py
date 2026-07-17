@@ -1,75 +1,50 @@
 from __future__ import annotations
 
+from .aliases import AliasRegistry
+from .models import Inventory, MatchResult, MediaFile
 from .parser import ParsedExerciseName
-from .models import MatchResult
+
 
 class ExerciseMatcher:
-    """
-    Resolve um ParsedExerciseName para um exercício conhecido.
+    """Resolve um nome analisado para a melhor media conhecida no inventario."""
 
-    TODO
-    ----
-    - Buscar candidatos no Inventory
-    - Calcular score
-    - Aplicar aliases
-    - Resolver ambiguidades
-    """
-
-    def __init__(self, inventory) -> None:
+    def __init__(
+        self,
+        inventory: Inventory,
+        aliases: AliasRegistry | None = None,
+    ) -> None:
         self.inventory = inventory
+        self.aliases = aliases or AliasRegistry()
 
     def match(self, parsed: ParsedExerciseName) -> MatchResult:
-        """
-        Executa o pipeline completo de matching.
-        """
-
+        """Executa a resolucao contra as midias do inventario."""
         if not parsed.exercise:
-            return MatchResult(
-                matched=False,
-                exercise=None,
-                variation=None,
-                score=0.0,
-                reason="empty exercise",
-            )
+            return MatchResult(matched=False, reason="empty exercise")
 
-        candidates = self._find_candidates(parsed)
+        canonical_exercise = self.aliases.canonicalize(parsed.normalized_exercise)
+        candidates = self._find_candidates(canonical_exercise)
 
         if not candidates:
-            return MatchResult(
-                matched=False,
-                exercise=None,
-                variation=None,
-                score=0.0,
-                reason="no candidates",
-            )
+            return MatchResult(matched=False, reason="no candidates")
 
         return self._best_candidate(parsed, candidates)
 
-    def _find_candidates(self, parsed: ParsedExerciseName):
-        """
-        Retorna possíveis candidatos do Inventory.
-
-        Implementação temporária.
-        """
-        return []
+    def _find_candidates(self, canonical_name: str) -> list[MediaFile]:
+        return [
+            media
+            for media in self.inventory.media_files
+            if canonical_name in media.normalized_name
+        ]
 
     def _best_candidate(
         self,
         parsed: ParsedExerciseName,
-        candidates,
+        candidates: list[MediaFile],
     ) -> MatchResult:
-        """
-        Escolhe o candidato com maior score.
-
-        Implementação temporária.
-        """
-
         candidate = candidates[0]
-
         return MatchResult(
             matched=True,
-            exercise=candidate.exercise,
-            variation=candidate.variation,
+            media=candidate,
             score=self._score_candidate(parsed, candidate),
             reason="best candidate",
         )
@@ -77,11 +52,6 @@ class ExerciseMatcher:
     def _score_candidate(
         self,
         parsed: ParsedExerciseName,
-        candidate,
+        candidate: MediaFile,
     ) -> float:
-        """
-        Calcula o score de similaridade entre parser e candidato.
-
-        Implementação temporária.
-        """
         return 1.0
