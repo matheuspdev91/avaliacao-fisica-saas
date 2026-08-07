@@ -35,17 +35,6 @@
     min-height: 100vh;
 }
 
-
-/* ==========================================================
-   PAGE CONTENT
-========================================================== */
-
-.page-content {
-    width: 100%;
-    padding: var(--space-xl);
-}
-
-
 /* ==========================================================
    RESPONSIVE
 ========================================================== */
@@ -54,22 +43,16 @@
 
     .container,
     .container-fluid {
-        padding-inline: var(--space-md);
+        padding-inline: var(--space-4);
     }
 
-    .page-content {
-        padding: var(--space-lg);
-    }
 }
 
 @media (max-width: 576px) {
 
     .container,
     .container-fluid {
-        padding-inline: var(--space-sm);
+        padding-inline: var(--space-2);
     }
 
-    .page-content {
-        padding: var(--space-md);
-    }
 }
