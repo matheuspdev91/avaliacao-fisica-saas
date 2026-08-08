@@ -123,7 +123,7 @@
 ========================================================== */
 
 .transition {
-    transition: all var(--transition-normal);
+    transition: all var(--transition-base);
 }
 
 .transition-fast {
