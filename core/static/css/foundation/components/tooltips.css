@@ -1,26 +1,45 @@
 /* ==========================================================
    FITFLIX DESIGN SYSTEM
-   COMPONENTS - TOOLTIP
+   COMPONENTS - TOOLTIPS
 ========================================================== */
 
+
+/*
+|--------------------------------------------------------------------------
+| WRAPPER
+|--------------------------------------------------------------------------
+*/
+
 .tooltip {
+
     position: relative;
+
     display: inline-flex;
+
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| CONTENT
+|--------------------------------------------------------------------------
+*/
+
 .tooltip-content {
+
     position: absolute;
 
     left: 50%;
-    bottom: calc(100% + .5rem);
+
+    bottom: calc(100% + var(--space-2));
 
     transform: translateX(-50%);
 
-    background: var(--color-surface-light);
+    background: var(--color-surface-elevated);
 
     color: var(--color-text);
 
-    padding: .5rem .75rem;
+    padding: var(--space-2) var(--space-3);
 
     border-radius: var(--radius-md);
 
@@ -29,10 +48,19 @@
     white-space: nowrap;
 
     opacity: 0;
+
     visibility: hidden;
 
-    transition: var(--transition-fast);
+    transition: opacity var(--transition-fast);
+
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| HOVER
+|--------------------------------------------------------------------------
+*/
 
 .tooltip:hover .tooltip-content {
 
