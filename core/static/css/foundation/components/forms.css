@@ -40,13 +40,21 @@
 */
 
 .form-row {
-
     display: grid;
-
     grid-template-columns: repeat(2, 1fr);
-
     gap: var(--space-6);
+}
 
+.form-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+}
+
+.form-row-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6);
 }
 
 
@@ -123,7 +131,9 @@
 
 @media (max-width: 768px) {
 
-    .form-row {
+    .form-row,
+    .form-row-3,
+    .form-row-4 {
 
         grid-template-columns: 1fr;
 

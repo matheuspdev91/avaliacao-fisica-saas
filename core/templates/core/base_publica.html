@@ -2,17 +2,16 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="
-    width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Treino</title>
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
-<body style="font-family: Arial; 
-        padding: 20px; 
-        background: #000000; 
-        color: white">
+<body class="app-shell">
 
     {% block content %}{% endblock %}
-    
     
 </body>
 </html>

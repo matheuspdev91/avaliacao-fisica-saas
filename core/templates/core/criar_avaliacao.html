@@ -1,62 +1,109 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
+
+{% block title %}Nova Avaliação{% endblock %}
 
 {% block content %}
-<div class="fitflix-form-container">
-    <form method="post">
-        {% csrf_token %}
-
-        <div class="fitflix-card">
-            <h1 class="fitflix-title">Nova Avaliação</h1>
-
-            <div class="form-group">
-                <label for="tipo">Tipo de Avaliação</label>
-                <select name="tipo" id="tipo">
-                    <option value="adulto" selected>Adulto</option>
-                    <option value="crianca">Criança</option>
-                    <option value="idoso">Idoso</option>
-                </select>
+<div style="max-width: 900px; margin: 0 auto; padding-bottom: var(--space-8);">
+    
+    <div class="card card-bordered" style="margin-bottom: var(--space-6);">
+        <div class="card-header">
+            <div>
+                <h1 class="card-title">Nova Avaliação</h1>
+                <p class="card-subtitle">
+                    Inicie uma nova avaliação selecionando a modalidade e preenchendo os dados abaixo.
+                </p>
             </div>
         </div>
 
-        <div class="fitflix-card">
-            <h2 class="fitflix-title">Dados Pessoais</h2>
-            {% for field in avaliacao_form %}
-                <div class="form-group">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {{ field.errors }}
-                </div>
-            {% endfor %}
-        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
 
-        <div class="fitflix-card">
-            <h2 class="fitflix-title">Circunferências</h2>
-            {% for field in circ_form %}
-                <div class="form-group">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {{ field.errors }}
+                <!-- TIPO DE AVALIAÇÃO -->
+                <div style="margin-bottom: var(--space-8);">
+                    <h3 style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2); margin-bottom: var(--space-4);">
+                        Modalidade
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" for="tipo">Tipo de Avaliação</label>
+                            <select name="tipo" id="tipo" class="form-control">
+                                <option value="adulto" selected>Adulto</option>
+                                <option value="crianca">Criança</option>
+                                <option value="idoso">Idoso</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
 
-        <div class="fitflix-card">
-            <h2 class="fitflix-title">Adipometria</h2>
-            {% for field in adip_form %}
-                <div class="form-group">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {{ field.errors }}
+                <!-- DADOS PESSOAIS -->
+                <div style="margin-bottom: var(--space-8);">
+                    <h3 style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2); margin-bottom: var(--space-4);">
+                        Dados Pessoais
+                    </h3>
+                    
+                    <div class="form-row-3">
+                        {% for field in avaliacao_form %}
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="form-error">{{ field.errors }}</div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <div class="form-help">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
 
-        <div class="fitflix-card">
-            <div class="form-group">
-                <button type="submit" class="btn">Salvar avaliação</button>
-            </div>
+                <!-- CIRCUNFERÊNCIAS -->
+                <div style="margin-bottom: var(--space-8);">
+                    <h3 style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2); margin-bottom: var(--space-4);">
+                        Circunferências (cm)
+                    </h3>
+                    
+                    <div class="form-row-4">
+                        {% for field in circ_form %}
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="form-error">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ADIPOMETRIA -->
+                <div style="margin-bottom: var(--space-8);">
+                    <h3 style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2); margin-bottom: var(--space-4);">
+                        Adipometria (mm)
+                    </h3>
+                    
+                    <div class="form-row-4">
+                        {% for field in adip_form %}
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="form-error">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- AÇÃO -->
+                <div class="form-actions" style="border-top: 1px solid var(--color-border); padding-top: var(--space-6); justify-content: flex-end; margin-top: 0;">
+                    <button type="submit" class="btn btn-primary" style="min-width: 200px; justify-content: center;">Salvar avaliação</button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 
 <script>

@@ -25,6 +25,9 @@ class MediaFile:
 
     sha256: str
 
+    cloudinary_public_id: str = ""
+    cloudinary_url: str = ""
+
     def to_dict(self) -> dict[str, object]:
         """Serializa a mídia nos formatos atual e legado."""
         path = str(self.path)
@@ -38,6 +41,8 @@ class MediaFile:
             "size": self.size,
             "sha256": self.sha256,
             "path": path,
+            "cloudinary_public_id": self.cloudinary_public_id,
+            "cloudinary_url": self.cloudinary_url,
             "categoria": self.category,
             "grupo": self.muscle_group,
             "arquivo": self.filename,

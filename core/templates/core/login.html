@@ -3,54 +3,35 @@
 
 {% block content %}
 
-<div style="
-    min-height: 100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-">
+<div class="card card-bordered">
+    <div class="card-body">
+        <div style="text-align:center; margin-bottom:var(--space-8);">
+            <h1 style="color:var(--color-primary); font-size:3rem; margin:0;">
+                FitFlix
+            </h1>
+            <p style="color:var(--color-text-muted); margin-top:var(--space-2);">
+                Acesse sua conta
+            </p>
+        </div>
 
-    <div style="
-        width:100%;
-        max-width:420px;
-        background:#000000;
-        padding:40px;
-        border-radius:20px;
-        box-shadow:0 0 30px rgba(0, 255, 128, 0.299);
-    ">
+        <form method="POST">
+            {% csrf_token %}
 
-        <h1 style="
-            text-align:center;
-            margin-bottom:10px;
-            color:#00ff88;
-        ">
-            FitFlix
-        </h1>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
 
-        <p style="
-            text-align:center;
-            color:#9ca3af;
-            margin-bottom:30px;
-        ">
-            Acesse sua conta
-        </p>
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
 
-         <form method="POST">
-        {% csrf_token %}
-
-        <label>Email</label>
-        <input type="email" name="email" required>
-
-        <label>Senha</label>
-        <input type="password" name="password" required>
-
-        <button type="submit">
-            Entrar
-        </button>
-    </form>
-
+            <button type="submit" class="btn btn-primary btn-block">
+                Entrar
+            </button>
+        </form>
+    </div>
 </div>
 
 {% endblock %}
-
-        

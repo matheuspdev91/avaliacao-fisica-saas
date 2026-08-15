@@ -1,12 +1,12 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div class="fitflix-form-container">
+<div class="container">
     <form method="post">
         {% csrf_token %}
 
-        <div class="fitflix-card">
-            <h1 class="fitflix-title">Nova Avaliação</h1>
+        <div class="card card-bordered card-body">
+            <h1 class="card-title">Nova Avaliação</h1>
 
             <div class="form-group">
                 <label for="tipo">Tipo de Avaliação</label>
@@ -18,8 +18,8 @@
             </div>
         </div>
 
-        <div class="fitflix-card">
-            <h2 class="fitflix-title">Dados Pessoais</h2>
+        <div class="card card-bordered card-body">
+            <h2 class="card-title">Dados Pessoais</h2>
             {% for field in avaliacao_form %}
                 <div class="form-group">
                     {{ field.label_tag }}
@@ -29,8 +29,8 @@
             {% endfor %}
         </div>
 
-        <div class="fitflix-card">
-            <h2 class="fitflix-title">Circunferências</h2>
+        <div class="card card-bordered card-body">
+            <h2 class="card-title">Circunferências</h2>
             {% for field in circ_form %}
                 <div class="form-group">
                     {{ field.label_tag }}
@@ -40,8 +40,8 @@
             {% endfor %}
         </div>
 
-        <div class="fitflix-card">
-            <h2 class="fitflix-title">Adipometria</h2>
+        <div class="card card-bordered card-body">
+            <h2 class="card-title">Adipometria</h2>
             {% for field in adip_form %}
                 <div class="form-group">
                     {{ field.label_tag }}
@@ -51,7 +51,7 @@
             {% endfor %}
         </div>
 
-        <div class="fitflix-card">
+        <div class="card card-bordered card-body">
             <div class="form-group">
                 <button type="submit" class="btn">Salvar avaliação</button>
             </div>

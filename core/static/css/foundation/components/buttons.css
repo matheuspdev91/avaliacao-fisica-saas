@@ -24,7 +24,7 @@
 
     font: inherit;
     font-size: var(--font-size-md);
-    font-weight: var(--font-semibold);
+    font-weight: var(--font-weight-semibold);
 
     cursor: pointer;
     user-select: none;
@@ -105,7 +105,7 @@
 
 .btn-secondary:hover {
 
-    border-color: var(--color-primary);
+    border-color: var(--color-border-hover);
 
 }
 
@@ -129,7 +129,7 @@
 
     background: var(--color-success);
 
-    color: var(--color-white);
+    color: var(--color-black);
 
 }
 

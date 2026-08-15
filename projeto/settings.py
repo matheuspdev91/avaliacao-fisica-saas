@@ -172,7 +172,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # LOGIN / LOGOUT
 # =========================
 
-LOGIN_REDIRECT_URL = "core:avaliacoes"
+LOGIN_REDIRECT_URL = "core:fitflix"
 
 LOGIN_URL = "core:login"
 

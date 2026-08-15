@@ -7,7 +7,7 @@
 <div class="treinos">
 
     {% for treino in treinos %}
-        <div class="card-treino">
+        <div class="card card-bordered card-body">
             <h2>{{ treino.nome }}</h2>
             
             <a href="{% url 'core:treino_detail' treino.id %}">

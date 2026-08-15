@@ -10,7 +10,12 @@
 |--------------------------------------------------------------------------
 */
 
-.form-control {
+.form-control,
+.treino-input,
+.input-field,
+.form-group input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.form-group select,
+.form-group textarea {
 
     display: block;
 
@@ -42,7 +47,11 @@
 |--------------------------------------------------------------------------
 */
 
-.form-control::placeholder {
+.form-control::placeholder,
+.treino-input::placeholder,
+.input-field::placeholder,
+.form-group input::placeholder,
+.form-group textarea::placeholder {
 
     color: var(--color-text-muted);
 
@@ -51,11 +60,27 @@
 
 /*
 |--------------------------------------------------------------------------
-| FOCUS
+| HOVER & FOCUS
 |--------------------------------------------------------------------------
 */
 
-.form-control:focus {
+.form-control:hover,
+.treino-input:hover,
+.input-field:hover,
+.form-group input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover,
+.form-group select:hover,
+.form-group textarea:hover {
+
+    border-color: var(--color-border-hover);
+
+}
+
+.form-control:focus,
+.treino-input:focus,
+.input-field:focus,
+.form-group input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+.form-group select:focus,
+.form-group textarea:focus {
 
     outline: none;
 
@@ -72,11 +97,17 @@
 |--------------------------------------------------------------------------
 */
 
-.form-control:disabled {
+.form-control:disabled,
+.treino-input:disabled,
+.input-field:disabled,
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
 
     opacity: 0.6;
 
     cursor: not-allowed;
+    background: var(--color-surface-elevated);
 
 }
 

@@ -1,14 +1,21 @@
-﻿{% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
 {% load static %}
 
 {% block content %}
 <div class="fitflix-container">
-    <div class="header">
-        <h1>FitFlix</h1>
-
-        <div class="actions">
-            <a href="{% url 'core:criar_treino' %}" class="btn">+ Novo Treino</a>
-            <a href="{% url 'core:criar_exercicio' %}" class="btn">+ Novo Exercício</a>
+    <div class="dashboard-hero">
+        <div class="dashboard-hero-visual">
+            <img src="{% static 'img/dashboard-kv.png' %}" alt="FitFlix Key Visual" class="dashboard-hero-kv">
+        </div>
+        <div class="dashboard-hero-content">
+            <div class="dashboard-hero-header">
+                <h1>FitFlix</h1>
+                <p>Gestão de treinos e exercícios</p>
+            </div>
+            <div class="dashboard-hero-actions">
+                <a href="{% url 'core:criar_treino' %}" class="btn btn-primary">+ Novo Treino</a>
+                <a href="{% url 'core:criar_exercicio' %}" class="btn btn-secondary">+ Novo Exercício</a>
+            </div>
         </div>
     </div>
 
@@ -49,6 +56,7 @@
                 </div>
             </div>
         </div>
+    </a>
     {% empty %}
     <div class="fitflix-category">
         <div class="fitflix-category-content">
@@ -57,5 +65,4 @@
     </div>
     {% endfor %}
 </div>
-</a>
 {% endblock %}

@@ -6,155 +6,322 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{% block title %}FitFlix{% endblock %}</title>
 
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
-    <link rel="stylesheet" href="{% static 'css/fitflix.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="icon" href="{% static 'css/favicon.ico' %}">
 </head>
 
 <body>
 
-    <div class="app-layout">
+    <div class="app-shell">
 
-        <!-- SIDEBAR -->
+        <!-- ======================================================
+             SIDEBAR
+        ======================================================= -->
+
         <aside class="sidebar">
-            <!-- LOGO -->
-            <div class="sidebar-header">
 
-                <div class="sidebar-logo">
+            <!-- BRAND -->
 
-                    <a href="{% url 'core:avaliacoes' %}">
+            <header class="sidebar-header">
 
-                        <span class="logo-primary">Fit</span>
-                        <span class="logo-accent">Flix</span>
-                    </a>
-                </div>
-            </div>
+                <a href="{% url 'core:avaliacoes' %}" class="brand">
 
-            <nav class="fitflix-nav">
+                    <span class="brand-name">
+                        Fit<span class="brand-accent">Flix</span>
+                    </span>
 
-                {% if user.is_authenticated %}
-
-                <!-- FITFLIX -->
-                <a href="{% url 'core:fitflix' %}"
-                    class="fitflix-nav-link {% if request.resolver_match.url_name == 'fitflix' %}active{% endif %}">
-                    <span>FitFlix</span>
                 </a>
 
+            </header>
+
+
+            <!-- NAVIGATION -->
+
+            {% if user.is_authenticated %}
+
+            <nav class="sidebar-nav" aria-label="Navegação principal">
+
+                <!-- PRINCIPAL -->
+
+                <div class="sidebar-group">
+
+                    <span class="sidebar-group-label">
+                        Principal
+                    </span>
+
+
+                    <a href="{% url 'core:fitflix' %}"
+                       class="sidebar-link {% if request.resolver_match.url_name == 'fitflix' %}active{% endif %}">
+
+                        <span class="sidebar-link-icon" aria-hidden="true">
+                            ◈
+                        </span>
+
+                        <span>
+                            FitFlix
+                        </span>
+
+                    </a>
+
+                </div>
+
+
                 <!-- MENU -->
-                <div class="sidebar-section">
 
-                    <p class="sidebar-section-title">Menu</p>
+                <div class="sidebar-group">
 
-                    <ul class="sidebar-menu">
+                    <span class="sidebar-group-label">
+                        Menu
+                    </span>
 
-                        {% if user.aluno %}
 
-                        <li class="sidebar-item">
-                            <a href="{% url 'core:painel_aluno' user.aluno.id %}" class="sidebar-link">
-                                <span>Meus Treinos</span>
-                            </a>
-                        </li>
+                    {% if user.aluno %}
 
-                        {% else %}
+                    <a href="{% url 'core:painel_aluno' user.aluno.id %}"
+                       class="sidebar-link">
 
-                        <li class="sidebar-item">
-                            <a href="{% url 'core:avaliacoes' %}" class="sidebar-link">
-                                <span>Avaliações</span>
-                            </a>
-                        </li>
+                        <span class="sidebar-link-icon" aria-hidden="true">
+                            ◉
+                        </span>
 
-                        <li class="sidebar-item">
-                            <a href="{% url 'core:escolher_tipo' %}" class="sidebar-link">
-                                <span>Nova Avaliação</span>
-                            </a>
-                        </li>
+                        <span>
+                            Meus Treinos
+                        </span>
 
-                        <li class="sidebar-item">
-                            <a href="{% url 'core:criar_aluno' %}" class="sidebar-link">
-                                <span>Cadastrar Aluno</span>
-                            </a>
-                        </li>
+                    </a>
 
-                        {% endif %}
+                    {% else %}
 
-                    </ul>
+                    <a href="{% url 'core:avaliacoes' %}"
+                       class="sidebar-link {% if request.resolver_match.url_name == 'avaliacoes' %}active{% endif %}">
+
+                        <span class="sidebar-link-icon" aria-hidden="true">
+                            ◎
+                        </span>
+
+                        <span>
+                            Avaliações
+                        </span>
+
+                    </a>
+
+
+                    <a href="{% url 'core:escolher_tipo' %}"
+                       class="sidebar-link {% if request.resolver_match.url_name == 'escolher_tipo' %}active{% endif %}">
+
+                        <span class="sidebar-link-icon" aria-hidden="true">
+                            +
+                        </span>
+
+                        <span>
+                            Nova Avaliação
+                        </span>
+
+                    </a>
+
+
+                    <a href="{% url 'core:criar_aluno' %}"
+                       class="sidebar-link {% if request.resolver_match.url_name == 'criar_aluno' %}active{% endif %}">
+
+                        <span class="sidebar-link-icon" aria-hidden="true">
+                            ◌
+                        </span>
+
+                        <span>
+                            Cadastrar Aluno
+                        </span>
+
+                    </a>
+
+                    {% endif %}
 
                 </div>
+
+
                 <!-- CONTA -->
-                <div class="sidebar-section">
-                    <p class="sidebar-section-title">
+
+                <div class="sidebar-group">
+
+                    <span class="sidebar-group-label">
                         Conta
-                    </p>
+                    </span>
 
-                    <ul class="sidebar-menu">
-                        <li class="sidebar-item">
 
-                            <a href="{% url 'core:logout' %}" class="sidebar-link">
-                                <span>Sair</span>
-                            </a>
+                    <a href="{% url 'core:logout' %}"
+                       class="sidebar-link">
 
-                        </li>
-                    </ul>
+                        <span class="sidebar-link-icon" aria-hidden="true">
+                            ↪
+                        </span>
+
+                        <span>
+                            Sair
+                        </span>
+
+                    </a>
 
                 </div>
-
-
-                {% endif %}
 
             </nav>
 
+            {% endif %}
+
+
             <!-- USER -->
+
             {% if user.is_authenticated %}
-            <div class="sidebar-footer">
+
+            <footer class="sidebar-footer">
 
                 <div class="sidebar-user">
-                    <div class="sidebar-user-avatar">
+
+                    <div class="sidebar-user-avatar"
+                         aria-hidden="true">
+
                         {{ user.username|first|upper }}
+
                     </div>
 
+
                     <div class="sidebar-user-info">
+
                         <span class="sidebar-user-name">
                             {{ user.username }}
                         </span>
 
+                        <span class="sidebar-user-status">
+                            Conta ativa
+                        </span>
+
                     </div>
+
                 </div>
-            </div>
+
+            </footer>
+
             {% endif %}
 
         </aside>
 
-        <!-- MAIN -->
-        <main class="main-content">
 
-            {% if messages %}
-            <div class="alerts-container">
+        <!-- ======================================================
+             APPLICATION
+        ======================================================= -->
 
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} ">
-                    {{ message }}
+        <div class="app-main">
+
+            <!-- TOPBAR -->
+
+            <header class="topbar">
+
+                <div class="topbar-start">
+
+                    <button
+                        type="button"
+                        class="sidebar-toggle"
+                        aria-label="Abrir menu"
+                        aria-expanded="false">
+
+                        <span aria-hidden="true">☰</span>
+
+                    </button>
+
+                    <div class="topbar-context">
+
+                        <span class="topbar-eyebrow">
+                            FITFLIX
+                        </span>
+
+                        <span class="topbar-title">
+                            {% block page_title %}Dashboard{% endblock %}
+                        </span>
+
+                    </div>
+
                 </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            <section class="page-content">
-                {% block content %}{% endblock %}
-            </section>
 
 
-        </main>
+                <div class="topbar-center">
+                    {% block topbar_center %}
+                    {% endblock %}
+                </div>
+
+
+                <div class="topbar-end">
+
+                    {% if user.is_authenticated %}
+
+                    <div class="topbar-user">
+
+                        <span class="topbar-user-name">
+                            {{ user.username }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTENT -->
+
+            <main class="page-content">
+
+                {% if messages %}
+
+                <div class="alerts-container">
+
+                    {% for message in messages %}
+
+                    <div class="alert alert-{{ message.tags }}">
+
+                        <div class="alert-content">
+                            {{ message }}
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                {% endif %}
+
+
+                {% block content %}
+                {% endblock %}
+
+            </main>
+
+        </div>
 
     </div>
 
+
+    <!-- FOOTER -->
+
     <footer class="app-footer">
-        <small>© 2026 - FitFlix</small>
+
+        <small>
+            © 2026 FitFlix
+        </small>
+
     </footer>
 
+
+    <!-- ======================================================
+         SCRIPTS
+    ======================================================= -->
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script src="{% static 'js/main.js' %}"></script>
+
 
     {% block scripts %}
     {% endblock %}

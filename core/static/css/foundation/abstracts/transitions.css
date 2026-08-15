@@ -11,8 +11,11 @@
     |--------------------------------------------------------------------------
     */
 
-    --transition-fast: 150ms ease;
-    --transition-base: 300ms ease;
-    --transition-slow: 500ms ease;
+    /* Premium Snappy Easing */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --transition-fast: 150ms var(--ease-out-expo);
+    --transition-base: 250ms var(--ease-out-expo);
+    --transition-slow: 400ms var(--ease-out-expo);
 
 }

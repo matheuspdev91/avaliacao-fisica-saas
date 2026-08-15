@@ -11,15 +11,15 @@
     |--------------------------------------------------------------------------
     */
 
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.08);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.40);
 
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.12);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.50);
 
-    --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.18);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.50), 0 2px 4px -1px rgba(0, 0, 0, 0.40);
 
-    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.24);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.60), 0 4px 6px -2px rgba(0, 0, 0, 0.40);
 
-    --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.30);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.70), 0 10px 10px -5px rgba(0, 0, 0, 0.50);
 
     /*
     |--------------------------------------------------------------------------
@@ -27,6 +27,6 @@
     |--------------------------------------------------------------------------
     */
 
-    --shadow-focus: 0 0 0 3px var(--color-primary-soft);
+    --shadow-focus: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-primary);
 
 }

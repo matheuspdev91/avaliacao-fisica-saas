@@ -75,7 +75,7 @@ def login_view(request):
 
         if hasattr(user, "aluno"):
             return redirect("core:painel_aluno", aluno_id=user.aluno.id)
-        return redirect("core:avaliacoes")
+        return redirect("core:fitflix")
 
     messages.error(request, "Email ou senha inválidos")
     return render(request, "core/login.html")
@@ -106,7 +106,7 @@ def register_view(request):
         )
 
         login(request, user)
-        return redirect("core:avaliacoes")
+        return redirect("core:fitflix")
 
     return render(request, "core/register.html")
 
@@ -639,31 +639,14 @@ def adicionar_exercicio(request, treino_id):
 @login_required
 @apenas_personal
 def criar_exercicio(request):
-    if request.method == "POST":
-        nome = request.POST.get("nome")
-
-        grupo_id = request.POST.get("grupo_muscular")
-        grupo = GrupoMuscular.objects.get(id=grupo_id)
-
-        imagem = request.FILES.get("imagem")
-        gif = request.FILES.get("gif")
-
-        exercicio = VideoExercicio.objects.create(
-            nome=nome, grupo_muscular=grupo, imagem=imagem
-        )
-
-        # 2️⃣ cria a variação depois
-        variacao = VariacaoExercicio.objects.create(exercicio=exercicio, nome="Padrão")
-
-        # 3️⃣ adiciona gif se tiver
-        if gif:
-            variacao.gif = gif
-            variacao.save()
-
-        return redirect("core:fitflix")
-
+    # Tela refatorada para atuar como visualizador do catálogo injetado pela pipeline
     return render(
-        request, "core/criar_exercicio.html", {"grupos": GrupoMuscular.objects.all()}
+        request, 
+        "core/criar_exercicio.html", 
+        {
+            "grupos": GrupoMuscular.objects.all(),
+            "exercicios": VideoExercicio.objects.all(),
+        }
     )
 
 
