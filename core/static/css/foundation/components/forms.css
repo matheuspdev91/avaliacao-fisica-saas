@@ -28,7 +28,7 @@
 
     gap: var(--space-2);
 
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-5);
 
 }
 
@@ -42,19 +42,19 @@
 .form-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-6);
+    gap: var(--space-5);
 }
 
 .form-row-3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-6);
+    gap: var(--space-5);
 }
 
 .form-row-4 {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-6);
+    gap: var(--space-5);
 }
 
 
@@ -84,11 +84,13 @@
 
 .form-label {
 
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
 
-    font-weight: var(--font-semibold);
+    font-weight: var(--font-weight-semibold);
 
-    color: var(--color-text);
+    color: var(--color-text-secondary);
+
+    letter-spacing: var(--tracking-wide);
 
 }
 
@@ -101,7 +103,7 @@
 
 .form-help {
 
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
 
     color: var(--color-text-muted);
 
@@ -116,10 +118,95 @@
 
 .form-error {
 
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
 
     color: var(--color-danger);
 
+}
+
+.form-error ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SECTION (Form section with icon + title)
+|--------------------------------------------------------------------------
+*/
+
+.form-section {
+    margin-bottom: var(--space-8);
+}
+
+.form-section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-bottom: var(--space-4);
+    margin-bottom: var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.form-section-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: var(--radius-xs);
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+.form-section-icon > i,
+.form-section-icon > svg {
+    width: 16px;
+    height: 16px;
+}
+
+.form-section-title {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.form-section-subtitle {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin-top: 2px;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| INPUT SUFFIX (unit labels like "m", "kg")
+|--------------------------------------------------------------------------
+*/
+
+.input-with-suffix {
+    position: relative;
+}
+
+.input-with-suffix input {
+    padding-right: 40px;
+}
+
+.input-suffix {
+    position: absolute;
+    right: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    pointer-events: none;
 }
 
 

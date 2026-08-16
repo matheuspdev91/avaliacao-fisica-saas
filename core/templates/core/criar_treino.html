@@ -1,194 +1,260 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}
-{% if modo_edicao %}Editar Treino{% else %}Criar Treino{% endif %}
+{% if modo_edicao %}Editar Treino{% else %}Construtor de Treino{% endif %}
+{% endblock %}
+
+{% block page_title %}
+{% if modo_edicao %}Editar Treino{% else %}Construtor de Treino{% endif %}
 {% endblock %}
 
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto; padding-bottom: var(--space-8);">
-    
-    <div class="card card-bordered">
-        <div class="card-header">
-            <div>
-                <h1 class="card-title">{% if modo_edicao %}Editar treino{% else %}Criar treino{% endif %}</h1>
-                <p class="card-subtitle">
-                    {% if modo_edicao %}
-                    Atualize o nome do treino e gerencie os exercícios vinculados.
-                    {% else %}
-                    Crie o treino e, em seguida, adicione os exercícios na próxima etapa.
-                    {% endif %}
-                </p>
-            </div>
+<div class="workout-builder">
+
+    <form method="post" id="treino-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-6">
+            <div class="alert-content">{{ form.non_field_errors }}</div>
         </div>
+        {% endif %}
 
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
+        <!-- LAYOUT DE BUILDER (Grid com proporção 70/30) -->
+        <div class="d-grid gap-6" style="grid-template-columns: 1fr 320px; align-items: start;">
 
-                {% if form.non_field_errors %}
-                <div class="form-error" style="margin-bottom: var(--space-4);">
-                    {{ form.non_field_errors }}
-                </div>
-                {% endif %}
-
-                <!-- DADOS DO TREINO -->
-                <div style="margin-bottom: var(--space-6);">
-                    <h3 style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2); margin-bottom: var(--space-4);">
-                        Dados do Treino
-                    </h3>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.nome.id_for_label }}">{{ form.nome.label }}</label>
-                        {{ form.nome }}
-                        {% if form.nome.help_text %}
-                        <span class="form-help">{{ form.nome.help_text }}</span>
-                        {% endif %}
-                        {% if form.nome.errors %}
-                        <div class="form-error">{{ form.nome.errors }}</div>
-                        {% endif %}
-                    </div>
+            <!-- COLUNA ESQUERDA: WORKSPACE (Exercícios) -->
+            <div class="builder-workspace">
+                
+                <div class="mb-6">
+                    <h2 class="text-display text-xl mb-1">Exercícios</h2>
+                    <p class="text-muted text-sm">Configure a rotina de exercícios deste treino.</p>
                 </div>
 
-                {% if not modo_edicao %}
-                <!-- ALUNO -->
-                <div style="margin-bottom: var(--space-6);">
-                    <h3 style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2); margin-bottom: var(--space-4);">
-                        Aluno
-                    </h3>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.aluno.id_for_label }}">{{ form.aluno.label }}</label>
-                        {{ form.aluno }}
-                        {% if form.aluno.errors %}
-                        <div class="form-error">{{ form.aluno.errors }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div style="text-align: center; color: var(--color-text-muted); font-size: var(--font-size-sm); margin: var(--space-2) 0;">ou</div>
-
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label" for="{{ form.nome_aluno.id_for_label }}">{{ form.nome_aluno.label }}</label>
-                        {{ form.nome_aluno }}
-                        {% if form.nome_aluno.errors %}
-                        <div class="form-error">{{ form.nome_aluno.errors }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-
+                <!-- 🔥 FORMSET DE EXERCÍCIOS -->
                 {% if modo_edicao %}
-                {% for field in form %}
-                {% if field.name != 'nome' and field.name != 'aluno' and field.name != 'nome_aluno' %}
-                <div class="form-group">
-                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                    <div class="form-error">{{ field.errors }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-                {% endfor %}
-                {% endif %}
-
-                <!-- 🔥 FORMSET (SÓ NA EDIÇÃO) -->
-                {% if modo_edicao %}
-                <div style="margin-top: var(--space-8); margin-bottom: var(--space-6);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2); margin-bottom: var(--space-4);">
-                        <h3 style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">
-                            Exercícios do treino
-                        </h3>
-                        <button type="button" class="btn btn-sm" id="add-exercicio" style="font-size: var(--font-size-xs); padding: var(--space-1) var(--space-2);">+ Adicionar exercício</button>
-                    </div>
-            
+                
+                <div class="builder-formset">
                     {{ formset.management_form }}
-            
+
                     {% if formset.non_form_errors %}
-                    <div class="form-error" style="margin-bottom: var(--space-4);">
-                        {{ formset.non_form_errors }}
+                    <div class="alert alert-danger mb-4">
+                        <div class="alert-content">{{ formset.non_form_errors }}</div>
                     </div>
                     {% endif %}
-            
-                    <div id="exercicios-formset" style="display: flex; flex-direction: column; gap: var(--space-4);">
+
+                    <div id="exercicios-formset" class="d-flex flex-column gap-4">
                         {% for exercicio_form in formset %}
-                        <div class="card card-flat" style="border: 1px solid var(--color-border); background: var(--color-background);" data-form-index="{{ forloop.counter0 }}">
+                        
+                        <!-- CARD DE EXERCÍCIO -->
+                        <div class="card card-section relative" data-form-index="{{ forloop.counter0 }}">
                             {% for hidden in exercicio_form.hidden_fields %}
                             {{ hidden }}
                             {% endfor %}
-            
-                            <div class="card-header" style="padding: var(--space-3) var(--space-4); background: var(--color-surface-elevated);">
-                                <h4 class="card-title" style="font-size: var(--font-size-md);">Exercício {{ forloop.counter }}</h4>
-                                <button type="button" class="btn btn-danger btn-sm btn-remover-exercicio" style="padding: var(--space-1) var(--space-2); font-size: var(--font-size-xs);">Remover</button>
-                            </div>
-            
-                            <div class="card-body" style="padding: var(--space-4);">
-                                <div class="form-row">
-                                    {% for field in exercicio_form.visible_fields %}
-                                    {% if field.name != 'DELETE' %}
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                        {{ field }}
-                                        {% if field.errors %}
-                                        <div class="form-error">{{ field.errors }}</div>
-                                        {% endif %}
+
+                            <!-- Grip and Header -->
+                            <div class="d-flex items-center justify-between mb-4 pb-3" style="border-bottom: 1px solid var(--color-border);">
+                                <div class="d-flex items-center gap-3">
+                                    <div class="text-muted cursor-pointer" style="opacity: 0.5;">
+                                        <i data-lucide="grip-vertical"></i>
                                     </div>
-                                    {% endif %}
-                                    {% endfor %}
+                                    <h4 class="font-bold text-sm text-uppercase" style="letter-spacing: var(--tracking-wide); margin: 0;">Exercício {{ forloop.counter }}</h4>
                                 </div>
+                                <button type="button" class="btn btn-ghost btn-sm btn-remover-exercicio text-danger p-0" title="Remover exercício">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
                             </div>
-            
+
+                            <!-- Form Fields Grid -->
+                            <div class="form-row">
+                                {% for field in exercicio_form.visible_fields %}
+                                {% if field.name != 'DELETE' %}
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                    <div class="form-error">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- Hidden Delete Field -->
                             <div class="is-hidden" style="display: none;">
                                 {{ exercicio_form.DELETE }}
                             </div>
                         </div>
+
                         {% empty %}
-                        <p style="color: var(--color-text-muted); text-align: center; font-size: var(--font-size-sm); padding: var(--space-4);">Nenhum exercício cadastrado para este treino.</p>
+                        
+                        <div class="p-8 text-center" style="border: 1px dashed var(--color-border); border-radius: var(--radius-md);">
+                            <div class="text-muted mb-3 d-flex justify-center"><i data-lucide="dumbbell" style="width: 32px; height: 32px; opacity: 0.5;"></i></div>
+                            <p class="text-sm text-muted">Nenhum exercício cadastrado. Clique no botão abaixo para adicionar.</p>
+                        </div>
+
                         {% endfor %}
                     </div>
-            
+
+                    <!-- Botão Adicionar -->
+                    <button type="button" class="btn btn-outline btn-block mt-4" id="add-exercicio">
+                        <i data-lucide="plus"></i> Adicionar Exercício
+                    </button>
+
+                    <!-- Template Oculto para Novos Exercícios -->
                     <template id="empty-form-template">
-                        <div class="card card-flat" style="border: 1px solid var(--color-border); background: var(--color-background);" data-form-index="__prefix__">
+                        <div class="card card-section relative" data-form-index="__prefix__">
                             {% for hidden in formset.empty_form.hidden_fields %}
                             {{ hidden }}
                             {% endfor %}
-            
-                            <div class="card-header" style="padding: var(--space-3) var(--space-4); background: var(--color-surface-elevated);">
-                                <h4 class="card-title" style="font-size: var(--font-size-md);">Exercício __number__</h4>
-                                <button type="button" class="btn btn-danger btn-sm btn-remover-exercicio" style="padding: var(--space-1) var(--space-2); font-size: var(--font-size-xs);">Remover</button>
-                            </div>
-            
-                            <div class="card-body" style="padding: var(--space-4);">
-                                <div class="form-row">
-                                    {% for field in formset.empty_form.visible_fields %}
-                                    {% if field.name != 'DELETE' %}
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                        {{ field }}
+
+                            <div class="d-flex items-center justify-between mb-4 pb-3" style="border-bottom: 1px solid var(--color-border);">
+                                <div class="d-flex items-center gap-3">
+                                    <div class="text-muted cursor-pointer" style="opacity: 0.5;">
+                                        <i data-lucide="grip-vertical"></i>
                                     </div>
-                                    {% endif %}
-                                    {% endfor %}
+                                    <h4 class="font-bold text-sm text-uppercase" style="letter-spacing: var(--tracking-wide); margin: 0;">Novo Exercício</h4>
                                 </div>
+                                <button type="button" class="btn btn-ghost btn-sm btn-remover-exercicio text-danger p-0" title="Remover exercício">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
                             </div>
-            
+
+                            <div class="form-row">
+                                {% for field in formset.empty_form.visible_fields %}
+                                {% if field.name != 'DELETE' %}
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+
                             <div class="is-hidden" style="display: none;">
                                 {{ formset.empty_form.DELETE }}
                             </div>
                         </div>
                     </template>
                 </div>
+
+                {% else %}
+
+                <!-- Empty State for New Workout creation -->
+                <div class="p-8 text-center" style="border: 1px dashed rgba(0,255,136,0.3); border-radius: var(--radius-md); background: rgba(0,255,136,0.02);">
+                    <div class="text-primary mb-4 d-flex justify-center"><i data-lucide="list-plus" style="width: 48px; height: 48px;"></i></div>
+                    <h3 class="font-bold text-lg mb-2 text-white">Adicionar Exercícios</h3>
+                    <p class="text-sm text-muted mb-6 max-w-md mx-auto" style="max-width: 320px; margin-inline: auto;">
+                        Defina as configurações do treino no painel ao lado primeiro. Após salvar, você poderá adicionar os exercícios.
+                    </p>
+                </div>
+
                 {% endif %}
 
-                <!-- BOTÕES -->
-                <div class="form-actions" style="margin-top: var(--space-6); justify-content: {% if modo_edicao %}flex-end{% else %}center{% endif %}; border-top: 1px solid var(--color-border); padding-top: var(--space-6);">
-                    {% if modo_edicao %}
-                    <a href="{% url 'core:treino_detail' treino.id %}" class="btn btn-secondary">Cancelar</a>
-                    <a href="{% url 'core:fitflix' %}" class="btn btn-secondary">Voltar</a>
-                    <button type="submit" class="btn btn-primary">Salvar treino</button>
-                    {% else %}
-                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Criar e continuar</button>
-                    {% endif %}
+            </div>
+
+
+            <!-- COLUNA DIREITA: CONFIGURAÇÕES (Painel) -->
+            <div class="builder-panel">
+                
+                <div class="card card-bordered sticky" style="top: calc(var(--topbar-height) + var(--space-6));">
+                    <div class="card-header border-0 pb-0">
+                        <h3 class="text-sm font-bold text-muted text-uppercase" style="letter-spacing: var(--tracking-widest);">Configurações</h3>
+                    </div>
+                    
+                    <div class="card-body">
+                        
+                        <!-- DADOS DO TREINO -->
+                        <div class="form-group mb-5">
+                            <label class="form-label" for="{{ form.nome.id_for_label }}">Identificação do Treino</label>
+                            {{ form.nome }}
+                            {% if form.nome.help_text %}
+                            <span class="helper-text mt-1 d-block">{{ form.nome.help_text }}</span>
+                            {% endif %}
+                            {% if form.nome.errors %}
+                            <div class="form-error mt-1">{{ form.nome.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ALUNO (Se não for edição) -->
+                        {% if not modo_edicao %}
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="{{ form.aluno.id_for_label }}">Vincular Aluno Existente</label>
+                            {{ form.aluno }}
+                            {% if form.aluno.errors %}
+                            <div class="form-error mt-1">{{ form.aluno.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="text-center text-muted text-2xs text-uppercase font-semibold mb-4" style="letter-spacing: var(--tracking-wider); position: relative;">
+                            <span style="background: var(--color-surface); padding: 0 8px; position: relative; z-index: 2;">OU CRIAR NOVO</span>
+                            <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--color-border); z-index: 1;"></div>
+                        </div>
+
+                        <div class="form-group mb-5">
+                            <label class="form-label" for="{{ form.nome_aluno.id_for_label }}">Nome do Novo Aluno</label>
+                            {{ form.nome_aluno }}
+                            {% if form.nome_aluno.errors %}
+                            <div class="form-error mt-1">{{ form.nome_aluno.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- OUTROS CAMPOS (Modo Edição) -->
+                        {% if modo_edicao %}
+                        {% for field in form %}
+                        {% if field.name != 'nome' and field.name != 'aluno' and field.name != 'nome_aluno' %}
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="form-error mt-1">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+
+                    </div>
+
+                    <div class="card-footer" style="background: var(--color-surface-elevated); border-top: 1px solid var(--color-border); flex-direction: column; gap: var(--space-3);">
+                        <button type="submit" class="btn btn-primary w-full justify-center">
+                            <i data-lucide="save"></i> 
+                            {% if modo_edicao %}Salvar Alterações{% else %}Salvar e Continuar{% endif %}
+                        </button>
+                        
+                        {% if modo_edicao %}
+                        <a href="{% url 'core:treino_detail' treino.id %}" class="btn btn-ghost w-full justify-center text-sm">Cancelar</a>
+                        {% else %}
+                        <a href="{% url 'core:fitflix' %}" class="btn btn-ghost w-full justify-center text-sm">Voltar</a>
+                        {% endif %}
+                    </div>
                 </div>
-            </form>
+
+            </div>
+
         </div>
-    </div>
+
+    </form>
+
 </div>
+
+<style>
+    /* Estilos Locais Específicos do Builder */
+    @media (max-width: 992px) {
+        .workout-builder .d-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .builder-panel {
+            grid-row: 1; /* Coloca o painel no topo no mobile */
+        }
+        .builder-workspace {
+            grid-row: 2;
+        }
+        .card.sticky {
+            position: static !important;
+        }
+    }
+</style>
 {% endblock %}

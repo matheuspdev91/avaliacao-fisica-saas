@@ -9,6 +9,14 @@
 
     <title>{% block title %}FitFlix{% endblock %}</title>
 
+    <!-- Google Fonts: Inter (body) + Barlow Condensed (display) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 
@@ -29,7 +37,7 @@
                 <a href="{% url 'core:avaliacoes' %}" class="brand">
 
                     <span class="brand-name">
-                        Fit<span class="brand-accent">Flix</span>
+                        FIT<span class="brand-accent">FLIX</span>
                     </span>
 
                 </a>
@@ -56,25 +64,14 @@
                        class="sidebar-link {% if request.resolver_match.url_name == 'fitflix' %}active{% endif %}">
 
                         <span class="sidebar-link-icon" aria-hidden="true">
-                            ◈
+                            <i data-lucide="layout-dashboard"></i>
                         </span>
 
                         <span>
-                            FitFlix
+                            Dashboard
                         </span>
 
                     </a>
-
-                </div>
-
-
-                <!-- MENU -->
-
-                <div class="sidebar-group">
-
-                    <span class="sidebar-group-label">
-                        Menu
-                    </span>
 
 
                     {% if user.aluno %}
@@ -83,7 +80,7 @@
                        class="sidebar-link">
 
                         <span class="sidebar-link-icon" aria-hidden="true">
-                            ◉
+                            <i data-lucide="dumbbell"></i>
                         </span>
 
                         <span>
@@ -98,7 +95,7 @@
                        class="sidebar-link {% if request.resolver_match.url_name == 'avaliacoes' %}active{% endif %}">
 
                         <span class="sidebar-link-icon" aria-hidden="true">
-                            ◎
+                            <i data-lucide="clipboard-list"></i>
                         </span>
 
                         <span>
@@ -109,10 +106,10 @@
 
 
                     <a href="{% url 'core:escolher_tipo' %}"
-                       class="sidebar-link {% if request.resolver_match.url_name == 'escolher_tipo' %}active{% endif %}">
+                       class="sidebar-link {% if request.resolver_match.url_name == 'escolher_tipo' or request.resolver_match.url_name == 'criar_avaliacao' or request.resolver_match.url_name == 'criar_avaliacao_crianca' or request.resolver_match.url_name == 'criar_avaliacao_idoso' %}active{% endif %}">
 
                         <span class="sidebar-link-icon" aria-hidden="true">
-                            +
+                            <i data-lucide="plus-circle"></i>
                         </span>
 
                         <span>
@@ -121,12 +118,25 @@
 
                     </a>
 
+                    {% endif %}
+
+                </div>
+
+
+                <!-- BIBLIOTECA -->
+
+                <div class="sidebar-group">
+
+                    <span class="sidebar-group-label">
+                        Biblioteca
+                    </span>
+
 
                     <a href="{% url 'core:criar_aluno' %}"
                        class="sidebar-link {% if request.resolver_match.url_name == 'criar_aluno' %}active{% endif %}">
 
                         <span class="sidebar-link-icon" aria-hidden="true">
-                            ◌
+                            <i data-lucide="user-plus"></i>
                         </span>
 
                         <span>
@@ -134,8 +144,6 @@
                         </span>
 
                     </a>
-
-                    {% endif %}
 
                 </div>
 
@@ -153,7 +161,7 @@
                        class="sidebar-link">
 
                         <span class="sidebar-link-icon" aria-hidden="true">
-                            ↪
+                            <i data-lucide="log-out"></i>
                         </span>
 
                         <span>
@@ -192,7 +200,7 @@
                         </span>
 
                         <span class="sidebar-user-status">
-                            Conta ativa
+                            Personal Trainer
                         </span>
 
                     </div>
@@ -224,7 +232,7 @@
                         aria-label="Abrir menu"
                         aria-expanded="false">
 
-                        <span aria-hidden="true">☰</span>
+                        <i data-lucide="menu" style="width:20px;height:20px;"></i>
 
                     </button>
 
@@ -245,6 +253,17 @@
 
                 <div class="topbar-center">
                     {% block topbar_center %}
+                    <div class="topbar-search">
+                        <span class="topbar-search-icon">
+                            <i data-lucide="search"></i>
+                        </span>
+                        <input
+                            type="text"
+                            class="topbar-search-input"
+                            placeholder="Buscar alunos, treinos, avaliações..."
+                        >
+                        <span class="topbar-search-shortcut">⌘ K</span>
+                    </div>
                     {% endblock %}
                 </div>
 
@@ -255,9 +274,15 @@
 
                     <div class="topbar-user">
 
-                        <span class="topbar-user-name">
-                            {{ user.username }}
-                        </span>
+                        <div>
+                            <span class="topbar-user-name">
+                                {{ user.username }}
+                            </span>
+                        </div>
+
+                        <div class="topbar-avatar">
+                            {{ user.username|first|upper }}
+                        </div>
 
                     </div>
 
@@ -298,20 +323,20 @@
 
             </main>
 
+
+            <!-- FOOTER -->
+
+            <footer class="app-footer">
+
+                <small>
+                    © 2026 FitFlix — TREINE • EVOLUA • SUPERE
+                </small>
+
+            </footer>
+
         </div>
 
     </div>
-
-
-    <!-- FOOTER -->
-
-    <footer class="app-footer">
-
-        <small>
-            © 2026 FitFlix
-        </small>
-
-    </footer>
 
 
     <!-- ======================================================
@@ -322,6 +347,7 @@
 
     <script src="{% static 'js/main.js' %}"></script>
 
+    <script>lucide.createIcons();</script>
 
     {% block scripts %}
     {% endblock %}

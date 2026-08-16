@@ -1,247 +1,164 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Dashboard Funcional{% endblock %}
+{% block title %}Performance — Avaliação de {{ avaliacao.criado_em|date:"d/m/Y" }}{% endblock %}
+
+{% block page_title %}Análise de Performance{% endblock %}
 
 {% block content %}
-<style>
-    /* Estilos Locais Adicionais para a Experiência Sci-Fi do Dashboard */
-    .dashboard-sci-fi {
-        padding: var(--space-4);
-    }
-    
-    .hologram-container {
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 500px;
-        background: url('{% static "img/avaliacao.png" %}') no-repeat center center;
-        background-size: cover;
-        border-radius: var(--radius-lg);
-        border: 1px solid rgba(0, 255, 136, 0.2);
-        box-shadow: 0 0 50px rgba(0, 255, 136, 0.1);
-        overflow: hidden;
-    }
+<div class="dashboard-performance">
 
-    .hologram-container::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at center, transparent 30%, rgba(5,5,5,0.8) 100%);
-    }
+    <!-- METRICS GRID (Top) -->
+    <div class="grid-4 mb-6">
+        
+        <!-- Peso -->
+        <div class="card card-metric">
+            <div class="metric-label">Peso Corporal</div>
+            <div class="metric-value">{{ avaliacao.peso|default:"0" }} <span class="text-sm text-muted font-medium">kg</span></div>
+            {% if comparativo %}
+                <div class="metric-diff {% if comparativo.peso.diferenca < 0 %}positive{% else %}negative{% endif %}">
+                    {% if comparativo.peso.diferenca > 0 %}+{% endif %}{{ comparativo.peso.diferenca }} kg
+                    <span class="text-xs text-muted font-regular ml-1">vs anterior</span>
+                </div>
+            {% else %}
+                <div class="metric-diff text-muted font-regular">Primeira avaliação</div>
+            {% endif %}
+        </div>
 
-    .hologram-model {
-        position: relative;
-        z-index: 2;
-        height: 80%;
-        filter: drop-shadow(0 0 15px var(--color-primary));
-        animation: float 4s ease-in-out infinite;
-    }
+        <!-- Gordura -->
+        <div class="card card-metric">
+            <div class="metric-label">% Gordura</div>
+            <div class="metric-value">{{ composicao.percentual|default:"0" }} <span class="text-sm text-muted font-medium">%</span></div>
+            {% if comparativo %}
+                <div class="metric-diff {% if comparativo.percentual_gordura.diferenca < 0 %}positive{% else %}negative{% endif %}">
+                    {% if comparativo.percentual_gordura.diferenca > 0 %}+{% endif %}{{ comparativo.percentual_gordura.diferenca }} %
+                    <span class="text-xs text-muted font-regular ml-1">vs anterior</span>
+                </div>
+            {% else %}
+                <div class="metric-diff text-muted font-regular">Base inicial</div>
+            {% endif %}
+        </div>
 
-    .metric-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: var(--space-3) 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .metric-row:last-child {
-        border-bottom: none;
-    }
-    
-    .metric-label {
-        font-size: var(--font-size-sm);
-        color: var(--color-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-    }
-    
-    .metric-value {
-        font-size: var(--font-size-xl);
-        font-weight: var(--font-weight-bold);
-        color: var(--text-main);
-    }
-    
-    .metric-diff.positive { color: var(--color-primary); }
-    .metric-diff.negative { color: var(--color-danger); }
-    
-    .step-item {
-        display: flex;
-        gap: var(--space-3);
-        align-items: flex-start;
-        padding: var(--space-3);
-        background: rgba(255,255,255,0.03);
-        border-radius: var(--radius-md);
-        margin-bottom: var(--space-2);
-        border-left: 2px solid var(--color-primary);
-    }
+        <!-- Massa Magra -->
+        <div class="card card-metric">
+            <div class="metric-label">Massa Magra</div>
+            <div class="metric-value">{{ composicao.massa_magra|default:"0" }} <span class="text-sm text-muted font-medium">kg</span></div>
+            {% if comparativo %}
+                <div class="metric-diff positive">
+                    <!-- Assuming positive diff is always good for muscle -->
+                    <!-- Need to calculate diff if possible, else placeholder -->
+                    <span class="text-xs text-muted font-regular">Acompanhamento contínuo</span>
+                </div>
+            {% else %}
+                <div class="metric-diff text-muted font-regular">Base inicial</div>
+            {% endif %}
+        </div>
 
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-</style>
+        <!-- TMB / IMC -->
+        <div class="card card-metric">
+            <div class="metric-label">IMC</div>
+            <div class="metric-value">{{ avaliacao.imc|default:"0" }}</div>
+            <div class="metric-diff text-primary">
+                TMB Est. <span class="text-white font-bold ml-1">1.865 kcal</span>
+            </div>
+        </div>
 
-<div class="page dashboard-sci-fi">
-    
+    </div>
+
+    <!-- MAIN LAYOUT (2/3 + 1/3) -->
     <div class="grid-3">
-        <!-- COLUNA ESQUERDA: AVALIAÇÃO ATUAL -->
-        <div class="d-flex flex-column gap-4">
-            <div class="card-holographic p-6">
-                <div class="d-flex justify-between items-center mb-6">
-                    <h2 class="text-glow-white text-lg font-bold" style="text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Avaliação Atual</h2>
-                    <span class="text-neon text-sm">{{ avaliacao.criado_em|date:"d/m/Y"|default:"Hoje" }}</span>
-                </div>
 
-                <div class="d-flex flex-column gap-2">
-                    <div class="metric-row">
-                        <div>
-                            <div class="metric-label">Peso</div>
-                            <div class="metric-value">{{ avaliacao.peso|default:"0" }} kg</div>
-                        </div>
-                        {% if comparativo %}
-                            <div class="metric-diff text-sm {% if comparativo.peso.diferenca < 0 %}positive{% else %}negative{% endif %}">
-                                {% if comparativo.peso.diferenca > 0 %}+{% endif %}{{ comparativo.peso.diferenca }} kg
-                                <br><span class="text-xs text-muted">vs anterior</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="metric-row">
-                        <div>
-                            <div class="metric-label">% Gordura</div>
-                            <div class="metric-value">{{ composicao.percentual|default:"0" }} %</div>
-                        </div>
-                        {% if comparativo %}
-                            <div class="metric-diff text-sm {% if comparativo.percentual_gordura.diferenca < 0 %}positive{% else %}negative{% endif %}">
-                                {% if comparativo.percentual_gordura.diferenca > 0 %}+{% endif %}{{ comparativo.percentual_gordura.diferenca }} %
-                                <br><span class="text-xs text-muted">vs anterior</span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="metric-row">
-                        <div>
-                            <div class="metric-label">Massa Muscular</div>
-                            <div class="metric-value">{{ composicao.massa_magra|default:"0" }} kg</div>
-                        </div>
-                    </div>
-
-                    <div class="metric-row">
-                        <div>
-                            <div class="metric-label">IMC</div>
-                            <div class="metric-value">{{ avaliacao.imc|default:"0" }}</div>
-                        </div>
-                    </div>
-
-                    <div class="metric-row">
-                        <div>
-                            <div class="metric-label">TMB</div>
-                            <div class="metric-value">1.865 kcal</div>
-                        </div>
-                        <div class="metric-diff positive text-sm">
-                            +58 kcal
-                            <br><span class="text-xs text-muted">vs anterior</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- COLUNA CENTRAL: HOLOGRAMA E GRÁFICO GERAL -->
-        <div class="d-flex flex-column gap-4">
+        <!-- MAIN COLUMN (Left 2/3) -->
+        <div class="d-flex flex-column gap-6" style="grid-column: span 2;">
             
-            <div class="hologram-container" style="background: none; border: 1px solid rgba(0, 255, 136, 0.3); box-shadow: 0 0 60px rgba(0, 255, 136, 0.1) inset;">
-                <!-- We use the image from the mockup just as an internal decorative asset or we rely on the specific png -->
-                <div style="position: absolute; inset: 0; background: url('{% static "img/avaliacao.png" %}') center center / cover; opacity: 0.2; mix-blend-mode: screen;"></div>
-                
-                {% if avaliacao.sexo == 'M' %}
-                    <img src="{% static 'img/masculino.png' %}" class="hologram-model" alt="Holograma Masculino">
-                {% else %}
-                    <img src="{% static 'img/feminino.png' %}" class="hologram-model" alt="Holograma Feminino">
-                {% endif %}
-                
-                <!-- Circunferências (Exemplos posicionados absolutamente podem ser criados, mas listamos textualmente no grid direito) -->
-            </div>
-
-            <div class="card-holographic p-6">
-                <h3 class="text-sm text-muted mb-4" style="text-transform: uppercase; letter-spacing: 0.1em;">Evolução Geral</h3>
-                <div style="height: 200px;">
-                    <canvas id="evolutionChart"></canvas>
+            <!-- Evolution Chart -->
+            <div class="card card-bordered h-full">
+                <div class="card-header">
+                    <h2 class="card-title text-display text-xl" style="letter-spacing: var(--tracking-wide);">Evolução Geral</h2>
+                    <div class="card-actions">
+                        <select class="form-control form-control-sm" style="width: auto;">
+                            <option>Últimos 6 meses</option>
+                            <option>Último ano</option>
+                            <option>Todo o período</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px; width: 100%;">
+                        <canvas id="evolutionChart"></canvas>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- COLUNA DIREITA: EVOLUÇÃO ESPECÍFICA E PRÓXIMOS PASSOS -->
-        <div class="d-flex flex-column gap-4">
-            
-            <div class="card-holographic p-6">
-                <div class="mb-4">
-                    <h2 class="text-glow-white text-lg font-bold" style="text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">Evolução</h2>
-                    <p class="text-muted text-xs">Comparativo entre avaliações</p>
-                </div>
+        <!-- SIDE COLUMN (Right 1/3) -->
+        <div class="d-flex flex-column gap-6">
 
-                <div class="d-flex flex-column gap-3">
-                    <div class="metric-row">
-                        <div>
-                            <div class="metric-label">Massa Residual</div>
-                            <div class="metric-value text-neon">{{ composicao.massa_residual|default:"0" }} kg</div>
-                            <span class="text-xs text-muted">avaliação atual</span>
-                        </div>
+            <!-- Profile / Hologram Subtly Integrated -->
+            <div class="card card-glass overflow-hidden relative" style="min-height: 280px;">
+                <div style="position: absolute; inset: 0; background: url('{% static "img/avaliacao.png" %}') center top / cover; opacity: 0.15; mix-blend-mode: screen; filter: grayscale(100%) contrast(150%);"></div>
+                
+                <div class="relative z-1 p-6 d-flex flex-column h-full justify-end">
+                    <div class="mb-auto">
+                        <h3 class="text-xs font-semibold text-muted text-uppercase" style="letter-spacing: var(--tracking-widest);">Perfil Biométrico</h3>
+                        <p class="text-white font-bold mt-1 text-lg">{{ avaliacao.usuario.get_full_name|default:avaliacao.usuario.username }}</p>
                     </div>
-                    <div class="metric-row">
+                    
+                    <div class="d-grid grid-2 gap-4 mt-8">
                         <div>
-                            <div class="metric-label">Força</div>
-                            <div class="metric-value text-neon">+8,7 %</div>
-                            <span class="text-xs text-muted">evolução projetada</span>
+                            <div class="text-2xs text-muted text-uppercase" style="letter-spacing: var(--tracking-wide);">Massa Residual</div>
+                            <div class="text-neon font-bold text-lg mt-1">{{ composicao.massa_residual|default:"0" }} <span class="text-xs text-white">kg</span></div>
                         </div>
-                    </div>
-                    <div class="metric-row">
                         <div>
-                            <div class="metric-label">Desempenho</div>
-                            <div class="metric-value text-neon">+12,3 %</div>
-                            <span class="text-xs text-muted">evolução projetada</span>
+                            <div class="text-2xs text-muted text-uppercase" style="letter-spacing: var(--tracking-wide);">Peso Ósseo</div>
+                            <div class="text-neon font-bold text-lg mt-1">12.4 <span class="text-xs text-white">kg</span></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-holographic p-6">
-                <h3 class="text-sm text-muted mb-4" style="text-transform: uppercase; letter-spacing: 0.1em;">Próximos Passos</h3>
-                
-                <div class="step-item">
-                    <div class="text-neon mt-1">🎯</div>
-                    <div>
-                        <div class="font-bold text-sm">Manter déficit calórico moderado</div>
-                        <div class="text-xs text-muted">Continue focado na alimentação</div>
-                    </div>
+            <!-- Next Steps -->
+            <div class="card card-bordered">
+                <div class="card-header border-0 pb-2">
+                    <h3 class="text-sm font-bold text-muted text-uppercase" style="letter-spacing: var(--tracking-widest);">Próximos Passos</h3>
                 </div>
+                <div class="card-body pt-0">
+                    
+                    <div class="d-flex items-start gap-3 mb-4 p-3 rounded-sm" style="background: rgba(255,255,255,0.02); border-left: 2px solid var(--color-primary);">
+                        <div class="text-primary mt-1"><i data-lucide="target" style="width: 18px; height: 18px;"></i></div>
+                        <div>
+                            <div class="text-sm font-semibold text-white">Déficit Calórico</div>
+                            <div class="text-xs text-muted mt-1">Manter déficit moderado para oxidação lipídica.</div>
+                        </div>
+                    </div>
 
-                <div class="step-item">
-                    <div class="text-neon mt-1">💪</div>
-                    <div>
-                        <div class="font-bold text-sm">Treino de força</div>
-                        <div class="text-xs text-muted">Aumentar carga progressivamente</div>
+                    <div class="d-flex items-start gap-3 mb-4 p-3 rounded-sm" style="background: rgba(255,255,255,0.02); border-left: 2px solid var(--color-info);">
+                        <div class="text-info mt-1"><i data-lucide="dumbbell" style="width: 18px; height: 18px;"></i></div>
+                        <div>
+                            <div class="text-sm font-semibold text-white">Progressão de Carga</div>
+                            <div class="text-xs text-muted mt-1">Focar no aumento de volume nos multiarticulares.</div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="step-item">
-                    <div class="text-neon mt-1">💧</div>
-                    <div>
-                        <div class="font-bold text-sm">Hidratação</div>
-                        <div class="text-xs text-muted">Meta diária: 2,5 a 3L de água</div>
+                    <div class="d-flex items-start gap-3 p-3 rounded-sm" style="background: rgba(255,255,255,0.02); border-left: 2px solid var(--color-warning);">
+                        <div class="text-warning mt-1"><i data-lucide="droplet" style="width: 18px; height: 18px;"></i></div>
+                        <div>
+                            <div class="text-sm font-semibold text-white">Hidratação</div>
+                            <div class="text-xs text-muted mt-1">Garantir 35ml/kg diariamente (aprox. 2.8L).</div>
+                        </div>
                     </div>
+
                 </div>
-                
-                <div class="mt-4">
+                <div class="card-footer" style="background: var(--color-surface-elevated);">
                     <a href="{% url 'core:escolher_tipo' %}" class="btn btn-primary w-full justify-center">Nova Avaliação</a>
                 </div>
             </div>
 
         </div>
+
     </div>
+
 </div>
 {% endblock %}
 
@@ -253,52 +170,104 @@
         const ctx = document.getElementById('evolutionChart');
         if (!ctx) return;
 
-        // Chart with glowing neon lines
+        // Chart matching the new premium aesthetic
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['15/03', '15/04', '15/05', '15/06', '15/07', 'Atual'],
+                labels: ['Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Atual'],
                 datasets: [
                     {
                         label: '% Gordura',
                         data: [18, 17.5, 16.2, 15.5, 15.0, {{ composicao.percentual|default:14.2|stringformat:"f" }}],
                         borderColor: '#00ff88',
-                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        backgroundColor: 'rgba(0, 255, 136, 0.05)',
                         borderWidth: 2,
-                        tension: 0.4,
-                        pointBackgroundColor: '#00ff88',
-                        pointBorderColor: '#fff',
+                        tension: 0.3,
+                        pointBackgroundColor: '#050505',
+                        pointBorderColor: '#00ff88',
+                        pointBorderWidth: 2,
                         pointRadius: 4,
+                        pointHoverRadius: 6,
                         fill: true
                     },
                     {
-                        label: 'Massa Muscular (kg)',
+                        label: 'Massa Magra (kg)',
                         data: [35, 36.1, 37.5, 38.0, 38.5, {{ composicao.massa_magra|default:39.7|stringformat:"f" }}],
-                        borderColor: '#3b82f6',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
                         borderWidth: 2,
-                        tension: 0.4,
-                        pointBackgroundColor: '#3b82f6',
-                        pointRadius: 0
+                        borderDash: [5, 5],
+                        tension: 0.3,
+                        pointBackgroundColor: 'transparent',
+                        pointBorderColor: 'transparent',
+                        pointRadius: 0,
+                        pointHoverRadius: 0
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: { color: 'rgba(255,255,255,0.7)', font: { size: 10 } }
+                        position: 'top',
+                        align: 'end',
+                        labels: { 
+                            color: '#777777', 
+                            font: { family: 'Inter', size: 11, weight: 600 },
+                            usePointStyle: true,
+                            boxWidth: 8
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#161616',
+                        titleColor: '#fff',
+                        bodyColor: '#b8b8b8',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        boxPadding: 4,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y + (context.datasetIndex === 0 ? '%' : ' kg');
+                                }
+                                return label;
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
-                        display: false,
-                        grid: { color: 'rgba(255,255,255,0.05)' }
+                        display: true,
+                        grid: { 
+                            color: 'rgba(255,255,255,0.03)',
+                            drawBorder: false
+                        },
+                        ticks: { 
+                            color: '#777777', 
+                            font: { family: 'Inter', size: 10 },
+                            padding: 10
+                        }
                     },
                     x: {
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } }
+                        grid: { 
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: { 
+                            color: '#777777', 
+                            font: { family: 'Inter', size: 10, weight: 500 },
+                            padding: 10
+                        }
                     }
                 }
             }
