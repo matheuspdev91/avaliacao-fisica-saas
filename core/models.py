@@ -20,14 +20,18 @@ class Usuario(AbstractUser):
     cref = models.CharField(max_length=20, blank=True)
     telefone = models.CharField(max_length=20, blank=True)
 
+    asaas_customer_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        unique=True,
+    )
+
     tipo_usuario = models.CharField(
         max_length=20,
         choices=TIPO_CHOICES,
         default="PERSONAL",
-    )
-
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username"]
+)
 
     
 
@@ -317,3 +321,8 @@ class Exercicio(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+# =======================
+# USUÁRIO
+# =======================

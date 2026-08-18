@@ -11,7 +11,9 @@ import secrets
 import string
 from collections import defaultdict
 from django.http import HttpResponse
-from core.util.gif import comprimir_gif
+import json
+import os
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
     Aluno,
@@ -800,3 +802,38 @@ def buscar_variacoes(request, exercicio_id):
         )
 
     return JsonResponse(variacoes, safe=False)
+
+
+
+# ==================
+# WEHOOK ASAAS
+# ==================
+
+@csrf_exempt
+def asaas_webhook(request):
+    """Recebe eventos de webhook enviados pelo Asaas."""
+
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    auth_token = os.environ.get("ASAAS_WEBHOOK_TOKEN", "").strip()
+    received_token = request.headers.get("asaas-access-token", "").strip()
+
+    if not auth_token or received_token != auth_token:
+        return HttpResponse(status=401)
+
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return HttpResponse(status=400)
+
+    event = payload.get("event")
+    event_id = payload.get("id")
+
+    print(f"[ASAAS WEBHOOK] evento={event} id={event_id}")
+
+    return HttpResponse(status=200)
+
+    
+
+

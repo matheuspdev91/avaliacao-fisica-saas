@@ -24,6 +24,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 ALLOWED_HOSTS = ["avaliacao-fisica-saas.onrender.com",
     "127.0.0.1",
     "localhost",
+    "prelaunch-trodden-arrange.ngrok-free.dev",
 ]
 
 CSRF_TRUSTED_ORIGINS = [

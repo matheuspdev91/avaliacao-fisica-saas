@@ -63,4 +63,12 @@ urlpatterns = [
     ),
     # Editar treino
     path("treino/<int:treino_id>/editar/", views.editar_treino, name="editar_treino"),
+
+
+    # Webhook Asaas
+    path(
+        "webhooks/asaas/",
+        views.asaas_webhook,
+        name="asaas_webhook"
+    ),
 ]
