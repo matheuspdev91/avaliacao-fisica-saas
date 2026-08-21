@@ -14,6 +14,14 @@ from django.http import HttpResponse
 import json
 import os
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.crypto import constant_time_compare
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.urls import reverse
+from django_ratelimit.decorators import ratelimit
+
+from core.services.asaas import WebhookHandler
 
 from .models import (
     Aluno,
@@ -63,14 +71,30 @@ def home(request):
 # ==================
 
 
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def login_view(request):
     if request.method == "GET":
         return render(request, "core/login.html")
 
-    email = request.POST.get("email").strip().lower()
-    password = request.POST.get("password")
+    email = request.POST.get("email", "").strip()
+    password = request.POST.get("password", "")
 
-    user = authenticate(request, username=email, password=password)
+    try:
+        usuario = get_user_model().objects.get(email__iexact=email)
+    except get_user_model().DoesNotExist:
+        usuario = None
+    except get_user_model().MultipleObjectsReturned:
+        usuario = get_user_model().objects.filter(email__iexact=email).first()
+
+    user = (
+        authenticate(
+            request,
+            username=usuario.username,
+            password=password,
+        )
+        if usuario
+        else None
+    )
 
     if user:
         login(request, user)
@@ -93,6 +117,7 @@ def logout_view(request):
 # ==================
 
 
+@ratelimit(key='ip', rate='3/m', method='POST', block=True)
 def register_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -159,19 +184,26 @@ def criar_aluno(request):
                 user = User.objects.create_user(
                     username=email,
                     email=email,
-                    password=senha,
                     tipo_usuario="ALUNO",
                 )
+                user.set_unusable_password()
+                user.save()
 
                 aluno = form.save(commit=False)
                 aluno.personal = request.user
                 aluno.user = user
                 aluno.save()
 
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                reset_url = request.build_absolute_uri(
+                    reverse('core:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+                )
+
                 enviar_email_acesso_aluno(
                     nome=aluno.nome,
                     email=user.email,
-                    senha=senha,
+                    reset_url=reset_url,
                 )
 
             messages.success(request, "Aluno cadastrado com sucesso!")
@@ -442,22 +474,7 @@ def excluir_avaliacao(request, id):
     return redirect("core:avaliacoes")
 
 
-# ===================
-# ATALHO ADM
-# ===================
 
-
-def fix_admin(request):
-    User = get_user_model()
-
-    user, created = User.objects.get_or_create(email="mpdev34@gmail.com")
-
-    user.is_staff = True
-    user.is_superuser = True
-    user.set_password("123123asd")
-    user.save()
-
-    return HttpResponse("ADMIN FIXADO")
 
 
 # =========================
@@ -810,6 +827,7 @@ def buscar_variacoes(request, exercicio_id):
 # ==================
 
 @csrf_exempt
+@ratelimit(key='ip', rate='60/m', method='POST', block=True)
 def asaas_webhook(request):
     """Recebe eventos de webhook enviados pelo Asaas."""
 
@@ -819,7 +837,7 @@ def asaas_webhook(request):
     auth_token = os.environ.get("ASAAS_WEBHOOK_TOKEN", "").strip()
     received_token = request.headers.get("asaas-access-token", "").strip()
 
-    if not auth_token or received_token != auth_token:
+    if not auth_token or not constant_time_compare(received_token, auth_token):
         return HttpResponse(status=401)
 
     try:
@@ -827,10 +845,13 @@ def asaas_webhook(request):
     except json.JSONDecodeError:
         return HttpResponse(status=400)
 
-    event = payload.get("event")
-    event_id = payload.get("id")
-
-    print(f"[ASAAS WEBHOOK] evento={event} id={event_id}")
+    try:
+        WebhookHandler.process(payload)
+    except ValueError:
+        return HttpResponse(status=400)
+    except Exception:
+        # Erro interno ou banco, retorna 500 para Asaas tentar de novo
+        return HttpResponse(status=500)
 
     return HttpResponse(status=200)
 

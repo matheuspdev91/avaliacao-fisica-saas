@@ -3,15 +3,15 @@ from django.core.mail import send_mail
 
 
 def enviar_email_acesso_aluno(
-    *, nome, email, senha, login_url="http://127.0.0.1:8000/login/"
+    *, nome, email, reset_url
 ):
-    assunto = "Seus dados de acesso"
+    assunto = "Ative sua conta no FitFlix"
     mensagem = (
         f"Ola, {nome}!\n\n"
-        "Seu acesso foi criado com sucesso.\n\n"
-        f"Login: {email}\n"
-        f"Senha: {senha}\n"
-        f"Link de acesso: {login_url}\n\n"
+        "Seu perfil no FitFlix foi criado.\n"
+        "Para ativar sua conta e definir sua senha, clique no link abaixo:\n\n"
+        f"{reset_url}\n\n"
+        "Se o link expirar, você pode solicitar um novo na página de login.\n"
         "Se precisar de ajuda, entre em contato."
     )
 

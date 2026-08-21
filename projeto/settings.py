@@ -15,10 +15,15 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
+_secret_key = os.environ.get("SECRET_KEY")
+if not _secret_key:
+    raise RuntimeError(
+        "SECRET_KEY não definida. Configure a variável de ambiente SECRET_KEY."
+    )
+SECRET_KEY = _secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 ALLOWED_HOSTS = ["avaliacao-fisica-saas.onrender.com",
@@ -219,3 +224,27 @@ CLOUDINARY_STORAGE = {
     "PREFIX": "",
 }
 
+# =========================
+# SECURITY HARDENING
+# =========================
+
+# Cookies seguros apenas em produção (HTTPS).
+# Em desenvolvimento local (DEBUG=True) ficam desativados para não
+# bloquear o acesso via HTTP em localhost.
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+
+# Headers de segurança
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# HSTS — ativo somente quando não estamos em DEBUG.
+# O Render já roda atrás de proxy HTTPS, então o header
+# será emitido apenas nas respostas de produção.
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True

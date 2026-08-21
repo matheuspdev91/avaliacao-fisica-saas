@@ -193,4 +193,22 @@ class ExercicioAdmin(admin.ModelAdmin):
     ordering = ("nome",)
 
 
-# force deploy
+from .models import Assinatura, WebhookEvent
+
+@admin.register(Assinatura)
+class AssinaturaAdmin(admin.ModelAdmin):
+    list_display = ("usuario", "status", "plano", "criado_em")
+    list_filter = ("status", "plano", "criado_em")
+    search_fields = ("usuario__email", "asaas_subscription_id")
+    ordering = ("-criado_em",)
+    readonly_fields = ("criado_em", "atualizado_em")
+
+
+@admin.register(WebhookEvent)
+class WebhookEventAdmin(admin.ModelAdmin):
+    list_display = ("event_type", "event_id", "payment_id", "status", "criado_em")
+    list_filter = ("status", "event_type", "criado_em")
+    search_fields = ("event_id", "payment_id")
+    ordering = ("-criado_em",)
+    readonly_fields = ("criado_em", "event_id", "payload")
+

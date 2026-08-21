@@ -81,13 +81,10 @@ class CriarAlunoViewTests(TestCase):
         self.assertEqual(aluno.observacoes, "")
 
         mock_enviar_email.assert_called_once()
+        self.assertEqual(mock_enviar_email.call_count, 1)
+        self.assertEqual(mock_enviar_email.call_args.kwargs["email"], "maria@example.com")
         self.assertEqual(mock_enviar_email.call_args.kwargs["nome"], "Maria Silva")
-        self.assertEqual(
-            mock_enviar_email.call_args.kwargs["email"], "maria@example.com"
-        )
-        self.assertRegex(
-            mock_enviar_email.call_args.kwargs["senha"], r"^[A-Za-z0-9]{8}$"
-        )
+        self.assertIn("password-reset-confirm", mock_enviar_email.call_args.kwargs["reset_url"])
 
         mensagens = [message.message for message in get_messages(response.wsgi_request)]
         self.assertTrue(

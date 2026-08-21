@@ -1,3 +1,4 @@
+from django.contrib.auth import models
 from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -326,3 +327,135 @@ class Exercicio(models.Model):
 # =======================
 # USUÁRIO
 # =======================
+
+
+# =======================
+# ASSINATURA E PAGAMENTOS
+# =======================
+
+class Assinatura(models.Model):
+    STATUS_CHOICES = (
+        ("ACTIVE", "Ativa"),
+        ("OVERDUE", "Inadimplente"),
+        ("CANCELLED", "Cancelada"),
+        ("PENDING", "Pendente"),
+    )
+
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="assinatura",
+    )
+
+    asaas_subscription_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        unique=True,
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="PENDING",
+    )
+
+    plano = models.CharField(
+        max_length=50,
+        default="mensal",
+    )
+
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    def esta_ativa(self):
+        return self.status == "ACTIVE"
+
+    def __str__(self):
+        return f"{self.usuario.email} - {self.status}"
+
+
+class WebhookEvent(models.Model):
+    STATUS_CHOICES = (
+        ("PROCESSED", "Processado"),
+        ("IGNORED", "Ignorado"),
+        ("FAILED", "Falhou"),
+    )
+
+    event_id = models.CharField(
+        max_length=200,
+        unique=True,
+        db_index=True,
+    )
+
+    event_type = models.CharField(max_length=100)
+
+    payment_id = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+
+    payload = models.JSONField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+    )
+
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.event_type} - {self.status}"
+
+
+# ==================
+# PAGAMENTO ASAAS
+# ==================
+
+class PagamentoAsaas(models.Model):
+    STATUS_CHOICES = (
+        ("PENDING", "Pendente"),
+        ("CONFIRMED", "Confirmado"),
+        ("RECEIVED", "Recebido"),
+        ("OVERDUE", "Inadimplente"),
+        ("REFUNDED", "Estornado"),
+        ("DELETED", "Removido"),
+    )
+
+    assinatura = models.ForeignKey(
+        Assinatura,
+        on_delete=models.CASCADE,
+        related_name="pagamentos",
+    )
+
+    asaas_payment_id = models.CharField(
+        max_length=100,
+        unique=True,
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="PENDING",
+    )
+
+    valor = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+    )
+
+    data_vencimento = models.DateField(
+        null=True,
+        blank=True,
+    )
+
+    recebido_em = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.asaas_payment_id} - {self.status}"
