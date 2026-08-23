@@ -341,6 +341,11 @@ class Assinatura(models.Model):
         ("PENDING", "Pendente"),
     )
 
+    PLANO_CHOICES = (
+        ("MENSAL", "Plano Mensal"),
+        ("ANUAL", "Plano Anual"),
+    )
+
     usuario = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -361,8 +366,9 @@ class Assinatura(models.Model):
     )
 
     plano = models.CharField(
-        max_length=50,
-        default="mensal",
+        max_length=20,
+        choices = PLANO_CHOICES,
+        default = "MENSAL"
     )
 
     criado_em = models.DateTimeField(auto_now_add=True)

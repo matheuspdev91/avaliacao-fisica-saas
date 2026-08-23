@@ -138,7 +138,7 @@ class WebhookTests(TestCase):
             "REFUNDED",
         )
 
-    @ patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
+    @patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
     def test_webhook_processa_payment_received(self):
         assinatura=Assinatura.objects.create(
             usuario=self.user,
@@ -186,7 +186,7 @@ class WebhookTests(TestCase):
             "2026-08-21",
         )
 
-    @ patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
+    @patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
     def test_webhook_evento_desconhecido_retorna_200(self):
         payload={
             "id": "evt_004",
@@ -202,7 +202,7 @@ class WebhookTests(TestCase):
         evt=WebhookEvent.objects.get(event_id="evt_004")
         self.assertEqual(evt.status, "IGNORED")
 
-    @ patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
+    @patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
     def test_webhook_idempotencia_evento_duplicado(self):
 
         Assinatura.objects.create(
@@ -235,7 +235,7 @@ class WebhookTests(TestCase):
         self.assertEqual(WebhookEvent.objects.filter(
             event_id="evt_005").count(), 1)
 
-    @ patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
+    @patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
     def test_webhook_evento_fora_de_ordem(self):
 
         Assinatura.objects.create(
@@ -294,7 +294,7 @@ class WebhookTests(TestCase):
         assinatura.refresh_from_db()
         self.assertEqual(assinatura.status, "CANCELLED")  # Continuou CANCELLED
 
-    @ patch.dict(
+    @patch.dict(
         "os.environ",
         {"ASAAS_WEBHOOK_TOKEN": "whsec_token123"},
     )
@@ -343,35 +343,79 @@ class WebhookTests(TestCase):
 
 class AsaasClientTests(TestCase):
 
-    @ patch.dict('os.environ', {'ASAAS_ENVIRONMENT': 'sandbox', 'ASAAS_SANDBOX_API_KEY': '123'})
+    @patch.dict(
+        'os.environ',
+        {
+            'ASAAS_ENVIRONMENT': 'sandbox',
+            'ASAAS_SANDBOX_API_KEY': '123',
+        }
+    )
     def test_client_seleciona_sandbox_corretamente(self):
-        client=AsaasClient()
-        self.assertEqual(client.base_url, "https://api-sandbox.asaas.com/v3")
-        self.assertEqual(client.api_key, "123")
+        client = AsaasClient()
 
-    @ patch.dict('os.environ', {'ASAAS_ENVIRONMENT': 'production', 'ASAAS_PRODUCTION_API_KEY': '456'})
+        self.assertEqual(
+            client.base_url,
+            "https://api-sandbox.asaas.com/v3"
+        )
+        self.assertEqual(
+            client.api_key,
+            "123"
+        )
+
+    @patch.dict(
+        'os.environ',
+        {
+            'ASAAS_ENVIRONMENT': 'production',
+            'ASAAS_PRODUCTION_API_KEY': '456',
+        }
+    )
     def test_client_seleciona_producao_corretamente(self):
-        client=AsaasClient()
-        self.assertEqual(client.base_url, "https://api.asaas.com/v3")
-        self.assertEqual(client.api_key, "456")
+        client = AsaasClient()
 
-    @ patch.dict('os.environ', {'ASAAS_ENVIRONMENT': 'sandbox', 'ASAAS_SANDBOX_API_KEY': ''})
+        self.assertEqual(
+            client.base_url,
+            "https://api.asaas.com/v3"
+        )
+        self.assertEqual(
+            client.api_key,
+            "456"
+        )
+
+    @patch.dict(
+        'os.environ',
+        {
+            'ASAAS_ENVIRONMENT': 'sandbox',
+            'ASAAS_SANDBOX_API_KEY': '',
+        }
+    )
     def test_client_falha_sem_api_key(self):
         with self.assertRaises(RuntimeError):
             AsaasClient()
 
-    @ patch.dict('os.environ', {'ASAAS_ENVIRONMENT': 'sandbox', 'ASAAS_SANDBOX_API_KEY': '123'})
-    @ patch('core.services.asaas.client.requests.request')
+    @patch.dict(
+        'os.environ',
+        {
+            'ASAAS_ENVIRONMENT': 'sandbox',
+            'ASAAS_SANDBOX_API_KEY': '123',
+        }
+    )
+    @patch('core.services.asaas.client.requests.request')
     def test_client_get_payment(self, mock_request):
-        mock_response=MagicMock()
-        mock_response.status_code=200
-        mock_response.json.return_value={"id": "pay_123"}
-        mock_request.return_value=mock_response
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "id": "pay_123"
+        }
+        mock_request.return_value = mock_response
 
-        client=AsaasClient()
-        data=client.get_payment("pay_123")
+        client = AsaasClient()
+        data = client.get_payment("pay_123")
 
-        self.assertEqual(data["id"], "pay_123")
+        self.assertEqual(
+            data["id"],
+            "pay_123"
+        )
+
         mock_request.assert_called_with(
             "GET",
             "https://api-sandbox.asaas.com/v3/payments/pay_123",
@@ -381,6 +425,53 @@ class AsaasClientTests(TestCase):
                 "User-Agent": "Fitflix/1.0"
             },
             timeout=10
+        )
+
+    @patch.dict(
+        'os.environ',
+        {
+            'ASAAS_ENVIRONMENT': 'sandbox',
+            'ASAAS_SANDBOX_API_KEY': '123',
+        }
+    )
+    @patch('core.services.asaas.client.requests.request')
+    def test_client_create_subscription(self, mock_request):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "id": "sub_123",
+            "status": "ACTIVE",
+        }
+        mock_request.return_value = mock_response
+
+        client = AsaasClient()
+
+        payload = {
+            "customer": "cus_12345",
+            "billingType": "PIX",
+            "value": 99.90,
+            "cycle": "MONTHLY",
+            "nextDueDate": "2026-09-01",
+            "description": "Fitflix - Plano Mensal",
+        }
+
+        data = client.create_subscription(payload)
+
+        self.assertEqual(
+            data["id"],
+            "sub_123",
+        )
+
+        mock_request.assert_called_with(
+            "POST",
+            "https://api-sandbox.asaas.com/v3/subscriptions",
+            headers={
+                "access_token": "123",
+                "Content-Type": "application/json",
+                "User-Agent": "Fitflix/1.0",
+            },
+            json=payload,
+            timeout=10,
         )
 
 

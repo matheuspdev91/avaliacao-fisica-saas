@@ -57,6 +57,10 @@ class AsaasClient:
         """Cria uma cobrança no Asaas"""
         return self._request("POST", "/payments", json=data)
 
+    def create_subscription(self, data):
+        """Cria uma assinatura recorrente no Asaas."""
+        return self._request("POST", "/subscriptions", json=data)
+
     def get_payment(self, payment_id):
         """Retorna detalhes de um pagamento pelo ID."""
         return self._request("GET", f"/payments/{payment_id}")
