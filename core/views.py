@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+from core.services.asaas.subscription_service import SubscriptionService
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -20,6 +22,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
 from django_ratelimit.decorators import ratelimit
+from datetime import timedelta
 
 from core.services.asaas import WebhookHandler
 
@@ -197,7 +200,8 @@ def criar_aluno(request):
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
                 token = default_token_generator.make_token(user)
                 reset_url = request.build_absolute_uri(
-                    reverse('core:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+                    reverse('core:password_reset_confirm', kwargs={
+                            'uidb64': uid, 'token': token})
                 )
 
                 enviar_email_acesso_aluno(
@@ -226,7 +230,6 @@ def avaliacoes(request):
     avaliacoes = AvaliacaoFisica.objects.filter(
         usuario=request.user
     ).order_by('-criado_em')
-    
 
     return render(
         request,
@@ -287,7 +290,7 @@ def dashboard(request, id):
     comparativo = None
 
     if avaliacao_anterior:
-     composicao_anterior = calcular_composicao(avaliacao_anterior)
+        composicao_anterior = calcular_composicao(avaliacao_anterior)
 
     if avaliacao_anterior:
         comparativo = {
@@ -474,9 +477,6 @@ def excluir_avaliacao(request, id):
     return redirect("core:avaliacoes")
 
 
-
-
-
 # =========================
 # EDITAR AVALIAÇÃO
 # =========================
@@ -495,7 +495,8 @@ def editar_avaliacao(request, id):
         form = AvaliacaoFisicaForm(instance=avaliacao)
 
     return render(
-        request, "core/editar_avaliacao.html", {"form": form, "avaliacao": avaliacao}
+        request, "core/editar_avaliacao.html", {
+            "form": form, "avaliacao": avaliacao}
     )
 
 
@@ -588,7 +589,8 @@ def criar_avaliacao_crianca(request):
 @login_required
 @apenas_personal
 def adicionar_exercicio(request, treino_id):
-    treino = get_object_or_404(Treino, id=treino_id, aluno__personal=request.user)
+    treino = get_object_or_404(
+        Treino, id=treino_id, aluno__personal=request.user)
     exercicios = (
         VideoExercicio.objects.filter(variacoes__gif__isnull=False)
         .exclude(variacoes__gif="")
@@ -660,8 +662,8 @@ def adicionar_exercicio(request, treino_id):
 def criar_exercicio(request):
     # Tela refatorada para atuar como visualizador do catálogo injetado pela pipeline
     return render(
-        request, 
-        "core/criar_exercicio.html", 
+        request,
+        "core/criar_exercicio.html",
         {
             "grupos": GrupoMuscular.objects.all(),
             "exercicios": VideoExercicio.objects.all(),
@@ -731,7 +733,8 @@ def criar_treino(request):
 @login_required
 @apenas_personal
 def editar_treino(request, treino_id):
-    treino = get_object_or_404(Treino, id=treino_id, aluno__personal=request.user)
+    treino = get_object_or_404(
+        Treino, id=treino_id, aluno__personal=request.user)
 
     exercicios_treino = treino.exercicios.select_related(
         "exercicio",
@@ -781,7 +784,8 @@ def treino_detail(request, treino_id):
         | Q(id=treino_id, aluno__user=request.user),
     )
 
-    itens = treino.exercicios.select_related("exercicio", "variacao").order_by("ordem")
+    itens = treino.exercicios.select_related(
+        "exercicio", "variacao").order_by("ordem")
 
     return render(
         request, "core/treino_detail.html", {"treino": treino, "itens": itens}
@@ -805,8 +809,6 @@ def ver_treino(request, token):
 # CRIAR VIEW JSON
 # =====================
 
-from django.http import JsonResponse
-
 
 def buscar_variacoes(request, exercicio_id):
     variacoes = []
@@ -819,7 +821,6 @@ def buscar_variacoes(request, exercicio_id):
         )
 
     return JsonResponse(variacoes, safe=False)
-
 
 
 # ==================
@@ -855,6 +856,67 @@ def asaas_webhook(request):
 
     return HttpResponse(status=200)
 
-    
 
+# ==========================
+# ASSINATURA ASAAS
+# ==========================
 
+@login_required
+def criar_assinatura(request):
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "Método não permitido."},
+            status=405,
+        )
+
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {"error": "JSON inválido."},
+            status=400,
+        )
+
+    plano = payload.get("plano", "").strip().upper()
+    billing_type = payload.get("billing_type", "PIX").strip().upper()
+
+    if plano not in {"MENSAL", "ANUAL"}:
+        return JsonResponse(
+            {"error": "Plano inválido."},
+            status=400,
+        )
+
+    try:
+        service = SubscriptionService()
+
+        assinatura, response = service.create_subscription(
+            user=request.user,
+            plano=plano,
+            billing_type=billing_type,
+            next_due_date=(
+            timezone.localdate() + timedelta(days=1)
+            ).strftime("%Y-%m-%d"),
+        )
+
+    except ValueError as exc:
+        return JsonResponse(
+            {"error": str(exc)},
+            status=400,
+        )
+
+    except Exception:
+        return JsonResponse(
+            {"error": "Não foi possível criar a assinatura."},
+            status=502,
+        )
+
+    return JsonResponse(
+        {
+            "success": True,
+            "assinatura_id": assinatura.id,
+            "asaas_subscription_id": assinatura.asaas_subscription_id,
+            "plano": assinatura.plano,
+            "status": assinatura.status,
+        },
+        status=201,
+    )

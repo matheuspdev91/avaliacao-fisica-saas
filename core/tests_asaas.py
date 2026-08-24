@@ -1,6 +1,7 @@
 from django.test import TestCase, override_settings
 from django.urls import reverse
 import json
+from core.services.asaas.subscription_service import SubscriptionService
 from unittest.mock import patch, MagicMock
 from django.db import IntegrityError
 from core.models import Assinatura, WebhookEvent, PagamentoAsaas
@@ -8,6 +9,7 @@ from core.models import Assinatura, WebhookEvent, PagamentoAsaas
 from django.contrib.auth import get_user_model
 from core.services.asaas.client import AsaasClient
 from core.services.asaas.exceptions import AsaasAuthenticationError, AsaasAPIError
+from datetime import date
 
 User = get_user_model()
 
@@ -75,7 +77,7 @@ class WebhookTests(TestCase):
                 "id": "pay_001",
                 "customer": "cus_12345",
                 "subscription": "sub_123",
-                "value": 99.90,
+                "value": 60.00,
                 "dueDate": "2026-08-20",
             }
         }
@@ -140,16 +142,16 @@ class WebhookTests(TestCase):
 
     @patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
     def test_webhook_processa_payment_received(self):
-        assinatura=Assinatura.objects.create(
+        assinatura = Assinatura.objects.create(
             usuario=self.user,
             asaas_subscription_id="sub_123",
             status="PENDING",
         )
 
-        payload={
+        payload = {
             "id": "evt_002",
             "event": "PAYMENT_RECEIVED",
-           "payment": {
+            "payment": {
                 "id": "pay_002",
                 "customer": "cus_12345",
                 "subscription": "sub_123",
@@ -158,7 +160,7 @@ class WebhookTests(TestCase):
                 "paymentDate": "2026-08-21",
             }
         }
-        resp=self.post_webhook(
+        resp = self.post_webhook(
             payload,
             token=self.valid_token,
         )
@@ -171,7 +173,7 @@ class WebhookTests(TestCase):
             assinatura.status,
             "ACTIVE",
         )
-        
+
         pagamento = PagamentoAsaas.objects.get(
             asaas_payment_id="pay_002"
         )
@@ -188,7 +190,7 @@ class WebhookTests(TestCase):
 
     @patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
     def test_webhook_evento_desconhecido_retorna_200(self):
-        payload={
+        payload = {
             "id": "evt_004",
             "event": "EVENTO_QUALQUER",
             "payment": {
@@ -196,10 +198,10 @@ class WebhookTests(TestCase):
                 "customer": "cus_12345"
             }
         }
-        resp=self.post_webhook(payload, token=self.valid_token)
+        resp = self.post_webhook(payload, token=self.valid_token)
         self.assertEqual(resp.status_code, 200)
 
-        evt=WebhookEvent.objects.get(event_id="evt_004")
+        evt = WebhookEvent.objects.get(event_id="evt_004")
         self.assertEqual(evt.status, "IGNORED")
 
     @patch.dict('os.environ', {'ASAAS_WEBHOOK_TOKEN': 'whsec_token123'})
@@ -211,7 +213,7 @@ class WebhookTests(TestCase):
             status="ACTIVE",
         )
 
-        payload={
+        payload = {
             "id": "evt_005",
             "event": "PAYMENT_CONFIRMED",
             "payment": {
@@ -224,11 +226,11 @@ class WebhookTests(TestCase):
         }
 
         # Envia primeira vez
-        resp1=self.post_webhook(payload, token=self.valid_token)
+        resp1 = self.post_webhook(payload, token=self.valid_token)
         self.assertEqual(resp1.status_code, 200)
 
         # Envia segunda vez
-        resp2=self.post_webhook(payload, token=self.valid_token)
+        resp2 = self.post_webhook(payload, token=self.valid_token)
         self.assertEqual(resp2.status_code, 200)
 
         # Deve haver apenas 1 evento no banco
@@ -244,7 +246,7 @@ class WebhookTests(TestCase):
             status="ACTIVE",
         )
         # Atrasado chega primeiro
-        payload1={
+        payload1 = {
             "id": "evt_006",
             "event": "PAYMENT_OVERDUE",
             "payment": {
@@ -258,11 +260,11 @@ class WebhookTests(TestCase):
 
         self.post_webhook(payload1, token=self.valid_token)
 
-        assinatura=Assinatura.objects.get(usuario=self.user)
+        assinatura = Assinatura.objects.get(usuario=self.user)
         self.assertEqual(assinatura.status, "ACTIVE")
 
         # Pago chega depois (isso deve ser permitido OVERDUE -> ACTIVE)
-        payload2={
+        payload2 = {
             "id": "evt_007",
             "event": "PAYMENT_CONFIRMED",
             "payment": {
@@ -274,7 +276,6 @@ class WebhookTests(TestCase):
             }
         }
 
-
         self.post_webhook(payload2, token=self.valid_token)
         assinatura.refresh_from_db()
         self.assertEqual(assinatura.status, "ACTIVE")
@@ -282,10 +283,10 @@ class WebhookTests(TestCase):
         # Se depois chega outro OVERDUE, ele deve ignorar se o status for CANCELLED,
         # mas ACTIVE -> OVERDUE funciona.
         # Vamos testar CANCELLED -> OVERDUE (não deve regredir)
-        assinatura.status="CANCELLED"
+        assinatura.status = "CANCELLED"
         assinatura.save()
 
-        payload3={
+        payload3 = {
             "id": "evt_008",
             "event": "PAYMENT_OVERDUE",
             "payment": {"id": "pay_006", "customer": "cus_12345"}
@@ -299,13 +300,13 @@ class WebhookTests(TestCase):
         {"ASAAS_WEBHOOK_TOKEN": "whsec_token123"},
     )
     def test_payment_overdue_atualiza_pagamento_sem_inativar_assinatura(self):
-        assinatura=Assinatura.objects.create(
+        assinatura = Assinatura.objects.create(
             usuario=self.user,
             asaas_subscription_id="sub_123",
             status="ACTIVE",
         )
 
-        payload={
+        payload = {
             "id": "evt_overdue_001",
             "event": "PAYMENT_OVERDUE",
             "payment": {
@@ -317,7 +318,7 @@ class WebhookTests(TestCase):
             },
         }
 
-        response=self.post_webhook(
+        response = self.post_webhook(
             payload,
             token=self.valid_token,
         )
@@ -331,7 +332,7 @@ class WebhookTests(TestCase):
             "ACTIVE",
         )
 
-        pagamento=PagamentoAsaas.objects.get(
+        pagamento = PagamentoAsaas.objects.get(
             asaas_payment_id="pay_overdue_001"
         )
 
@@ -475,28 +476,257 @@ class AsaasClientTests(TestCase):
         )
 
 
+class SubscriptionServiceTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="subscription@example.com",
+            email="subscription@example.com",
+        )
+
+        self.client_mock = MagicMock()
+        self.service = SubscriptionService(
+            client=self.client_mock
+        )
+
+    def test_cria_assinatura_mensal(self):
+        self.client_mock.create_customer.return_value = {
+            "id": "cus_123"
+        }
+
+        self.client_mock.create_subscription.return_value = {
+            "id": "sub_123",
+            "status": "ACTIVE",
+        }
+
+        assinatura, response = self.service.create_subscription(
+            user=self.user,
+            plano="MENSAL",
+            customer_data={
+                "name": "Usuario Teste",
+                "email": self.user.email,
+                "cpfCnpj": "12345678909",
+            },
+            billing_type="PIX",
+            next_due_date="2026-09-01",
+        )
+
+        self.assertEqual(
+            assinatura.plano,
+            "MENSAL",
+        )
+
+        self.assertEqual(
+            assinatura.status,
+            "PENDING",
+        )
+
+        self.assertEqual(
+            assinatura.asaas_subscription_id,
+            "sub_123",
+        )
+
+        self.user.refresh_from_db()
+
+        self.assertEqual(
+            self.user.asaas_customer_id,
+            "cus_123",
+        )
+
+        self.client_mock.create_customer.assert_called_once()
+
+        self.client_mock.create_subscription.assert_called_once_with(
+            {
+                "customer": "cus_123",
+                "billingType": "PIX",
+                "value": 60.00,
+                "cycle": "MONTHLY",
+                "nextDueDate": "2026-09-01",
+                "description": "Fitflix - Plano Mensal",
+                "externalReference": f"fitflix-user-{self.user.pk}",
+            }
+        )
+
+    def test_reutiliza_customer_asaas_existente(self):
+        self.user.asaas_customer_id = "cus_existente"
+        self.user.save(
+            update_fields=["asaas_customer_id"]
+        )
+
+        self.client_mock.create_subscription.return_value = {
+            "id": "sub_456",
+            "status": "ACTIVE",
+        }
+
+        assinatura, response = self.service.create_subscription(
+            user=self.user,
+            plano="MENSAL",
+            billing_type="PIX",
+            next_due_date="2026-09-01",
+        )
+
+        self.assertEqual(
+            assinatura.asaas_subscription_id,
+            "sub_456",
+        )
+
+        self.assertEqual(
+            assinatura.plano,
+            "MENSAL",
+        )
+
+        self.assertEqual(
+            assinatura.status,
+            "PENDING",
+        )
+
+        self.client_mock.create_customer.assert_not_called()
+
+        self.client_mock.create_subscription.assert_called_once_with(
+            {
+                "customer": "cus_existente",
+                "billingType": "PIX",
+                "value": 60.00,
+                "cycle": "MONTHLY",
+                "nextDueDate": "2026-09-01",
+                "description": "Fitflix - Plano Mensal",
+                "externalReference": f"fitflix-user-{self.user.pk}",
+            }
+        )
+
+    def test_nao_permite_nova_assinatura_com_status_pending(self):
+        Assinatura.objects.create(
+            usuario=self.user,
+            asaas_subscription_id="sub_pending",
+            plano="MENSAL",
+            status="PENDING",
+        )
+
+        with self.assertRaises(ValueError) as context:
+            self.service.create_subscription(
+                user=self.user,
+                plano="MENSAL",
+                customer_data={
+                    "name": "Usuario Teste",
+                    "email": self.user.email,
+                    "cpfCnpj": "12345678909",
+                },
+            )
+
+        self.assertEqual(
+            str(context.exception),
+            "Usuário já possui uma assinatura ativa ou pendente.",
+        )
+
+        self.client_mock.create_customer.assert_not_called()
+        self.client_mock.create_subscription.assert_not_called()
+
+    def test_nao_permite_nova_assinatura_com_status_active(self):
+        Assinatura.objects.create(
+            usuario=self.user,
+            asaas_subscription_id="sub_active",
+            plano="MENSAL",
+            status="ACTIVE",
+        )
+
+        with self.assertRaises(ValueError) as context:
+            self.service.create_subscription(
+                user=self.user,
+                plano="MENSAL",
+                customer_data={
+                    "name": "Usuario Teste",
+                    "email": self.user.email,
+                    "cpfCnpj": "12345678909",
+                },
+            )
+
+        self.assertEqual(
+            str(context.exception),
+            "Usuário já possui uma assinatura ativa ou pendente.",
+        )
+
+        self.client_mock.create_customer.assert_not_called()
+        self.client_mock.create_subscription.assert_not_called()
+
+    def test_cria_assinatura_anual(self):
+        self.client_mock.create_customer.return_value = {
+            "id": "cus_anual_123"
+        }
+
+        self.client_mock.create_subscription.return_value = {
+            "id": "sub_anual_123",
+            "status": "ACTIVE",
+        }
+
+        assinatura, response = self.service.create_subscription(
+            user=self.user,
+            plano="ANUAL",
+            customer_data={
+                "name": "Usuario Teste",
+                "email": self.user.email,
+                "cpfCnpj": "12345678909",
+            },
+            billing_type="PIX",
+            next_due_date="2026-09-01",
+        )
+
+        self.assertEqual(
+            assinatura.plano,
+            "ANUAL",
+        )
+
+        self.assertEqual(
+            assinatura.status,
+            "PENDING",
+        )
+
+        self.assertEqual(
+            assinatura.asaas_subscription_id,
+            "sub_anual_123",
+        )
+
+        self.user.refresh_from_db()
+
+        self.assertEqual(
+            self.user.asaas_customer_id,
+            "cus_anual_123",
+        )
+
+        self.client_mock.create_subscription.assert_called_once_with(
+            {
+                "customer": "cus_anual_123",
+                "billingType": "PIX",
+                "value": 500.00,
+                "cycle": "YEARLY",
+                "nextDueDate": "2026-09-01",
+                "description": "Fitflix - Plano Anual",
+                "externalReference": f"fitflix-user-{self.user.pk}",
+            }
+        )
+
+
 class PagamentoAsaasTests(TestCase):
     def setUp(self):
-        self.user=User.objects.create_user(
+        self.user = User.objects.create_user(
             username="pagamento@example.com",
             email="pagamento@example.com",
             asaas_customer_id="cus_pagamento_123",
         )
 
-        self.assinatura=Assinatura.objects.create(
+        self.assinatura = Assinatura.objects.create(
             usuario=self.user,
             asaas_subscription_id="sub_123",
             status="ACTIVE",
         )
 
     def test_assinatura_pode_ter_varios_pagamentos(self):
-        pagamento1=PagamentoAsaas.objects.create(
+        pagamento1 = PagamentoAsaas.objects.create(
             assinatura=self.assinatura,
             asaas_payment_id="pay_001",
             valor="99.90",
         )
 
-        pagamento2=PagamentoAsaas.objects.create(
+        pagamento2 = PagamentoAsaas.objects.create(
             assinatura=self.assinatura,
             asaas_payment_id="pay_002",
             valor="99.90",
@@ -530,3 +760,152 @@ class PagamentoAsaasTests(TestCase):
                 asaas_payment_id="pay_unico",
                 valor="99.90",
             )
+
+
+class CriarAssinaturaViewTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="checkout@example.com",
+            email="checkout@example.com",
+        )
+
+    @patch("core.views.SubscriptionService")
+    def test_cria_assinatura_mensal(self, mock_service):
+        self.client.force_login(self.user)
+
+        mock_assinatura = MagicMock()
+        mock_assinatura.id = 1
+        mock_assinatura.asaas_subscription_id = "sub_123"
+        mock_assinatura.plano = "MENSAL"
+        mock_assinatura.status = "PENDING"
+
+        mock_service.return_value.create_subscription.return_value = (
+            mock_assinatura,
+            {
+                "id": "sub_123",
+                "status": "ACTIVE",
+            },
+        )
+
+        response = self.client.post(
+            "/api/assinatura/criar/",
+            data=json.dumps({
+                "plano": "MENSAL",
+                "billing_type": "PIX",
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+        data = response.json()
+
+        self.assertTrue(data["success"])
+        self.assertEqual(data["assinatura_id"], 1)
+        self.assertEqual(
+            data["asaas_subscription_id"],
+            "sub_123",
+        )
+        self.assertEqual(data["plano"], "MENSAL")
+        self.assertEqual(data["status"], "PENDING")
+
+        mock_service.return_value.create_subscription.assert_called_once()
+
+    @patch("core.views.SubscriptionService")
+    def test_rejeita_plano_invalido(self, mock_service):
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            "/api/assinatura/criar/",
+            data=json.dumps({
+                "plano": "DIARIO",
+                "billing_type": "PIX",
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["error"],
+            "Plano inválido.",
+        )
+
+        mock_service.return_value.create_subscription.assert_not_called()
+
+    @patch("core.views.SubscriptionService")
+    def test_rejeita_get(self, mock_service):
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            "/api/assinatura/criar/"
+        )
+
+        self.assertEqual(response.status_code, 405)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["error"],
+            "Método não permitido.",
+        )
+
+        mock_service.return_value.create_subscription.assert_not_called()
+
+    def test_rejeita_usuario_nao_autenticado(self):
+        response = self.client.post(
+            "/api/assinatura/criar/",
+            data=json.dumps({
+                "plano": "MENSAL",
+                "billing_type": "PIX",
+            }),
+            content_type="application/json",
+        )
+
+        self.assertNotEqual(response.status_code, 201)
+
+    @patch("core.views.timezone.localdate")
+    @patch("core.views.SubscriptionService")
+    def test_cria_assinatura_anual(
+        self,
+        mock_service,
+        mock_localdate,
+    ):
+        mock_localdate.return_value = date(2026, 8, 24)
+
+        self.client.force_login(self.user)
+
+        mock_assinatura = MagicMock()
+        mock_assinatura.id = 2
+        mock_assinatura.asaas_subscription_id = "sub_anual_123"
+        mock_assinatura.plano = "ANUAL"
+        mock_assinatura.status = "PENDING"
+
+        mock_service.return_value.create_subscription.return_value = (
+            mock_assinatura,
+            {
+                "id": "sub_anual_123",
+                "status": "ACTIVE",
+            },
+        )
+
+        response = self.client.post(
+            "/api/assinatura/criar/",
+            data=json.dumps({
+                "plano": "ANUAL",
+                "billing_type": "PIX",
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+        mock_service.return_value.create_subscription.assert_called_once_with(
+            user=self.user,
+            plano="ANUAL",
+            billing_type="PIX",
+            next_due_date="2026-08-25",
+        )

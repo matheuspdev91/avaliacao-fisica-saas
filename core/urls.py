@@ -95,4 +95,10 @@ urlpatterns = [
         views.asaas_webhook,
         name="asaas_webhook"
     ),
+
+    path(
+    "api/assinatura/criar/",
+    views.criar_assinatura,
+    name="criar_assinatura",
+),
 ]
