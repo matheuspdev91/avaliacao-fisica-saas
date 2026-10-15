@@ -1,3 +1,16 @@
+
+# Segredos e variáveis locais
+.env
+.env.*
+!.env.example
+
+# Bancos e backups locais
+*.dump
+*.sql
+*.bak
+
+# Arquivos estáticos gerados localmente
+staticfiles/
 # Git
 .git
 .gitignore
